@@ -23,6 +23,20 @@ Astral Tower: a single-player browser incremental/management game. See [README.m
 
 Reduced motion, at least two colorblind palettes, keyboard shortcuts on desktop, bottom sheets on mobile, number formats (K/M/B default, scientific, engineering, letters).
 
-## Tech stack and commands
+## Design sources (links)
 
-To be decided. Fill this section in once the stack is chosen.
+- Balance sheet (Claude Sheets, 23 tabs): https://claude.ai/artifact/FGB8pniq5oyygK8xQtkokw
+- UI mockups (Design canvas): https://claude.ai/artifact/C2c9MQWzEHFSB8WUaEutGE. Only the `Final-*` artboards are targets (one desktop and one mobile per screen); `R*` artboards are earlier rounds.
+
+## Tech stack
+
+- **TypeScript + Vite + React**, **TanStack Router** (hash history: GitHub Pages has no SPA fallback, and it works offline).
+- **Game core is pure TS** (`src/core/`): no React, no DOM, no `Date.now()` inside. It advances via `step(state, dt, now)`. Offline catch-up runs the same function in bigger steps, cut at constellation phase changes. The UI reads snapshots through **TanStack Store**, throttled to a few renders per second.
+- **Numbers are plain `number`**. Never compare an accumulated stock to a cost with a raw `>=`; use the shared epsilon helper. Round only for display.
+- **Balance data**: the sheet is exported as `.xlsx` into the repo; a script turns it into typed JSON, validated with **Zod**. Saves are also Zod-validated on load and import (user-controlled input).
+- **Tests**: Vitest for the core (most of the risk); Playwright smoke tests on desktop and mobile viewports.
+- **Hosting**: GitHub Pages via GitHub Actions; PWA via vite-plugin-pwa.
+
+## Commands
+
+Fill in once the project is scaffolded.

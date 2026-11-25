@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+	<title>Astral Tower</title>
+	<rect width="512" height="512" fill="#0d0b1e"/>
+	<path d="M256 96 L284 228 L416 256 L284 284 L256 416 L228 284 L96 256 L228 228 Z" fill="#e8c26b"/>
+	<circle cx="356" cy="156" r="10" fill="#e8c26b"/>
+	<circle cx="160" cy="364" r="7" fill="#e8c26b"/>
+</svg>

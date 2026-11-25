@@ -17,7 +17,8 @@ jobs:
       cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
+      # Third-party action in the job that builds the deployed bundle: pinned by SHA.
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@v7
         with:
           node-version: 24

@@ -35,8 +35,17 @@ Reduced motion, at least two colorblind palettes, keyboard shortcuts on desktop,
 - **Numbers are plain `number`**. Never compare an accumulated stock to a cost with a raw `>=`; use the shared epsilon helper. Round only for display.
 - **Balance data**: the sheet is exported as `.xlsx` into the repo; a script turns it into typed JSON, validated with **Zod**. Saves are also Zod-validated on load and import (user-controlled input).
 - **Tests**: Vitest for the core (most of the risk); Playwright smoke tests on desktop and mobile viewports.
-- **Hosting**: GitHub Pages via GitHub Actions; PWA via vite-plugin-pwa.
+- **Hosting**: GitHub Pages via GitHub Actions, on the custom domain https://astral-tower.gravillon.me/ (Vite base `/`); PWA via vite-plugin-pwa.
 
 ## Commands
 
-Fill in once the project is scaffolded.
+- `pnpm dev`: Vite dev server.
+- `pnpm build`: type-check, then build to `dist/`.
+- `pnpm preview`: serve `dist/` (http://localhost:4173/).
+- `pnpm typecheck`: `tsc` only.
+- `pnpm lint`: Biome check.
+- `pnpm test`: Vitest on `src/`.
+- `pnpm e2e`: Playwright smoke tests (desktop and mobile); builds and serves on port 4321 itself.
+- `pnpm exec playwright install chromium`: once per machine, before the first `pnpm e2e`.
+
+CI (`.github/workflows/deploy.yml`) runs lint, typecheck, test and e2e on every PR and push, and deploys `main` to https://astral-tower.gravillon.me/.

@@ -16,6 +16,8 @@ Cozy by design: shortages slow things down, nothing is ever lost.
 
 Pre-development. Target: **1.0** as specified in the Game Design Document.
 
+Play: https://astral-tower.gravillon.me/
+
 ## Design sources
 
 | Document | Role |
@@ -35,7 +37,7 @@ If they conflict, the Balance sheet wins on numbers and the mockups win on look.
 
 ## Tech stack
 
-To be decided. See [CLAUDE.md](CLAUDE.md) once it's chosen.
+Vite + React + TypeScript, TanStack Router, installable PWA, hosted on GitHub Pages. Details and commands in [CLAUDE.md](CLAUDE.md).
 
 ## Credits
 

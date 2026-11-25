@@ -19,6 +19,7 @@ Each milestone ends playable and deployed. Section numbers refer to the [GDD 1.0
 | M12 | **Balance pass**: a headless bot plays run 1 and checks the GDD 2 unlock timeline | 2 | Release |
 
 Notes:
+- **M0 status:** done (2026-11-25, branch feat/m0-setup, PR #1). Live at https://astral-tower.gravillon.me/
 - Supernova (M8) comes before the Bestiary (M9): it opens at 9:00, while the Bestiary often opens only in run 2.
 - The M12 bot can start small from M4 on, so pacing problems show up as each module lands.
 - Before M1, export the Balance sheet as `.xlsx` into `balance/`.

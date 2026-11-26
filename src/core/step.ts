@@ -4,6 +4,7 @@
 import { balance } from "../data/index.ts";
 import { type Phase, phaseAt } from "./clock.ts";
 import { atLeast } from "./cost.ts";
+import { runLines } from "./production.ts";
 import { type State, TICK } from "./state.ts";
 import { updateUnlocks } from "./unlocks.ts";
 
@@ -12,9 +13,16 @@ export const TICK_S = TICK / 1000;
 const cycleS = balance.globals["Clock cycle"].value * 60;
 const capTicks = (balance.globals["Offline cap"].value * 3_600_000) / TICK;
 
-// One tick of dt seconds in `phase`. Later tasks add production, mana and apprentices.
+// One tick of dt seconds in `phase`. Later tasks add mana and apprentices.
 export const tick = (state: State, dt: number, _phase: Phase): void => {
 	const run = state.run;
+	// Seams: mana factor (Task 11), apprentice factor (Task 13), hunger (M5).
+	runLines(state, dt, {
+		overchannel: run.overchannel,
+		mana: 1,
+		apprentice: 1,
+		apprenticeSpeed: 1,
+	});
 	run.elapsed += dt;
 	if (atLeast(run.elapsed, cycleS)) run.milestones.clockCycle = true;
 	updateUnlocks(state);

@@ -1,6 +1,8 @@
 // Production (GDD 3.6, 5.1): bonus stacking and per-line rates.
-import type { Balance } from "../data/index.ts";
+import { type Balance, balance } from "../data/index.ts";
+import { atLeast, spend } from "./cost.ts";
 import type { Building, State } from "./state.ts";
+import { updateUnlocks } from "./unlocks.ts";
 
 type Recipe = Balance["recipes"][number];
 export type Bonus = Partial<
@@ -37,3 +39,89 @@ export const lineRates = (recipe: Recipe, m: Multipliers, f: Factors) => ({
 	mana: recipe.mana * f.overchannel * m.mana,
 	output: recipe.outQty * m.output,
 });
+
+const caps = new Map(balance.resources.map((r) => [r.resource, r.storageCap]));
+
+// Seam: M4 adds Bigger stores. Unknown resources have no cap.
+export const cap = (_state: State, resource: string): number =>
+	caps.get(resource) ?? Number.POSITIVE_INFINITY;
+
+const room = (state: State, resource: string) => {
+	const c = cap(state, resource);
+	const have = state.run.stock[resource] ?? 0;
+	return atLeast(have, c) ? 0 : c - have;
+};
+
+// Adds up to the room left, sets fillAnyStorage at the cap, returns what was stored.
+const store = (state: State, resource: string, qty: number): number => {
+	const stock = state.run.stock;
+	const added = Math.min(qty, room(state, resource));
+	stock[resource] = (stock[resource] ?? 0) + added;
+	if (atLeast(stock[resource], cap(state, resource)))
+		state.run.milestones.fillAnyStorage = true;
+	return added;
+};
+
+const count = (state: State, resource: string, qty: number) => {
+	state.run.produced[resource] = (state.run.produced[resource] ?? 0) + qty;
+};
+
+// Runs every non-Idle building for dt s, recipes in Recipes-tab order, so a
+// line sees what earlier lines made this tick. Each line runs at the share its
+// inputs in stock and the room under its main output's cap allow. Lines with
+// output "Mana" feed the grid: their mana is returned, not stored or counted.
+// Returns mana made and mana drawn (mana/s × uptime) for the grid (Task 11).
+export const runLines = (state: State, dt: number, f: Factors) => {
+	const flow = { made: 0, drawn: 0 };
+	for (const r of balance.recipes) {
+		let cycles = 0;
+		let out = 0;
+		let draw = 0;
+		for (const b of state.run.buildings) {
+			if (b.recipe !== r.recipe) continue;
+			const rates = lineRates(r, multipliers(bonusesFor(state, b)), f);
+			cycles += rates.cycles * dt;
+			out += rates.cycles * rates.output * dt;
+			draw += rates.mana;
+		}
+		if (!(cycles > 0)) continue;
+		let share = 1;
+		for (const i of r.inputs)
+			share = Math.min(
+				share,
+				(state.run.stock[i.resource] ?? 0) / (i.qty * cycles),
+			);
+		const mana = r.output === "Mana";
+		if (!mana) share = Math.min(share, room(state, r.output) / out);
+		if (!(share > 0)) continue;
+		spend(
+			state.run.stock,
+			r.inputs.map((i) => ({
+				resource: i.resource,
+				qty: i.qty * cycles * share,
+			})),
+		);
+		flow.drawn += draw * share;
+		if (mana) flow.made += out * share;
+		else count(state, r.output, store(state, r.output, out * share));
+		for (const by of r.byproducts) {
+			const made = by.qty * cycles * share;
+			store(state, by.resource, made); // above cap: discarded
+			count(state, by.resource, made);
+		}
+	}
+	return flow;
+};
+
+const hand = balance.globals["Hand mining"];
+const handUnit = hand.unit;
+if (!handUnit) throw new Error("Globals: Hand mining has no unit");
+
+// Mine by hand: +Hand mining of its unit. At cap a click does nothing. Counts
+// only in handMined, not in produced.
+export const mineByHand = (state: State): void => {
+	const added = store(state, handUnit, hand.value);
+	if (!(added > 0)) return;
+	state.run.handMined[handUnit] = (state.run.handMined[handUnit] ?? 0) + added;
+	updateUnlocks(state);
+};

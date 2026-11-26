@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { unlockNames } from "./build";
 import { parseUnlock, type UnlockNames, UnlockSchema } from "./unlock";
 import { readXlsx } from "./xlsx";
 
@@ -165,22 +166,7 @@ describe("parseUnlock", () => {
 				.slice(1)
 				.map((r) => r.cells.find((c) => c.col === col)?.value);
 		};
-		const set = (tab: string, header: string) =>
-			new Set(column(tab, header).map(String));
-		const tiers = column("Resources", "Tier");
-		const real: UnlockNames = {
-			buildings: set("Buildings", "Building"),
-			resources: set("Resources", "Resource"),
-			crops: new Set(
-				column("Resources", "Resource")
-					.filter((_, i) => tiers[i] === "Crop")
-					.map(String),
-			),
-			voyages: set("Voyages", "Nebula"),
-			ships: set("Ships", "Ship"),
-			library: set("Library", "Constellation"),
-			familiars: set("Familiars", "Species"),
-		};
+		const real = unlockNames(sheets);
 		const unlocks = [
 			"Recipes",
 			"Buildings",

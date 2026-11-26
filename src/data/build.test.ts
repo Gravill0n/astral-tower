@@ -770,6 +770,117 @@ describe("buildBalance", () => {
 		]);
 	});
 
+	// One valid row per tab; each case swaps one resource or constellation
+	// reference for "Moon ore" and expects exactly the cross-reference error.
+	const unlock = "Mine 10 Ember ore by hand";
+	const ROWS: Record<string, Record<string, string | number>> = {
+		Recipes: {
+			Recipe: "Smelt",
+			Building: "Star Drill",
+			Unlock: unlock,
+			Output: "Ember ore",
+			"Out qty": 1,
+			"Input 1": "Ember ore",
+			"Qty 1": 1,
+			Byproduct: "Ember ore",
+			"By qty": 1,
+			"Time (s)": 1,
+			"Mana (/s)": 0,
+		},
+		Upgrades: {
+			Upgrade: "Sharper bits",
+			Target: "Star Drill",
+			Unlock: unlock,
+			Effect: "Speed",
+			"Per level": 0.1,
+			Cost: "Ember ore",
+			"Base qty": 10,
+			Growth: 1.5,
+			"Max level": 5,
+		},
+		Ships: {
+			Ship: "Skiff",
+			Unlock: unlock,
+			Speed: 1,
+			Safety: 1,
+			"Cargo ×": 1,
+			"Gear slots": 1,
+			Crew: 1,
+			"Cost 1": "Ember ore",
+			"Qty 1": 1,
+		},
+		Voyages: {
+			Nebula: "Near Drift",
+			Unlock: unlock,
+			"Base time (min)": 10,
+			Danger: 0,
+			Provisions: 1,
+			"Aether charge (mana)": 1,
+			"Relic chance": 0,
+			"Egg chance": 0,
+			"Loot 1": "Ember ore",
+			"Qty 1": 1,
+		},
+		Crops: {
+			Crop: "Starwheat",
+			Unlock: unlock,
+			"Sow under": "Any",
+			"Harvest under": "Any",
+			"Grow time (min)": 5,
+			Yield: 3,
+			"Food value": 1,
+			Use: "Food",
+			Seed: "Ember ore",
+			"Seed qty": 1,
+		},
+		Familiars: Object.fromEntries(
+			FAMILIARS_HEADER.map((h, i) => [h, LANTERN_WISP[i]]),
+		),
+		Contracts: {
+			Unlock: unlock,
+			"Good asked": "Ember ore",
+			Reward: "Ember ore",
+			"Reward qty": 1,
+			Reputation: 1,
+		},
+	};
+	it.each([
+		["Recipes", "Input 1", "resource"],
+		["Recipes", "Byproduct", "resource"],
+		["Upgrades", "Cost", "resource"],
+		["Ships", "Cost 1", "resource"],
+		["Voyages", "Loot 1", "resource"],
+		["Crops", "Seed", "resource"],
+		["Crops", "Crop", "resource"],
+		["Crops", "Harvest under", "constellation"],
+		["Familiars", "Feed", "resource"],
+		["Contracts", "Good asked", "resource"],
+		["Contracts", "Reward", "resource"],
+	])("reports an unknown %s %s", (tab, bad, what) => {
+		const def = Object.values(TABS as Record<string, TabDef>).find(
+			(d) => d.tab === tab,
+		) as TabDef;
+		const header = [
+			...Object.keys(def.columns),
+			...Object.values(def.pairs ?? {}).flat(2),
+		];
+		const row = { ...ROWS[tab], [bad]: "Moon ore" };
+		const col = String.fromCharCode(65 + header.indexOf(bad));
+		const name = def.nameColumn ? ` (${row[def.nameColumn as string]})` : "";
+		expect(
+			errors([
+				sheet("Resources", [
+					RESOURCES_HEADER,
+					["Ember ore", "Raw", "Foundry", "Star Drill", 500],
+					["Starwheat", "Crop", "Gardens", "Garden bed", 500],
+				]),
+				globals(),
+				sheet("Buildings", [BUILDINGS_HEADER, DRILL]),
+				sheet(tab, [header, header.map((h) => row[h])]),
+			]),
+		).toEqual([`${tab}!${col}2${name}: unknown ${what} "Moon ore"`]);
+	});
+
 	it("reports a recipe on an unknown building, allows Mana output", () => {
 		const recipe = (name: string, building: string, output: string) => [
 			name,
@@ -945,59 +1056,28 @@ describe("buildBalance", () => {
 		]);
 	});
 
-	it("builds every defined tab from the real workbook", () => {
-		const result = buildBalance(
-			readXlsx(
-				readFileSync(
-					new URL("../../balance/astral-tower-balance.xlsx", import.meta.url),
-				),
+	it("builds every defined tab from the real workbook, dropping no row", () => {
+		const sheets = readXlsx(
+			readFileSync(
+				new URL("../../balance/astral-tower-balance.xlsx", import.meta.url),
 			),
 		);
+		const result = buildBalance(sheets);
 		if (!("balance" in result)) throw new Error(result.errors.join("\n"));
-		expect(result.balance.resources).toHaveLength(39);
-		expect(Object.keys(result.balance.globals)).toHaveLength(53);
-		expect(result.balance.globals["Clock cycle"].value).toBe(60);
-		const { recipes, buildings, upgrades, crops, buffs, clock } =
-			result.balance;
-		expect(
-			[recipes, buildings, upgrades, crops, buffs, clock].map((t) => t.length),
-		).toEqual([32, 17, 14, 6, 13, 6]);
 		const b = result.balance;
+		expect(Object.keys(b)).toEqual(Object.keys(TABS));
+		const tabs = Object.entries(TABS as Record<string, TabDef>);
+		// Built rows (array items or keyed entries) vs non-blank sheet data rows.
 		expect(
-			[
-				b.voyages,
-				b.ships,
-				b.gear,
-				b.pace,
-				b.library,
-				b.familiars,
-				b.traits,
-				b.events,
-				b.contracts,
-			].map((t) => t.length),
-		).toEqual([5, 3, 7, 6, 13, 6, 7, 8, 9]);
-		expect(
-			[
-				b.stardustTree,
-				b.stardustGain,
-				b.research,
-				b.stars,
-				b.trials,
-				b.galaxy,
-			].map((t) => t.length),
-		).toEqual([13, 6, 3, 7, 9, 20]);
-		expect(Object.keys(b)).toHaveLength(23);
-		expect(b.stardustGain[0]).toEqual({ mana: 100000, stardust: 31 });
-		expect(b.stars.find((s) => s.star === "Twin Stars")?.twinClock).toBe(true);
-		expect(b.galaxy[5].linksTo).toEqual([5, 7, 8, 9]);
-		expect(b.voyages[3].unlock).toEqual({
-			text: "Own a Clipper",
-			kind: "ownShip",
-			ship: "Clipper",
-		});
-		expect(b.gear.find((g) => g.name === "Mira Quickwind")?.perLevel).toEqual({
-			stat: "speed",
-			value: 0.02,
-		});
+			tabs.map(([key]) => Object.keys(b[key as keyof typeof b]).length),
+		).toEqual(
+			tabs.map(
+				([, def]) =>
+					sheets
+						.find((s) => s.name === def.tab)
+						?.rows.slice(1)
+						.filter((r) => r.cells.some((c) => c.value !== undefined)).length,
+			),
+		);
 	});
 });

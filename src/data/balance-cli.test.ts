@@ -1,14 +1,33 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { strToU8, zipSync } from "fflate";
-import { expect, it } from "vitest";
+import { afterEach, expect, it } from "vitest";
 
 const NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"';
+const SCRIPT = fileURLToPath(
+	new URL("../../scripts/balance.ts", import.meta.url),
+);
+const balance = (...args: string[]) =>
+	spawnSync(process.execPath, [SCRIPT, ...args], { encoding: "utf8" });
+
+const dirs: string[] = [];
+afterEach(() => {
+	for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true });
+});
+
+it("balance --check exits 0 on the committed workbook and JSON", () => {
+	const run = balance("--check");
+	expect(run.stderr).toBe("");
+	expect(run.status).toBe(0);
+});
 
 it("balance --check exits 1 on a bad workbook, naming the cell", () => {
-	const file = join(mkdtempSync(join(tmpdir(), "balance-")), "bad.xlsx");
+	const dir = mkdtempSync(join(tmpdir(), "balance-"));
+	dirs.push(dir);
+	const file = join(dir, "bad.xlsx");
 	writeFileSync(
 		file,
 		zipSync({
@@ -23,15 +42,7 @@ it("balance --check exits 1 on a bad workbook, naming the cell", () => {
 			),
 		}),
 	);
-	const run = spawnSync(
-		process.execPath,
-		[
-			new URL("../../scripts/balance.ts", import.meta.url).pathname,
-			"--check",
-			file,
-		],
-		{ encoding: "utf8" },
-	);
+	const run = balance("--check", file);
 	expect(run.status).toBe(1);
 	expect(run.stderr).toContain('Resources!A1: unknown header "Bogus"');
 });

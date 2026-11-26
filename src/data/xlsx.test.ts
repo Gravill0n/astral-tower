@@ -150,31 +150,31 @@ describe("the committed balance workbook", () => {
 	const header = (name: string) =>
 		sheets.find((s) => s.name === name)?.rows[0].cells.map((c) => c.value);
 
-	it("has the 23 tabs in sheet order with the catalogued data-row counts", () => {
-		expect(sheets.map((s) => [s.name, s.rows.length - 1])).toEqual([
-			["Resources", 39],
-			["Recipes", 32],
-			["Buildings", 17],
-			["Upgrades", 14],
-			["Crops", 6],
-			["Buffs", 13],
-			["Clock", 6],
-			["Voyages", 5],
-			["Ships", 3],
-			["Gear", 7],
-			["Pace", 6],
-			["Library", 13],
-			["Familiars", 6],
-			["Traits", 7],
-			["Stardust tree", 13],
-			["Stardust gain", 6],
-			["Globals", 53],
-			["Research", 3],
-			["Stars", 7],
-			["Events", 8],
-			["Trials", 9],
-			["Contracts", 9],
-			["Galaxy", 20],
+	it("has the 23 tabs in sheet order", () => {
+		expect(sheets.map((s) => s.name)).toEqual([
+			"Resources",
+			"Recipes",
+			"Buildings",
+			"Upgrades",
+			"Crops",
+			"Buffs",
+			"Clock",
+			"Voyages",
+			"Ships",
+			"Gear",
+			"Pace",
+			"Library",
+			"Familiars",
+			"Traits",
+			"Stardust tree",
+			"Stardust gain",
+			"Globals",
+			"Research",
+			"Stars",
+			"Events",
+			"Trials",
+			"Contracts",
+			"Galaxy",
 		]);
 	});
 

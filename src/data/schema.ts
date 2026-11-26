@@ -20,12 +20,13 @@ export type TabDef = {
 	convert?: Record<string, "yesNo" | "unlock" | "perLevel" | "numberList">;
 };
 
-// The 53 Globals parameters, exactly as named in the sheet.
+// The 55 Globals parameters, exactly as named in the sheet.
 export const GLOBALS = [
 	"Constellation length",
 	"Constellations",
 	"Clock cycle",
 	"Default cost growth",
+	"Hand mining",
 	"Base mana generation",
 	"Starting apprentices",
 	"Recruit cost",
@@ -75,6 +76,7 @@ export const GLOBALS = [
 	"Settled-star trickle",
 	"Meal buff cap",
 	"Max Docks",
+	"Mana Jar rate",
 ] as const;
 
 export const TABS = {

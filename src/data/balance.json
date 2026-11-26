@@ -2196,7 +2196,7 @@
 			"provisions": 0.75
 		},
 		{
-			"pace": "Swift",
+			"pace": "Fast",
 			"time": 0.75,
 			"danger": 1.2,
 			"provisions": 0.9
@@ -3265,6 +3265,10 @@
 			"unit": "× per owned",
 			"notes": "Used by buildings without their own growth: cost = base × growth^owned"
 		},
+		"Hand mining": {
+			"value": 1,
+			"unit": "Ember ore"
+		},
 		"Base mana generation": {
 			"value": 10,
 			"unit": "mana/s",
@@ -3480,6 +3484,11 @@
 			"value": 3,
 			"unit": "Docks",
 			"notes": "One per possible captain; a 4th would never fly"
+		},
+		"Mana Jar rate": {
+			"value": 25,
+			"unit": "mana/s",
+			"notes": "Rate per jar"
 		}
 	}
 }

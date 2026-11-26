@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { unlockNames } from "./build";
-import { parseUnlock, type UnlockNames, UnlockSchema } from "./unlock";
-import { readXlsx } from "./xlsx";
+import { unlockNames } from "./build.ts";
+import { parseUnlock, type UnlockNames, UnlockSchema } from "./unlock.ts";
+import { readXlsx } from "./xlsx.ts";
 
 const names: UnlockNames = {
 	buildings: new Set(["Widget", "Gizmo Bench", "Bunk quarters", "Pier"]),

@@ -1,7 +1,7 @@
 // Sheets → Balance, or every error found, each addressed as `Tab!Cell (row name)`.
-import { type Balance, BalanceSchema, TABS, type TabDef } from "./schema";
-import type { UnlockNames } from "./unlock";
-import type { CellValue, Sheet } from "./xlsx";
+import { type Balance, BalanceSchema, TABS, type TabDef } from "./schema.ts";
+import type { UnlockNames } from "./unlock.ts";
+import type { CellValue, Sheet } from "./xlsx.ts";
 
 // Raw values under a header, data rows only (no type checks: used before Zod).
 function column(sheet: Sheet | undefined, header: string): CellValue[] {

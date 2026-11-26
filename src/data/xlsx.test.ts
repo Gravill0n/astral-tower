@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { strToU8, zipSync } from "fflate";
 import { describe, expect, it } from "vitest";
-import { readXlsx } from "./xlsx";
+import { readXlsx } from "./xlsx.ts";
 
 const NS = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"';
 

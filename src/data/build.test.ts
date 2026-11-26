@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { buildBalance } from "./build";
-import { GLOBALS } from "./schema";
-import { readXlsx, type Sheet } from "./xlsx";
+import { buildBalance } from "./build.ts";
+import { GLOBALS } from "./schema.ts";
+import { readXlsx, type Sheet } from "./xlsx.ts";
 
 // Builds a Sheet from rows of values; row 1 is the header, columns A, B, C…
 function sheet(name: string, rows: (string | number | undefined)[][]): Sheet {

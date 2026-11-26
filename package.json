@@ -6,7 +6,8 @@
 	"packageManager": "pnpm@12.11.2",
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc && vite build",
+		"balance": "node scripts/balance.ts",
+		"build": "node scripts/balance.ts --check && tsc && vite build",
 		"preview": "vite preview",
 		"typecheck": "tsc",
 		"lint": "biome check .",

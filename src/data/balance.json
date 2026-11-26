@@ -1,0 +1,513 @@
+{
+	"resources": [
+		{
+			"resource": "Ember ore",
+			"tier": "Raw",
+			"module": "Foundry",
+			"source": "Star Drill, hand mining",
+			"storageCap": 500
+		},
+		{
+			"resource": "Frost ore",
+			"tier": "Raw",
+			"module": "Foundry",
+			"source": "Star Drill",
+			"storageCap": 500
+		},
+		{
+			"resource": "Glimmer ore",
+			"tier": "Raw",
+			"module": "Foundry",
+			"source": "Star Drill",
+			"storageCap": 500
+		},
+		{
+			"resource": "Mana crystals",
+			"tier": "Raw",
+			"module": "Foundry",
+			"source": "Star Drill",
+			"storageCap": 200
+		},
+		{
+			"resource": "Emberbrass",
+			"tier": "Refined",
+			"module": "Foundry",
+			"source": "Crucible",
+			"storageCap": 200
+		},
+		{
+			"resource": "Frostglass",
+			"tier": "Refined",
+			"module": "Foundry",
+			"source": "Glassblower",
+			"storageCap": 200
+		},
+		{
+			"resource": "Glimmersilk",
+			"tier": "Refined",
+			"module": "Foundry",
+			"source": "Loom",
+			"storageCap": 200
+		},
+		{
+			"resource": "Star slag",
+			"tier": "Byproduct",
+			"module": "Foundry",
+			"source": "Refining lines",
+			"storageCap": 200
+		},
+		{
+			"resource": "Runeplates",
+			"tier": "Part",
+			"module": "Foundry",
+			"source": "Runewright's Bench",
+			"storageCap": 100
+		},
+		{
+			"resource": "Lenses",
+			"tier": "Part",
+			"module": "Foundry",
+			"source": "Runewright's Bench",
+			"storageCap": 100
+		},
+		{
+			"resource": "Charm coils",
+			"tier": "Part",
+			"module": "Foundry",
+			"source": "Runewright's Bench",
+			"storageCap": 100
+		},
+		{
+			"resource": "Floor frame",
+			"tier": "Enchanted",
+			"module": "Foundry",
+			"source": "Enchanting Circle",
+			"storageCap": 20
+		},
+		{
+			"resource": "Planter",
+			"tier": "Enchanted",
+			"module": "Foundry",
+			"source": "Enchanting Circle",
+			"storageCap": 20
+		},
+		{
+			"resource": "Starlamp",
+			"tier": "Enchanted",
+			"module": "Foundry",
+			"source": "Enchanting Circle",
+			"storageCap": 20
+		},
+		{
+			"resource": "Ship hull",
+			"tier": "Enchanted",
+			"module": "Foundry",
+			"source": "Enchanting Circle",
+			"storageCap": 20
+		},
+		{
+			"resource": "Star-sail",
+			"tier": "Enchanted",
+			"module": "Foundry",
+			"source": "Enchanting Circle",
+			"storageCap": 20
+		},
+		{
+			"resource": "Lantern",
+			"tier": "Enchanted",
+			"module": "Foundry",
+			"source": "Enchanting Circle",
+			"storageCap": 20
+		},
+		{
+			"resource": "Compass",
+			"tier": "Enchanted",
+			"module": "Foundry",
+			"source": "Enchanting Circle",
+			"storageCap": 20
+		},
+		{
+			"resource": "Cargo hold",
+			"tier": "Ship gear",
+			"module": "Foundry",
+			"source": "Runewright's Bench",
+			"storageCap": 20
+		},
+		{
+			"resource": "Haste rune",
+			"tier": "Rune",
+			"module": "Foundry",
+			"source": "Enchanting Circle",
+			"storageCap": 10
+		},
+		{
+			"resource": "Thrift rune",
+			"tier": "Rune",
+			"module": "Foundry",
+			"source": "Enchanting Circle",
+			"storageCap": 10
+		},
+		{
+			"resource": "Bounty rune",
+			"tier": "Rune",
+			"module": "Foundry",
+			"source": "Enchanting Circle",
+			"storageCap": 10
+		},
+		{
+			"resource": "Scrying lens",
+			"tier": "Enchanted",
+			"module": "Foundry",
+			"source": "Enchanting Circle",
+			"storageCap": 20
+		},
+		{
+			"resource": "Incubator charm",
+			"tier": "Enchanted",
+			"module": "Foundry",
+			"source": "Enchanting Circle",
+			"storageCap": 20
+		},
+		{
+			"resource": "Void ore",
+			"tier": "Rare",
+			"module": "Guild",
+			"source": "Hollow Reach, Graveyard of Gods",
+			"storageCap": 50
+		},
+		{
+			"resource": "Nebula pearls",
+			"tier": "Rare",
+			"module": "Guild",
+			"source": "Frostveil Nebula, Graveyard of Gods",
+			"storageCap": 50
+		},
+		{
+			"resource": "Comet pepper seeds",
+			"tier": "Seed",
+			"module": "Guild",
+			"source": "Glimmerdrift",
+			"storageCap": 50
+		},
+		{
+			"resource": "Voidbloom seeds",
+			"tier": "Seed",
+			"module": "Guild",
+			"source": "Hollow Reach",
+			"storageCap": 20
+		},
+		{
+			"resource": "Starwheat",
+			"tier": "Crop",
+			"module": "Gardens",
+			"source": "Garden bed",
+			"storageCap": 300
+		},
+		{
+			"resource": "Starberries",
+			"tier": "Crop",
+			"module": "Gardens",
+			"source": "Garden bed",
+			"storageCap": 300
+		},
+		{
+			"resource": "Lumen moss",
+			"tier": "Crop",
+			"module": "Gardens",
+			"source": "Garden bed",
+			"storageCap": 200
+		},
+		{
+			"resource": "Comet peppers",
+			"tier": "Crop",
+			"module": "Gardens",
+			"source": "Garden bed",
+			"storageCap": 200
+		},
+		{
+			"resource": "Dreamcaps",
+			"tier": "Crop",
+			"module": "Gardens",
+			"source": "Garden bed",
+			"storageCap": 200
+		},
+		{
+			"resource": "Voidbloom",
+			"tier": "Crop",
+			"module": "Gardens",
+			"source": "Garden bed",
+			"storageCap": 100
+		},
+		{
+			"resource": "Starberry pie",
+			"tier": "Meal",
+			"module": "Gardens",
+			"source": "Kitchen",
+			"storageCap": 20
+		},
+		{
+			"resource": "Pepper stew",
+			"tier": "Meal",
+			"module": "Gardens",
+			"source": "Kitchen",
+			"storageCap": 20
+		},
+		{
+			"resource": "Provisions",
+			"tier": "Supply",
+			"module": "Gardens",
+			"source": "Kitchen",
+			"storageCap": 50
+		},
+		{
+			"resource": "Dreamcap ink",
+			"tier": "Supply",
+			"module": "Gardens",
+			"source": "Kitchen",
+			"storageCap": 50
+		},
+		{
+			"resource": "Rich soil",
+			"tier": "Supply",
+			"module": "Gardens",
+			"source": "Composter",
+			"storageCap": 50
+		}
+	],
+	"globals": {
+		"Constellation length": {
+			"value": 10,
+			"unit": "min",
+			"notes": "Synced to real time"
+		},
+		"Constellations": {
+			"value": 6,
+			"unit": "count"
+		},
+		"Clock cycle": {
+			"value": 60,
+			"unit": "min"
+		},
+		"Default cost growth": {
+			"value": 1.12,
+			"unit": "× per owned",
+			"notes": "Used by buildings without their own growth: cost = base × growth^owned"
+		},
+		"Base mana generation": {
+			"value": 10,
+			"unit": "mana/s",
+			"notes": "Free mana from the tower itself, from the start; powers the first lines before Attuners"
+		},
+		"Starting apprentices": {
+			"value": 12,
+			"unit": "apprentices",
+			"notes": "Before any quarters"
+		},
+		"Recruit cost": {
+			"value": 5,
+			"unit": "Runeplates",
+			"notes": "Per apprentice"
+		},
+		"Recruit cost growth": {
+			"value": 1.08,
+			"unit": "× per apprentice"
+		},
+		"Recruit time": {
+			"value": 30,
+			"unit": "s"
+		},
+		"Food per apprentice": {
+			"value": 1,
+			"unit": "food/min"
+		},
+		"Hungry apprentice speed": {
+			"value": 0.5,
+			"unit": "of normal",
+			"notes": "When food runs out; nobody leaves"
+		},
+		"Starting floor space": {
+			"value": 24,
+			"unit": "space",
+			"notes": "Floor 1"
+		},
+		"Favored constellation bonus": {
+			"value": 0.5,
+			"unit": "yield",
+			"notes": "Crop harvested under the constellation that favors it"
+		},
+		"Sleepy harvest yield": {
+			"value": 0.5,
+			"unit": "of normal",
+			"notes": "Window missed; the crop waits"
+		},
+		"Overchannel max": {
+			"value": 1.5,
+			"unit": "line speed",
+			"notes": "Mana draw scales with speed"
+		},
+		"Surge meter size": {
+			"value": 100,
+			"unit": "points"
+		},
+		"Surge fill at max Overchannel": {
+			"value": 1,
+			"unit": "points/s",
+			"notes": "Scales linearly from 0 at 100%"
+		},
+		"Spark pause": {
+			"value": 30,
+			"unit": "s",
+			"notes": "One line stops until apprentices tidy it"
+		},
+		"Switch or move downtime": {
+			"value": 20,
+			"unit": "s",
+			"notes": "Changing a line's recipe or floor"
+		},
+		"Bumpy chance per Danger over Safety": {
+			"value": 0.01,
+			"unit": "per point",
+			"notes": "Effective Danger = route Danger × pace"
+		},
+		"Adrift chance per Danger over Safety + 20": {
+			"value": 0.005,
+			"unit": "per point"
+		},
+		"Cargo lost when Bumpy": {
+			"value": 0.3
+		},
+		"Extra time when Adrift": {
+			"value": 0.5,
+			"notes": "Or send a rescue ship"
+		},
+		"Base relic study time": {
+			"value": 10,
+			"unit": "min",
+			"notes": "Per relic, per shelf"
+		},
+		"Identification speed under The Key": {
+			"value": 2,
+			"unit": "×"
+		},
+		"Lore per duplicate relic": {
+			"value": 10,
+			"unit": "Lore"
+		},
+		"Bad-luck protection": {
+			"value": 8,
+			"unit": "voyages",
+			"notes": "Then a targeted voyage appears"
+		},
+		"Mutation chance": {
+			"value": 0.05,
+			"unit": "per child"
+		},
+		"Bond for the 3rd trait slot": {
+			"value": 20,
+			"unit": "hours worked"
+		},
+		"Glow odds: Bright": {
+			"value": 0.2,
+			"notes": "Common gets the rest"
+		},
+		"Glow odds: Radiant": {
+			"value": 0.06
+		},
+		"Glow odds: Stellar": {
+			"value": 0.01
+		},
+		"Stardust constant c": {
+			"value": 10,
+			"notes": "Stardust = ⌊c × √(mana produced / divisor)⌋"
+		},
+		"Stardust mana divisor": {
+			"value": 10000,
+			"unit": "mana",
+			"notes": "Was 1,000,000; a 13 h run of about 1.5 M mana now gives about 120 Stardust"
+		},
+		"Offline cap": {
+			"value": 24,
+			"unit": "h",
+			"notes": "72 h with the Stardust tree"
+		},
+		"Offline speed": {
+			"value": 1
+		},
+		"Trip time saved on the right current": {
+			"value": 0.3
+		},
+		"Breeding speed under own constellation": {
+			"value": 2,
+			"unit": "×"
+		},
+		"Starter Starwheat": {
+			"value": 150,
+			"unit": "Starwheat",
+			"notes": "Delivered with the run's first Garden bed; hunger starts then"
+		},
+		"Voyage event chance": {
+			"value": 0.3,
+			"unit": "per voyage",
+			"notes": "One event at most per voyage"
+		},
+		"Voyage event chance with Mira": {
+			"value": 0.6,
+			"unit": "per voyage"
+		},
+		"Voyages per captain level": {
+			"value": 5,
+			"unit": "voyages",
+			"notes": "Max level in the Gear tab"
+		},
+		"Star-match unlock": {
+			"value": 3,
+			"unit": "relics identified"
+		},
+		"Star-match wrong-pick lock": {
+			"value": 1,
+			"unit": "min"
+		},
+		"Bonus egg chance per breeding": {
+			"value": 0.25,
+			"notes": "Lantern Wisp egg under The Lantern, Teapot Tortoise egg under The Teapot; needs a free nest"
+		},
+		"Contracts on the board": {
+			"value": 3,
+			"unit": "contracts"
+		},
+		"Contract refresh": {
+			"value": 10,
+			"unit": "min",
+			"notes": "After a delivery; offers never expire"
+		},
+		"Contract size": {
+			"value": 10,
+			"unit": "min of production",
+			"notes": "Quantity asked = this many minutes of the player's current production of that good"
+		},
+		"Star charts from reputation": {
+			"value": 10,
+			"unit": "reputation",
+			"notes": "From then on, each contract also pays 1 star chart"
+		},
+		"Trial Stardust bonus": {
+			"value": 0.5,
+			"unit": "of the run's Stardust"
+		},
+		"Settled-star trickle": {
+			"value": 1,
+			"unit": "Stardust/h per settled star",
+			"notes": "Offline too, within the offline cap"
+		},
+		"Meal buff cap": {
+			"value": 60,
+			"unit": "min",
+			"notes": "Serving the same meal again adds its duration, up to this"
+		},
+		"Max Docks": {
+			"value": 3,
+			"unit": "Docks",
+			"notes": "One per possible captain; a 4th would never fly"
+		}
+	}
+}

@@ -93,15 +93,15 @@ describe("apprentice shortage in tick (gdd 3.4)", () => {
 		expect(s.run.produced[mine.output]).toBeCloseTo(mine.outQty / mine.time);
 	});
 
-	it("mana demand uses apprentice-limited uptime", () => {
-		// Ore for exactly 1 s of the slowed lines: full uptime, full draw.
+	it("mana demand follows apprentice-limited speed", () => {
+		// Ore for exactly 1 s of the slowed lines: full uptime, draw slowed too.
 		const n = short(2);
 		const f = start / (start + 2);
 		const [ore] = brass.inputs;
 		const s = newGame(0);
 		add(s, crucible.building, brass.recipe, n);
 		s.run.stock[ore.resource] = (ore.qty * n * f) / brass.time;
-		expect(manaFlow(s, dark).demand).toBeCloseTo(n * brass.mana);
+		expect(manaFlow(s, dark).demand).toBeCloseTo(n * brass.mana * f);
 	});
 });
 

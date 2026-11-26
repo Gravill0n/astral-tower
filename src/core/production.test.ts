@@ -66,10 +66,15 @@ describe("lineRates (gdd 3.6)", () => {
 		);
 	});
 
-	it("draws mana by overchannel and mana bonuses only", () => {
+	it("draws mana by overchannel, mana bonuses and apprentice shortage", () => {
 		const m = multipliers([haste, bounty]);
-		const r = lineRates(crucible, m, { ...ones, overchannel: 1.5, mana: 0.5 });
-		expect(r.mana).toBeCloseTo(crucible.mana * 1.5 * m.mana);
+		const r = lineRates(crucible, m, {
+			...ones,
+			overchannel: 1.5,
+			mana: 0.5,
+			apprentice: 0.8,
+		});
+		expect(r.mana).toBeCloseTo(crucible.mana * 1.5 * m.mana * 0.8);
 		expect(lineRates(crucible, multipliers([{ speed: 1 }]), ones).mana).toBe(
 			crucible.mana,
 		);

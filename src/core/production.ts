@@ -36,7 +36,9 @@ export const multipliers = (bonuses: Bonus[]): Multipliers => {
 // Seam: M4/M5 add runes, upgrades, meals and foremen.
 export const bonusesFor = (_state: State, _building: Building): Bonus[] => [];
 
-// Per building: cycles/s, mana draw (mana/s) and output per cycle.
+// Per building: cycles/s, mana draw (mana/s) and output per cycle. Speed bonuses
+// leave draw alone (GDD 3.6); an apprentice shortage lowers it with speed. The
+// grid's own shortage factor is applied to the total draw in manaFlow.
 export const lineRates = (recipe: Recipe, m: Multipliers, f: Factors) => ({
 	cycles:
 		(m.speed *
@@ -45,7 +47,7 @@ export const lineRates = (recipe: Recipe, m: Multipliers, f: Factors) => ({
 			f.apprentice *
 			f.apprenticeSpeed) /
 		recipe.time,
-	mana: recipe.mana * f.overchannel * m.mana,
+	mana: recipe.mana * f.overchannel * m.mana * f.apprentice,
 	output: recipe.outQty * m.output,
 });
 

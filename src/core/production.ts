@@ -12,7 +12,7 @@ export type Multipliers = Required<{ [K in keyof Bonus]: number }>;
 export type Factors = {
 	overchannel: number;
 	mana: number; // grid shortage factor, for mana-drawing lines only
-	apprentice: number; // apprentice shortage factor
+	apprentice: number; // shortage factor, for buildings needing apprentices only
 	apprenticeSpeed: number;
 	starlight: boolean; // phase powers Starlight Collectors
 };
@@ -49,6 +49,10 @@ export const lineRates = (recipe: Recipe, m: Multipliers, f: Factors) => ({
 	output: recipe.outQty * m.output,
 });
 
+const staffed = new Set(
+	balance.buildings.filter((b) => b.apprentices > 0).map((b) => b.building),
+);
+
 const caps = new Map(balance.resources.map((r) => [r.resource, r.storageCap]));
 
 // Seam: M4 adds Bigger stores. Unknown resources have no cap.
@@ -82,6 +86,7 @@ const count = (state: State, resource: string, qty: number) => {
 // Returns mana made and mana drawn (mana/s × uptime) for the grid (Task 11).
 export const runLines = (state: State, dt: number, f: Factors) => {
 	const flow = { made: 0, drawn: 0 };
+	const unstaffed = { ...f, apprentice: 1 };
 	for (const r of balance.recipes) {
 		let cycles = 0;
 		let out = 0;
@@ -89,7 +94,11 @@ export const runLines = (state: State, dt: number, f: Factors) => {
 		for (const b of state.run.buildings) {
 			if (b.recipe !== r.recipe) continue;
 			if (b.type === STARLIGHT_COLLECTOR && !f.starlight) continue;
-			const rates = lineRates(r, multipliers(bonusesFor(state, b)), f);
+			const rates = lineRates(
+				r,
+				multipliers(bonusesFor(state, b)),
+				staffed.has(b.type) ? f : unstaffed,
+			);
 			cycles += rates.cycles * dt;
 			out += rates.cycles * rates.output * dt;
 			draw += rates.mana;

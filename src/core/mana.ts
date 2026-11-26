@@ -1,5 +1,6 @@
 // Mana grid (GDD 3.3): supply, demand and the shortage factor.
 import { balance } from "../data/index.ts";
+import { apprentices } from "./apprentices.ts";
 import type { Phase } from "./clock.ts";
 import { atLeast } from "./cost.ts";
 import { runLines } from "./production.ts";
@@ -31,11 +32,11 @@ export const manaFlow = (state: State, phase: Phase) => {
 		...state,
 		run: { ...run, stock: { ...run.stock }, produced: {}, milestones: {} },
 	};
-	// Seams: apprentice factor (Task 13), hunger (M5).
+	// Seam: hunger (M5).
 	const lines = runLines(scratch, dt, {
 		overchannel: run.overchannel,
 		mana: 1,
-		apprentice: 1,
+		apprentice: apprentices(state).factor,
 		apprenticeSpeed: 1,
 		starlight: phase.starlightCollector,
 	});

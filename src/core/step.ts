@@ -2,6 +2,7 @@
 // or closed tab runs the identical tick sequence. Phase boundaries fall on whole
 // ticks, so no tick straddles a constellation change.
 import { balance } from "../data/index.ts";
+import { apprentices } from "./apprentices.ts";
 import { type Phase, phaseAt } from "./clock.ts";
 import { atLeast } from "./cost.ts";
 import { baseMana, chargeJars, manaFlow } from "./mana.ts";
@@ -14,18 +15,18 @@ export const TICK_S = TICK / 1000;
 const cycleS = balance.globals["Clock cycle"].value * 60;
 const capTicks = (balance.globals["Offline cap"].value * 3_600_000) / TICK;
 
-// One tick of dt seconds in `phase`. Later tasks add apprentices.
+// One tick of dt seconds in `phase`.
 export const tick = (state: State, dt: number, phase: Phase): void => {
 	const run = state.run;
 	const grid = manaFlow(state, phase);
 	// Shortage = supply (base, lines and jar discharge) below demand (GDD 3.3).
 	if (grid.factor < 1) run.milestones.manaShortage = true;
 	chargeJars(state, grid);
-	// Seams: apprentice factor (Task 13), hunger (M5).
+	// Seam: hunger (M5).
 	const lines = runLines(state, dt, {
 		overchannel: run.overchannel,
 		mana: grid.factor,
-		apprentice: 1,
+		apprentice: apprentices(state).factor,
 		apprenticeSpeed: 1,
 		starlight: phase.starlightCollector,
 	});

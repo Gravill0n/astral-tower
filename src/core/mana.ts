@@ -33,6 +33,8 @@ export const manaFlow = (state: State, phase: Phase) =>
 // factor is 1 (same stock and factors), so tick can keep it instead.
 export const manaFlowRun = (state: State, phase: Phase) => {
 	const run = state.run;
+	// Every run field runLines writes must be copied here and copied back in
+	// tick's full-mana path; any other field is shared with the real run.
 	const scratch = {
 		...state,
 		run: {

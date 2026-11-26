@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { balance, type Unlock } from "../data/index.ts";
 import { buyBuilding } from "./cost.ts";
 import { newGame, newRun } from "./state.ts";
-import { tick } from "./step.ts";
+import { TICK_S, tick } from "./step.ts";
 import { isMet, UNLOCK_KEYS, updateUnlocks } from "./unlocks.ts";
 
 const unlockOf = (kind: Unlock["kind"]) => {
@@ -134,10 +134,10 @@ describe("updateUnlocks", () => {
 	it("tick sets clockCycle after a full cycle and unlocks from it", () => {
 		const cycle = balance.globals["Clock cycle"].value * 60;
 		const state = newGame(0);
-		state.run.elapsed = cycle - 1;
-		tick(state, 0.5, balance.clock[0]);
+		state.run.elapsed = cycle - 2 * TICK_S;
+		tick(state, balance.clock[0]);
 		expect(state.run.milestones.clockCycle).toBeUndefined();
-		tick(state, 0.5, balance.clock[0]);
+		tick(state, balance.clock[0]);
 		expect(state.run.milestones.clockCycle).toBe(true);
 		const row = balance.buildings.find(
 			(r) =>

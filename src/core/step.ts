@@ -13,10 +13,13 @@ import { updateUnlocks } from "./unlocks.ts";
 export const TICK_S = TICK / 1000;
 
 const cycleS = balance.globals["Clock cycle"].value * 60;
-const capTicks = (balance.globals["Offline cap"].value * 3_600_000) / TICK;
+const capTicks = Math.floor(
+	(balance.globals["Offline cap"].value * 3_600_000) / TICK,
+);
 
-// One tick of dt seconds in `phase`.
-export const tick = (state: State, dt: number, phase: Phase): void => {
+// One tick of TICK_S seconds in `phase`.
+export const tick = (state: State, phase: Phase): void => {
+	const dt = TICK_S;
 	const run = state.run;
 	const dry = manaFlowRun(state, phase);
 	const grid = dry.grid;
@@ -24,7 +27,7 @@ export const tick = (state: State, dt: number, phase: Phase): void => {
 	if (grid.factor < 1) run.milestones.manaShortage = true;
 	chargeJars(state, grid);
 	let lines = dry.lines;
-	if (grid.factor === 1 && dt === TICK_S) {
+	if (grid.factor === 1) {
 		// Full mana: the dry run (one TICK) already ran these lines on copies of
 		// this stock; copy back in place so state objects keep their identity.
 		Object.assign(run.stock, dry.run.stock);
@@ -50,17 +53,20 @@ export const tick = (state: State, dt: number, phase: Phase): void => {
 
 // Advances `state` in place to the last whole tick before `now`. Returns ms
 // simulated and ms skipped beyond the Offline cap. A clock behind `state.time`
-// is a no-op: progress pauses until real time catches up.
+// is a no-op: progress pauses until real time catches up. So is a `now` that is
+// not finite or beyond MAX_SAFE_INTEGER, which would corrupt `state.time`.
 export const step = (
 	state: State,
 	now: number,
 ): { simulated: number; skipped: number } => {
+	if (!Number.isFinite(now) || now > Number.MAX_SAFE_INTEGER)
+		return { simulated: 0, skipped: 0 };
 	const ticks = Math.floor((now - state.time) / TICK);
-	if (!(ticks > 0)) return { simulated: 0, skipped: 0 }; // also rejects NaN
+	if (!(ticks > 0)) return { simulated: 0, skipped: 0 };
 	const skipped = Math.max(0, ticks - capTicks);
 	state.time += skipped * TICK;
 	for (let i = skipped; i < ticks; i++) {
-		tick(state, TICK_S, phaseAt(state.time));
+		tick(state, phaseAt(state.time));
 		state.time += TICK;
 	}
 	return { simulated: (ticks - skipped) * TICK, skipped: skipped * TICK };

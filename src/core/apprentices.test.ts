@@ -5,7 +5,7 @@ import { bulkCost, recruitCost } from "./cost.ts";
 import { MANA_JAR, manaFlow } from "./mana.ts";
 import { loadSave, saveToString } from "./save.ts";
 import { newGame, type State } from "./state.ts";
-import { step, tick } from "./step.ts";
+import { step, TICK_S, tick } from "./step.ts";
 
 const start = balance.globals["Starting apprentices"].value;
 const row = (name: string) => {
@@ -85,12 +85,27 @@ describe("apprentice shortage in tick (gdd 3.4)", () => {
 		add(s, MANA_JAR, null, 1);
 		s.run.jarMana = 1000;
 		expect(manaFlow(s, dark).factor).toBe(1);
-		tick(s, 1, dark);
+		tick(s, dark);
 		const f = start / (start + 2);
 		expect(s.run.produced[brass.output]).toBeCloseTo(
 			(n * f * brass.outQty) / brass.time,
 		);
 		expect(s.run.produced[mine.output]).toBeCloseTo(mine.outQty / mine.time);
+	});
+
+	it("multiplies both shortages with no jars", () => {
+		const n = short(2);
+		const s = newGame(0);
+		add(s, crucible.building, brass.recipe, n);
+		s.run.stock[brass.inputs[0].resource] = 100; // under the cap
+		const fApprentice = apprentices(s).factor;
+		const fMana = manaFlow(s, dark).factor;
+		expect(fApprentice).toBeLessThan(1);
+		expect(fMana).toBeLessThan(1);
+		tick(s, dark);
+		expect(s.run.produced[brass.output]).toBeCloseTo(
+			(n * fApprentice * fMana * brass.outQty * TICK_S) / brass.time,
+		);
 	});
 
 	it("mana demand follows apprentice-limited speed", () => {
@@ -196,12 +211,12 @@ describe("recruiting (gdd 3.4)", () => {
 
 	it("partial progress carries over and nothing accrues with an empty queue", () => {
 		const s = ready(1, price(0, 1));
-		tick(s, 5, dark);
+		for (let i = 0; i < 5; i++) tick(s, dark);
 		expect(s.run.recruitProgress).toBe(0);
 		recruit(s, 1);
-		tick(s, 5, dark);
+		for (let i = 0; i < 5; i++) tick(s, dark);
 		const loaded = loadSave(saveToString(s));
 		if (!loaded.ok) throw new Error(loaded.error);
-		expect(loaded.state.run.recruitProgress).toBe(5);
+		expect(loaded.state.run.recruitProgress).toBe(5 * TICK_S);
 	});
 });

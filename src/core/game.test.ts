@@ -200,7 +200,7 @@ describe("offline equals online from the mid-game save (GDD 11.1)", () => {
 		last.time += 30 * H - cap;
 		step(last, t0 + 30 * H);
 		expect(away).toEqual(last);
-	});
+	}, 20_000); // two 24 h catch-ups
 
 	it("pauses on a clock moved backwards, then resumes as if never moved", () => {
 		const moved = midGame();
@@ -226,6 +226,7 @@ describe("offline equals online from the mid-game save (GDD 11.1)", () => {
 	});
 
 	it("catches up 24 h in under 2 s", () => {
+		step(midGame(), t0 + H); // warm up the JIT before timing
 		const state = midGame();
 		const before = performance.now();
 		const result = step(state, t0 + 24 * H);

@@ -9,7 +9,7 @@ import {
 	runLines,
 } from "./production.ts";
 import { newGame, type State } from "./state.ts";
-import { tick } from "./step.ts";
+import { TICK_S, tick } from "./step.ts";
 
 const buff = (source: string) => {
 	const row = balance.buffs.find((b) => b.source === source);
@@ -216,7 +216,7 @@ describe("runLines (gdd 5.1, 3.1)", () => {
 	it("runs from tick with overchannel from the run", () => {
 		const s = withLines(mine, 1);
 		s.run.overchannel = 2;
-		tick(s, mine.time, balance.clock[0]);
+		for (let t = 0; t < mine.time; t += TICK_S) tick(s, balance.clock[0]);
 		expect(s.run.stock[ore]).toBeCloseTo(2 * mine.outQty);
 	});
 });

@@ -92,7 +92,7 @@ describe("tick with the mana grid (gdd 3.3)", () => {
 	it("runs every drill at supply ÷ demand and sets manaShortage", () => {
 		const s = newGame(0);
 		add(s, mine, drills(2));
-		tick(s, 1, dark);
+		tick(s, dark);
 		expect(s.run.stock[mine.output]).toBeCloseTo(
 			(drills(2) * mine.outQty * 0.5) / mine.time,
 		);
@@ -104,7 +104,7 @@ describe("tick with the mana grid (gdd 3.3)", () => {
 		add(s, mine, drills(4));
 		add(s, attune, 1);
 		s.run.stock[crystal.resource] = 100;
-		tick(s, 1, dark);
+		tick(s, dark);
 		expect(s.run.stock[crystal.resource]).toBeCloseTo(
 			100 - crystal.qty / attune.time,
 		);
@@ -113,7 +113,7 @@ describe("tick with the mana grid (gdd 3.3)", () => {
 	it("does not set manaShortage while supply covers demand", () => {
 		const s = newGame(0);
 		add(s, mine, drills(1));
-		tick(s, 1, dark);
+		tick(s, dark);
 		expect(s.run.stock[mine.output]).toBeCloseTo(
 			(drills(1) * mine.outQty) / mine.time,
 		);
@@ -125,11 +125,11 @@ describe("tick with the mana grid (gdd 3.3)", () => {
 		add(s, attune, 1);
 		add(s, collect, 1);
 		s.run.stock[crystal.resource] = 100;
-		tick(s, 1, lit);
+		tick(s, lit);
 		const perTick =
 			base + attune.outQty / attune.time + collect.outQty / collect.time;
 		expect(s.run.produced.Mana).toBeCloseTo(perTick);
-		tick(s, 1, dark);
+		tick(s, dark);
 		expect(s.run.produced.Mana).toBeCloseTo(
 			2 * perTick - collect.outQty / collect.time,
 		);
@@ -156,7 +156,7 @@ describe("Mana Jars (gdd 3.3)", () => {
 		const f = manaFlow(s, lit);
 		expect(f.charge).toBeCloseTo(jarRate);
 		expect(f.wasted).toBeCloseTo(f.made - jarRate);
-		tick(s, 1, lit);
+		tick(s, lit);
 		expect(s.run.jarMana).toBeCloseTo(jarRate);
 	});
 
@@ -167,7 +167,7 @@ describe("Mana Jars (gdd 3.3)", () => {
 		const f = manaFlow(s, dark);
 		expect(f.charge).toBeCloseTo(1);
 		expect(f.wasted).toBeCloseTo(base - 1);
-		tick(s, 1, dark);
+		tick(s, dark);
 		expect(s.run.jarMana).toBeCloseTo(2 * jarCap);
 		expect(s.run.milestones.fillManaJar).toBe(true);
 		expect(manaFlow(s, dark).charge).toBe(0);
@@ -177,7 +177,7 @@ describe("Mana Jars (gdd 3.3)", () => {
 		const s = newGame(0);
 		jars(s, 2);
 		s.run.jarMana = jarCap; // one jar's worth, of two
-		tick(s, 1, dark);
+		tick(s, dark);
 		expect(s.run.milestones.fillManaJar).toBeUndefined();
 	});
 
@@ -190,7 +190,7 @@ describe("Mana Jars (gdd 3.3)", () => {
 		expect(f.discharge).toBeCloseTo(jarRate);
 		expect(f.factor).toBeCloseTo((base + jarRate) / f.demand);
 		expect(f.drawn).toBeCloseTo(base + jarRate);
-		tick(s, 1, dark);
+		tick(s, dark);
 		expect(s.run.jarMana).toBeCloseTo(jarCap - jarRate);
 	});
 
@@ -204,7 +204,7 @@ describe("Mana Jars (gdd 3.3)", () => {
 		const f = manaFlow(s, dark);
 		expect(f.discharge).toBeCloseTo(base);
 		expect(f.factor).toBe(1);
-		tick(s, 1, dark);
+		tick(s, dark);
 		expect(s.run.milestones.manaShortage).toBeUndefined();
 	});
 
@@ -214,7 +214,7 @@ describe("Mana Jars (gdd 3.3)", () => {
 			jars(s, n);
 			s.run.jarMana = n * jarCap;
 			add(s, mine, drills(2));
-			tick(s, 1, dark);
+			tick(s, dark);
 			return s.run.produced.Mana;
 		};
 		expect(run(1)).toBe(run(0));

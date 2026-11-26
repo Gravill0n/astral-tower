@@ -8,7 +8,7 @@ const variant = <K extends string, S extends z.ZodRawShape>(
 	shape: S,
 ) => z.object({ kind: z.literal(kind), text: z.string(), ...shape });
 
-const MilestoneSchema = z.enum([
+export const MilestoneSchema = z.enum([
 	"libraryOpens",
 	"firstRelic",
 	"firstEgg",

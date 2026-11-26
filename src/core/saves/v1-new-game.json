@@ -1,0 +1,19 @@
+{
+	"version": 1,
+	"time": 1764158400000,
+	"unlocked": [],
+	"run": {
+		"elapsed": 0,
+		"stock": {},
+		"buildings": [],
+		"upgrades": {},
+		"produced": {},
+		"handMined": {},
+		"milestones": {},
+		"jarMana": 0,
+		"overchannel": 1,
+		"recruited": 0,
+		"recruitQueue": 0,
+		"recruitProgress": 0
+	}
+}

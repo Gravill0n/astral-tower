@@ -304,7 +304,7 @@ describe("buildBalance", () => {
 			]),
 		).toEqual([
 			'Globals: missing "Offline cap"',
-			'Globals!A54 (Warp factor): unknown name "Warp factor"',
+			`Globals!A${GLOBALS.length + 1} (Warp factor): unknown name "Warp factor"`,
 		]);
 	});
 
@@ -315,7 +315,7 @@ describe("buildBalance", () => {
 			[undefined, 1],
 		]);
 		expect(errors([sheet("Resources", [RESOURCES_HEADER]), g])).toEqual([
-			'Globals!A55: missing "Parameter"',
+			`Globals!A${GLOBALS.length + 2}: missing "Parameter"`,
 		]);
 	});
 
@@ -738,7 +738,7 @@ describe("buildBalance", () => {
 		).toEqual([
 			"Resources!A3 (Ember ore): duplicate name (first on row 2)",
 			"Events!A4 (Drifting cargo / Haul it in): duplicate name (first on row 2)",
-			"Globals!A55 (Offline cap): duplicate name (first on row 36)",
+			`Globals!A${GLOBALS.length + 2} (Offline cap): duplicate name (first on row ${GLOBALS.indexOf("Offline cap") + 2})`,
 		]);
 	});
 

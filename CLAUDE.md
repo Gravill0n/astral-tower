@@ -14,7 +14,7 @@ Astral Tower: a single-player browser incremental/management game. See [README.m
 - **Data-driven balance**: a script turns the Balance sheet into game data. Unlock conditions are parsed from fixed phrasings ("Own N …", "Produce N …", "Build floor N", "Return from …"…). Adding a phrasing means updating `src/data/unlock.ts`.
 - **Real-time clock**: constellation phases come from wall-clock minutes (Lantern :00–:10, Comet Fox :10–:20, … Void Moth :50–:60). Offline catch-up replays the same phases. A clock moved backwards pauses progress and is never punished.
 - **Offline = online**: everything in GDD 11.1 "Keeps going offline" must give the same result whether the tab was open, hidden or closed (up to the offline cap).
-- **Saves never break**: every save from an earlier version must load. Version the save and migrate it.
+- **Saves never break**: every save from an earlier version must load. Version the save and migrate it. The fixtures in `src/core/saves/` are frozen: a state shape change means bumping `SAVE_VERSION`, adding a migration and adding a fixture. `src/core/names-v1.json` freezes the sheet names saves use, so renaming or removing one fails CI until a migration remaps it.
 - **No spells, no cutscenes, no sound, no tutorial pop-ups** in 1.0.
 - **Do not build anything in GDD section 14 "Not in 1.0"** (French, Golem rules, Observatory, cloud save, cosmetics, Galactic Drift beyond its teaser…).
 - Player-facing names come from the sheet and must stay unique. Wording stays spacefaring ("in flight", "docked").
@@ -31,7 +31,7 @@ Reduced motion, at least two colorblind palettes, keyboard shortcuts on desktop,
 ## Tech stack
 
 - **TypeScript + Vite + React**, **TanStack Router** (hash history: GitHub Pages has no SPA fallback, and it works offline).
-- **Game core is pure TS** (`src/core/`): no React, no DOM, no `Date.now()` inside. It advances via `step(state, dt, now)`. Offline catch-up runs the same function in bigger steps, cut at constellation phase changes. The UI reads snapshots through **TanStack Store**, throttled to a few renders per second.
+- **Game core is pure TS** (`src/core/`): no React, no DOM, no `Date.now()` inside. `step(state, now)` runs fixed 1 s ticks tied to the wall clock, so offline catch-up runs the exact same ticks as an open tab, and constellation phase changes always fall on tick boundaries. The UI reads snapshots through **TanStack Store**, throttled to a few renders per second.
 - **Numbers are plain `number`**. Never compare an accumulated stock to a cost with a raw `>=`; use the shared epsilon helper. Round only for display.
 - **Balance data**: the sheet is exported as `.xlsx` into the repo; a script turns it into typed JSON (`src/data/balance.json`, imported via `src/data/index.ts`), validated with **Zod**. To change balance: edit the Claude Sheet → export `.xlsx` over `balance/astral-tower-balance.xlsx` → `pnpm balance` → commit both. Saves are also Zod-validated on load and import (user-controlled input).
 - **Tests**: Vitest for the core (most of the risk); Playwright smoke tests on desktop and mobile viewports.

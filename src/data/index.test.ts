@@ -23,6 +23,13 @@ describe("balance.json", () => {
 		expect(raw).toEqual("balance" in built ? built.balance : undefined);
 	});
 
+	it("gives Globals units that name a resource where the core spends or earns it", () => {
+		const names = new Set(balance.resources.map((r) => r.resource));
+		for (const key of ["Hand mining", "Recruit cost"] as const) {
+			expect(names).toContain(balance.globals[key].unit);
+		}
+	});
+
 	it("types unlocks as a discriminated union", () => {
 		const unlock = balance.recipes[0].unlock;
 		expectTypeOf(unlock).toEqualTypeOf<Unlock>();

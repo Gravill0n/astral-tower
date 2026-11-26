@@ -1,0 +1,159 @@
+{
+	"version": 1,
+	"time": 1795695019000,
+	"unlocked": [
+		"buildings/Star Drill",
+		"recipes/Mine Ember ore",
+		"buildings/Crucible",
+		"upgrades/Drill bits",
+		"recipes/Emberbrass",
+		"buildings/Runewright's Bench",
+		"recipes/Runeplates",
+		"upgrades/Hot crucibles",
+		"buildings/Attuner",
+		"recipes/Mine Mana crystals",
+		"upgrades/Fine benches",
+		"buildings/Mana Jar",
+		"recipes/Attune crystals",
+		"buildings/Glassblower",
+		"recipes/Mine Frost ore",
+		"recipes/Frostglass",
+		"buildings/Composter",
+		"upgrades/Bigger stores"
+	],
+	"run": {
+		"elapsed": 619,
+		"stock": {
+			"Ember ore": 1.044403116195241,
+			"Emberbrass": 90.04706004383259,
+			"Star slag": 149.01176501095912,
+			"Runeplates": 100
+		},
+		"buildings": [
+			{
+				"type": "Star Drill",
+				"recipe": "Mine Ember ore"
+			},
+			{
+				"type": "Star Drill",
+				"recipe": "Mine Ember ore"
+			},
+			{
+				"type": "Star Drill",
+				"recipe": "Mine Ember ore"
+			},
+			{
+				"type": "Star Drill",
+				"recipe": "Mine Ember ore"
+			},
+			{
+				"type": "Star Drill",
+				"recipe": "Mine Ember ore"
+			},
+			{
+				"type": "Star Drill",
+				"recipe": "Mine Ember ore"
+			},
+			{
+				"type": "Crucible",
+				"recipe": "Emberbrass"
+			},
+			{
+				"type": "Star Drill",
+				"recipe": "Mine Ember ore"
+			},
+			{
+				"type": "Crucible",
+				"recipe": "Emberbrass"
+			},
+			{
+				"type": "Star Drill",
+				"recipe": "Mine Ember ore"
+			},
+			{
+				"type": "Runewright's Bench",
+				"recipe": "Runeplates"
+			},
+			{
+				"type": "Crucible",
+				"recipe": "Emberbrass"
+			},
+			{
+				"type": "Star Drill",
+				"recipe": "Mine Ember ore"
+			},
+			{
+				"type": "Runewright's Bench",
+				"recipe": "Runeplates"
+			},
+			{
+				"type": "Crucible",
+				"recipe": "Emberbrass"
+			},
+			{
+				"type": "Attuner",
+				"recipe": "Attune crystals"
+			},
+			{
+				"type": "Star Drill",
+				"recipe": "Mine Ember ore"
+			},
+			{
+				"type": "Attuner",
+				"recipe": "Attune crystals"
+			},
+			{
+				"type": "Crucible",
+				"recipe": "Emberbrass"
+			},
+			{
+				"type": "Glassblower",
+				"recipe": "Frostglass"
+			},
+			{
+				"type": "Star Drill",
+				"recipe": "Mine Ember ore"
+			},
+			{
+				"type": "Glassblower",
+				"recipe": "Frostglass"
+			},
+			{
+				"type": "Crucible",
+				"recipe": "Emberbrass"
+			},
+			{
+				"type": "Glassblower",
+				"recipe": "Frostglass"
+			},
+			{
+				"type": "Runewright's Bench",
+				"recipe": "Runeplates"
+			},
+			{
+				"type": "Runewright's Bench",
+				"recipe": "Runeplates"
+			}
+		],
+		"upgrades": {},
+		"produced": {
+			"Ember ore": 2062.1385232038515,
+			"Mana": 6190,
+			"Emberbrass": 596.0470600438365,
+			"Star slag": 149.01176501095912,
+			"Runeplates": 145.00000000000148
+		},
+		"handMined": {
+			"Ember ore": 10
+		},
+		"milestones": {
+			"manaShortage": true,
+			"fillAnyStorage": true
+		},
+		"jarMana": 0,
+		"overchannel": 1,
+		"recruited": 0,
+		"recruitQueue": 0,
+		"recruitProgress": 0
+	}
+}

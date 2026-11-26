@@ -26,11 +26,21 @@ const jarsOf = (state: State) => {
 // in starlight phases), demand = Σ draw × uptime, factor = supply ÷ demand
 // capped at 1. Pure: runs the lines on a scratch copy of the run. One pass, so
 // uptimes are those before the factor applies (plan, Risks).
-export const manaFlow = (state: State, phase: Phase) => {
+export const manaFlow = (state: State, phase: Phase) =>
+	manaFlowRun(state, phase).grid;
+
+// manaFlow plus its scratch run, which is exactly the real tick's run when the
+// factor is 1 (same stock and factors), so tick can keep it instead.
+export const manaFlowRun = (state: State, phase: Phase) => {
 	const run = state.run;
 	const scratch = {
 		...state,
-		run: { ...run, stock: { ...run.stock }, produced: {}, milestones: {} },
+		run: {
+			...run,
+			stock: { ...run.stock },
+			produced: { ...run.produced },
+			milestones: { ...run.milestones },
+		},
 	};
 	// Seam: hunger (M5).
 	const lines = runLines(scratch, dt, {
@@ -52,7 +62,7 @@ export const manaFlow = (state: State, phase: Phase) => {
 	const charge = Math.min(jars.rate, room, Math.max(0, net));
 	const supply = made + discharge;
 	const factor = atLeast(supply, demand) ? 1 : supply / demand;
-	return {
+	const grid = {
 		made,
 		drawn: demand * factor,
 		demand,
@@ -61,6 +71,7 @@ export const manaFlow = (state: State, phase: Phase) => {
 		charge,
 		discharge,
 	};
+	return { grid, run: scratch.run, lines };
 };
 
 // Applies one tick of jar flow; sets fillManaJar when the pool is full.

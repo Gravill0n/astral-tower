@@ -3,7 +3,7 @@
 // newRun keeps them (they survive Supernovas).
 import { balance, type Unlock } from "../data/index.ts";
 import { atLeast } from "./cost.ts";
-import type { State } from "./state.ts";
+import { newGame, type State } from "./state.ts";
 
 type Row = { key: string; unlock: Unlock };
 
@@ -22,19 +22,24 @@ const ROWS: Row[] = [
 
 export const UNLOCK_KEYS = ROWS.map((r) => r.key);
 
-const owned = (state: State, type: string) => {
-	let n = 0;
-	for (const x of state.run.buildings) if (x.type === type) n++;
+const ownedCounts = (state: State) => {
+	const n = new Map<string, number>();
+	for (const x of state.run.buildings) n.set(x.type, (n.get(x.type) ?? 0) + 1);
 	return n;
 };
 
-export const isMet = (u: Unlock, state: State): boolean => {
+// null: the kind is evaluated by a later milestone, so the row cannot unlock yet.
+const status = (
+	u: Unlock,
+	state: State,
+	owned: Map<string, number>,
+): boolean | null => {
 	const run = state.run;
 	switch (u.kind) {
 		case "own":
-			return atLeast(owned(state, u.building), u.count);
+			return atLeast(owned.get(u.building) ?? 0, u.count);
 		case "comesWith":
-			return atLeast(owned(state, u.building), 1);
+			return atLeast(owned.get(u.building) ?? 0, 1);
 		case "produce":
 			return atLeast(run.produced[u.resource] ?? 0, u.count);
 		case "have":
@@ -56,7 +61,7 @@ export const isMet = (u: Unlock, state: State): boolean => {
 		case "libraryComplete": // M7 Library
 		case "clockConstellations": // M7 Library
 		case "hatch": // M9 Bestiary
-			return false;
+			return null;
 		// Last, so a new milestone falls off the end and fails tsc.
 		case "milestone":
 			switch (u.milestone) {
@@ -69,10 +74,18 @@ export const isMet = (u: Unlock, state: State): boolean => {
 				case "firstRelic": // M6 Guild
 				case "firstEgg": // M9 Bestiary
 				case "voyageBumpy": // M6 Guild
-					return false;
+					return null;
 			}
 	}
 };
+
+// `owned` lets updateUnlocks count buildings once for every row.
+export const isMet = (u: Unlock, state: State, owned = ownedCounts(state)) =>
+	status(u, state, owned) === true;
+
+// Rows a tick can unlock; null-status rows never can (status ignores state for
+// them). Lazy: cost.ts and this module import each other.
+let live: Row[] | undefined;
 
 // Rows not yet unlocked, rebuilt when `unlocked` changes outside this module
 // (load, newRun, tests), so a tick only scans what is still locked.
@@ -80,8 +93,11 @@ const pendingCache = new WeakMap<string[], { seen: number; rows: Row[] }>();
 const pending = (unlocked: string[]) => {
 	let c = pendingCache.get(unlocked);
 	if (!c || c.seen !== unlocked.length) {
+		live ??= ROWS.filter(
+			(r) => status(r.unlock, newGame(0), new Map()) !== null,
+		);
 		const done = new Set(unlocked);
-		c = { seen: unlocked.length, rows: ROWS.filter((r) => !done.has(r.key)) };
+		c = { seen: unlocked.length, rows: live.filter((r) => !done.has(r.key)) };
 		pendingCache.set(unlocked, c);
 	}
 	return c;
@@ -91,7 +107,8 @@ const pending = (unlocked: string[]) => {
 export const updateUnlocks = (state: State): string[] => {
 	const c = pending(state.unlocked);
 	const added: string[] = [];
-	for (const r of c.rows) if (isMet(r.unlock, state)) added.push(r.key);
+	const owned = ownedCounts(state);
+	for (const r of c.rows) if (isMet(r.unlock, state, owned)) added.push(r.key);
 	if (added.length) {
 		state.unlocked.push(...added);
 		c.rows = c.rows.filter((r) => !added.includes(r.key));

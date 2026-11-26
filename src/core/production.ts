@@ -33,6 +33,8 @@ export const multipliers = (bonuses: Bonus[]): Multipliers => {
 	return m;
 };
 
+const NO_BONUS: Multipliers = multipliers([]);
+
 // Seam: M4/M5 add runes, upgrades, meals and foremen.
 export const bonusesFor = (_state: State, _building: Building): Bonus[] => [];
 
@@ -89,16 +91,26 @@ const count = (state: State, resource: string, qty: number) => {
 export const runLines = (state: State, dt: number, f: Factors) => {
 	const flow = { made: 0, drawn: 0 };
 	const unstaffed = { ...f, apprentice: 1 };
+	// One pass over buildings, grouped by recipe in instance order.
+	const byRecipe = new Map<string, Building[]>();
+	for (const b of state.run.buildings) {
+		if (b.recipe === null) continue;
+		if (b.type === STARLIGHT_COLLECTOR && !f.starlight) continue;
+		const list = byRecipe.get(b.recipe);
+		if (list) list.push(b);
+		else byRecipe.set(b.recipe, [b]);
+	}
 	for (const r of balance.recipes) {
+		const running = byRecipe.get(r.recipe);
+		if (!running) continue;
 		let cycles = 0;
 		let out = 0;
 		let draw = 0;
-		for (const b of state.run.buildings) {
-			if (b.recipe !== r.recipe) continue;
-			if (b.type === STARLIGHT_COLLECTOR && !f.starlight) continue;
+		for (const b of running) {
+			const bonuses = bonusesFor(state, b);
 			const rates = lineRates(
 				r,
-				multipliers(bonusesFor(state, b)),
+				bonuses.length ? multipliers(bonuses) : NO_BONUS,
 				staffed.has(b.type) ? f : unstaffed,
 			);
 			cycles += rates.cycles * dt;

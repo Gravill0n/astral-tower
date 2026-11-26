@@ -212,6 +212,19 @@ describe("offline equals online from the mid-game save (GDD 11.1)", () => {
 		expect(moved).toEqual(steady);
 	});
 
+	it("plays a building bought mid-catch-up the same as after a fresh load", () => {
+		const played = midGame();
+		step(played, t0 + H);
+		const drills = owned(played, DRILL);
+		expect(buyBuilding(played, DRILL, 1)).toBe(true);
+		const loaded = loadSave(saveToString(played));
+		if (!loaded.ok) throw new Error(loaded.error);
+		step(played, t0 + 2 * H);
+		step(loaded.state, t0 + 2 * H);
+		expect(owned(played, DRILL)).toBe(drills + 1);
+		expect(played).toEqual(loaded.state);
+	});
+
 	it("catches up 24 h in under 2 s", () => {
 		const state = midGame();
 		const before = performance.now();

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { balance } from "../data/index.ts";
 import { MilestoneSchema } from "../data/unlock.ts";
 import { SAVE_VERSION, type State, TICK } from "./state.ts";
+import { UNLOCK_KEYS } from "./unlocks.ts";
 
 export const MAX_SAVE_LENGTH = 1024 * 1024; // characters; both formats are ~1 byte each
 
@@ -28,7 +29,7 @@ const counts = (key: z.ZodEnum, value = amount) => z.partialRecord(key, value);
 const SaveSchema = z.strictObject({
 	version: z.literal(SAVE_VERSION),
 	time: count.multipleOf(TICK),
-	unlocked: z.array(z.string()), // "<tab>/<name>" keys are checked by unlocks (T7)
+	unlocked: z.array(names(UNLOCK_KEYS)),
 	run: z.strictObject({
 		elapsed: amount,
 		stock: counts(Resource),

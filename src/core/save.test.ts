@@ -253,6 +253,12 @@ describe("loadSave rejects hostile input without throwing", () => {
 		raw.unlocked = [1];
 		expectRejected(JSON.stringify(raw));
 	});
+
+	it("rejects an unknown unlock key", () => {
+		const raw = JSON.parse(saveToString(newGame(0)));
+		raw.unlocked = ["buildings/Nope"];
+		expectRejected(JSON.stringify(raw));
+	});
 });
 
 describe("save versions (GDD 11.3)", () => {

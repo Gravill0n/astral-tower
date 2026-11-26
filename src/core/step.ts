@@ -3,15 +3,21 @@
 // ticks, so no tick straddles a constellation change.
 import { balance } from "../data/index.ts";
 import { type Phase, phaseAt } from "./clock.ts";
+import { atLeast } from "./cost.ts";
 import { type State, TICK } from "./state.ts";
+import { updateUnlocks } from "./unlocks.ts";
 
 export const TICK_S = TICK / 1000;
 
+const cycleS = balance.globals["Clock cycle"].value * 60;
 const capTicks = (balance.globals["Offline cap"].value * 3_600_000) / TICK;
 
 // One tick of dt seconds in `phase`. Later tasks add production, mana and apprentices.
 export const tick = (state: State, dt: number, _phase: Phase): void => {
-	state.run.elapsed += dt;
+	const run = state.run;
+	run.elapsed += dt;
+	if (atLeast(run.elapsed, cycleS)) run.milestones.clockCycle = true;
+	updateUnlocks(state);
 };
 
 // Advances `state` in place to the last whole tick before `now`. Returns ms

@@ -2,6 +2,7 @@
 // recruiting. `atLeast` is the only affordability and threshold test in the core.
 import { type Balance, balance } from "../data/index.ts";
 import type { Counts, State } from "./state.ts";
+import { updateUnlocks } from "./unlocks.ts";
 
 // Engine constant, not a balance value: relative tolerance for float drift.
 export const EPSILON = 1e-9;
@@ -75,7 +76,9 @@ export const maxAffordable = (
 
 const validCount = (n: number) => Number.isInteger(n) && n > 0;
 
-// All-or-nothing: false and state untouched when locked or unaffordable.
+// All-or-nothing: false and state untouched when locked or unaffordable. New
+// buildings start on the first unlocked recipe of their type (GDD 4.3), checked
+// after owning them, so "Build the first X" recipes count.
 export const buyBuilding = (state: State, type: string, n: number): boolean => {
 	const row = balance.buildings.find((b) => b.building === type);
 	if (!row || !validCount(n) || !state.unlocked.includes(`buildings/${type}`))
@@ -84,7 +87,17 @@ export const buyBuilding = (state: State, type: string, n: number): boolean => {
 	const costs = bulkCost(buildingCost(row), owned, n);
 	if (!affordable(state.run.stock, costs)) return false;
 	spend(state.run.stock, costs);
-	for (let i = 0; i < n; i++) state.run.buildings.push({ type, recipe: null });
+	const added = Array.from({ length: n }, () => ({
+		type,
+		recipe: null as string | null,
+	}));
+	state.run.buildings.push(...added);
+	updateUnlocks(state);
+	const recipe = balance.recipes.find(
+		(r) =>
+			r.building === type && state.unlocked.includes(`recipes/${r.recipe}`),
+	);
+	for (const b of added) b.recipe = recipe?.recipe ?? null;
 	return true;
 };
 

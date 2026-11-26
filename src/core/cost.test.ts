@@ -130,7 +130,7 @@ describe("buyBuilding", () => {
 		expect(state).toEqual(before);
 	});
 
-	it("spends the bulk cost and adds n Idle buildings", () => {
+	it("spends the bulk cost and adds n buildings on the first unlocked recipe", () => {
 		const state = newGame(0);
 		state.unlocked.push(key);
 		state.run.buildings.push({ type: drill.building, recipe: null });
@@ -139,7 +139,11 @@ describe("buyBuilding", () => {
 		expect(buyBuilding(state, drill.building, 10)).toBe(true);
 		expect(state.run.stock[ore.resource]).toBe(5);
 		expect(state.run.buildings).toHaveLength(11);
-		expect(state.run.buildings.every((b) => b.recipe === null)).toBe(true);
+		const first = balance.recipes.find((r) => r.building === drill.building);
+		expect(state.run.buildings[0].recipe).toBeNull();
+		expect(
+			state.run.buildings.slice(1).every((b) => b.recipe === first?.recipe),
+		).toBe(true);
 	});
 });
 

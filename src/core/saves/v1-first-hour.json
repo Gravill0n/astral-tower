@@ -1,0 +1,39 @@
+{
+	"version": 1,
+	"time": 1764162000000,
+	"unlocked": [
+		"buildings/Crucible",
+		"recipes/Emberbrass",
+		"buildings/Mana Jar"
+	],
+	"run": {
+		"elapsed": 3600,
+		"stock": {
+			"Ember ore": 42.5,
+			"Frost ore": 17,
+			"Mana crystals": 3.25,
+			"Emberbrass": 6
+		},
+		"buildings": [
+			{ "type": "Star Drill", "recipe": "Mine Ember ore" },
+			{ "type": "Star Drill", "recipe": "Mine Frost ore" },
+			{ "type": "Star Drill", "recipe": null },
+			{ "type": "Crucible", "recipe": "Emberbrass" },
+			{ "type": "Mana Jar", "recipe": null }
+		],
+		"upgrades": { "Drill bits": 2, "Hot crucibles": 1 },
+		"produced": {
+			"Ember ore": 180.75,
+			"Frost ore": 64,
+			"Emberbrass": 12,
+			"Mana": 2400
+		},
+		"handMined": { "Ember ore": 20, "Frost ore": 5 },
+		"milestones": { "manaShortage": true, "fillAnyStorage": true },
+		"jarMana": 55.5,
+		"overchannel": 1.5,
+		"recruited": 2,
+		"recruitQueue": 1,
+		"recruitProgress": 12.5
+	}
+}

@@ -54,6 +54,24 @@ const SaveSchema = z.strictObject({
 	}),
 });
 
+// MIGRATIONS[v] turns a version v save into version v + 1 (it must set the new
+// version). Never edit a step once shipped; a shape change bumps SAVE_VERSION,
+// adds a step and adds a fixture in saves/.
+export type Migrations = Record<number, (raw: unknown) => unknown>;
+export const MIGRATIONS: Migrations = {};
+
+// Brings a parsed save up to SAVE_VERSION. Throws on a bad version or a gap.
+export const migrate = (raw: unknown, migrations = MIGRATIONS): unknown => {
+	const version = (raw as { version?: unknown } | null)?.version;
+	if (!Number.isInteger(version)) throw new Error("Save has no version");
+	for (let v = version as number; v < SAVE_VERSION; v++) {
+		const step = migrations[v];
+		if (!step) throw new Error(`Save version ${v} is not supported`);
+		raw = step(raw);
+	}
+	return raw;
+};
+
 export const saveToString = (state: State): string => JSON.stringify(state);
 
 // Base64 of the UTF-8 JSON, for copy and paste.
@@ -70,7 +88,7 @@ const decodeBase64 = (text: string): string =>
 	);
 
 // Accepts saveToString or exportSave output. Never throws.
-export const loadSave = (text: string): LoadResult => {
+export const loadSave = (text: string, migrations = MIGRATIONS): LoadResult => {
 	if (typeof text !== "string") return { ok: false, error: "Save is not text" };
 	if (text.length > MAX_SAVE_LENGTH)
 		return { ok: false, error: "Save is too large" };
@@ -89,7 +107,14 @@ export const loadSave = (text: string): LoadResult => {
 	if (typeof version === "number" && version > SAVE_VERSION) {
 		return { ok: false, error: "Save is from a newer version of the game" };
 	}
-	// T5: the migration chain (version → SAVE_VERSION) runs here, before Zod.
+	try {
+		raw = migrate(raw, migrations);
+	} catch (e) {
+		return {
+			ok: false,
+			error: e instanceof Error ? e.message : "Save could not be migrated",
+		};
+	}
 	const result = SaveSchema.safeParse(raw);
 	if (!result.success) {
 		return {

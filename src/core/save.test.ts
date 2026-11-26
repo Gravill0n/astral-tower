@@ -1,6 +1,13 @@
+import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { balance } from "../data/index.ts";
-import { exportSave, loadSave, MAX_SAVE_LENGTH, saveToString } from "./save.ts";
+import {
+	exportSave,
+	loadSave,
+	MAX_SAVE_LENGTH,
+	migrate,
+	saveToString,
+} from "./save.ts";
 import { newGame, SAVE_VERSION, type State, TICK } from "./state.ts";
 
 const recipe = balance.recipes[0];
@@ -244,6 +251,81 @@ describe("loadSave rejects hostile input without throwing", () => {
 	it("rejects unlocked that is not a string list", () => {
 		const raw = JSON.parse(saveToString(newGame(0)));
 		raw.unlocked = [1];
+		expectRejected(JSON.stringify(raw));
+	});
+});
+
+describe("save versions (GDD 11.3)", () => {
+	const savesDir = new URL("./saves/", import.meta.url);
+	const fixtures = readdirSync(savesDir).filter((f) => f.endsWith(".json"));
+
+	it("has fixtures, starting with the v1 new game", () => {
+		expect(fixtures).toContain("v1-new-game.json");
+	});
+
+	it.each(fixtures)("loads frozen fixture %s", (file) => {
+		const result = loadSave(readFileSync(new URL(file, savesDir), "utf8"));
+		expect(result).toMatchObject({ ok: true });
+	});
+
+	// Synthetic v0 shape: the same save before `recruited` existed.
+	const v0 = () => {
+		const raw = JSON.parse(saveToString(populated()));
+		raw.version = 0;
+		delete raw.run.recruited;
+		return raw;
+	};
+	const v0to1 = (raw: unknown) => {
+		const r = raw as { version: number; run: Record<string, unknown> };
+		return { ...r, version: 1, run: { ...r.run, recruited: 1 } };
+	};
+
+	it("migrate runs each step in version order", () => {
+		const order: number[] = [];
+		const steps = {
+			0: (raw: unknown) => {
+				order.push(0);
+				return raw;
+			},
+		};
+		migrate({ version: 0 }, steps);
+		migrate({ version: SAVE_VERSION }, steps);
+		expect(order).toEqual([0]);
+	});
+
+	it("loads an old save through an injected migration", () => {
+		expect(loadSave(JSON.stringify(v0()), { 0: v0to1 })).toEqual({
+			ok: true,
+			state: populated(),
+		});
+	});
+
+	it("rejects an old save with no migration for its version", () => {
+		expectRejected(JSON.stringify(v0()));
+	});
+
+	it.each([
+		[
+			"throws",
+			() => {
+				throw new Error("boom");
+			},
+		],
+		["yields invalid state", () => ({ version: 1 })],
+		["forgets to bump the version", (raw: unknown) => raw],
+	])("rejects when the migration %s", (_, step) => {
+		const result = loadSave(JSON.stringify(v0()), { 0: step });
+		expect(result.ok).toBe(false);
+	});
+
+	it.each([
+		["missing", undefined],
+		["not an integer", 0.5],
+		["a string", "1"],
+		["below 1", -1],
+	])("rejects a version that is %s", (_, version) => {
+		const raw = JSON.parse(saveToString(newGame(0)));
+		raw.version = version;
 		expectRejected(JSON.stringify(raw));
 	});
 });

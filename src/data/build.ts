@@ -101,6 +101,16 @@ function convertRow(
 				row.failed.add(key);
 			}
 		}
+		if (kind === "numberList" && v !== undefined) {
+			if (/^\d+(?:, \d+)*$/.test(String(v))) {
+				obj[key] = String(v).split(", ").map(Number);
+			} else {
+				errors.push(
+					`${m.at(row, m.colOf[key])}: bad Links to "${v}" (expected "n, n, …")`,
+				);
+				row.failed.add(key);
+			}
+		}
 	}
 }
 
@@ -111,6 +121,10 @@ export function buildBalance(
 	const raw: Record<string, unknown> = {};
 	const mapped: Record<string, Mapped> = {};
 	const names = unlockNames(sheets);
+	const defined = Object.values(TABS).map((d) => d.tab as string);
+	for (const s of sheets) {
+		if (!defined.includes(s.name)) errors.push(`unknown tab "${s.name}"`);
+	}
 
 	for (const [key, def] of Object.entries(TABS) as [string, TabDef][]) {
 		const sheet = sheets.find((s) => s.name === def.tab);
@@ -154,7 +168,8 @@ export function buildBalance(
 						.map((c) => [keyOf[c.col], c.value]),
 				),
 			}));
-		const nameCol = nameKey && colOf[nameKey];
+		// No name column (Contracts, Stardust gain): fall back to the first column.
+		const nameCol = (nameKey && colOf[nameKey]) || header?.cells[0]?.col;
 		const m: Mapped = {
 			colOf,
 			rows: [],

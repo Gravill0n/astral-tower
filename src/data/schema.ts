@@ -17,7 +17,7 @@ export type TabDef = {
 	// Half a pair is an error.
 	pairs?: Record<string, [string, string][]>;
 	// Row key → conversion run before Zod.
-	convert?: Record<string, "yesNo" | "unlock" | "perLevel">;
+	convert?: Record<string, "yesNo" | "unlock" | "perLevel" | "numberList">;
 };
 
 // The 53 Globals parameters, exactly as named in the sheet.
@@ -338,6 +338,86 @@ export const TABS = {
 		},
 		convert: { unlock: "unlock" },
 	},
+	stardustTree: {
+		tab: "Stardust tree",
+		nameColumn: "Node",
+		columns: {
+			Node: "node",
+			Branch: "branch",
+			Effect: "effect",
+			"Per level": "perLevel",
+			Cost: "cost",
+			Growth: "growth",
+			"Max level": "maxLevel",
+		},
+		ignore: ["Total to max"],
+	},
+	stardustGain: {
+		tab: "Stardust gain",
+		columns: {
+			"Mana produced this run": "mana",
+			Stardust: "stardust",
+		},
+	},
+	research: {
+		tab: "Research",
+		nameColumn: "Research",
+		columns: {
+			Research: "research",
+			Effect: "effect",
+			"Per level": "perLevel",
+			"Cost (Lore)": "cost",
+			Growth: "growth",
+			"Max level": "maxLevel",
+		},
+		ignore: ["Total to max"],
+	},
+	stars: {
+		tab: "Stars",
+		nameColumn: "Star",
+		columns: {
+			Star: "star",
+			"Phase length (min)": "phaseLength",
+			"Drill output ×": "drillOutput",
+			"Frost drill output ×": "frostDrillOutput",
+			"Mana draw ×": "manaDraw",
+			"Surge fill ×": "surgeFill",
+			"Pulse high ×": "pulseHigh",
+			"Pulse low ×": "pulseLow",
+			"Pulse length (s)": "pulseLength",
+			"Voyage time ×": "voyageTime",
+			"Relic chance ×": "relicChance",
+			"Relic chance +": "relicChanceBonus",
+			"Floor space": "floorSpace",
+			"Twin clock": "twinClock",
+			Notes: "notes",
+		},
+		convert: { twinClock: "yesNo" },
+	},
+	trials: {
+		tab: "Trials",
+		nameColumn: "Trial",
+		columns: {
+			Trial: "trial",
+			Kind: "kind",
+			Rule: "rule",
+			"Stardust bonus": "stardustBonus",
+			Notes: "notes",
+		},
+	},
+	galaxy: {
+		tab: "Galaxy",
+		nameColumn: "Star",
+		columns: {
+			Star: "star",
+			Type: "type",
+			Dim: "dim",
+			"Links to": "linksTo",
+			Trial: "trial",
+			Notes: "notes",
+		},
+		convert: { dim: "yesNo", linksTo: "numberList" },
+	},
 	globals: {
 		tab: "Globals",
 		nameColumn: "Parameter",
@@ -556,6 +636,70 @@ const Contract = z.object({
 	reputation: z.number(),
 });
 
+const StardustNode = z.object({
+	node: z.string(),
+	branch: z.enum([
+		"Foundry",
+		"Gardens",
+		"Guild",
+		"Library",
+		"Bestiary",
+		"Comfort",
+	]),
+	effect: z.string(),
+	perLevel: z.number(),
+	cost: z.number(),
+	growth: z.number(),
+	maxLevel: z.number(),
+});
+
+// Check rows for the Stardust formula (Globals c and divisor).
+const StardustGain = z.object({ mana: z.number(), stardust: z.number() });
+
+const Research = z.object({
+	research: z.string(),
+	effect: z.string(),
+	perLevel: z.number(),
+	cost: z.number(), // Lore
+	growth: z.number(),
+	maxLevel: z.number(),
+});
+
+const Star = z.object({
+	star: z.string(),
+	phaseLength: z.number(),
+	drillOutput: z.number(),
+	frostDrillOutput: z.number(),
+	manaDraw: z.number(),
+	surgeFill: z.number(),
+	pulseHigh: z.number(),
+	pulseLow: z.number(),
+	pulseLength: z.number().optional(),
+	voyageTime: z.number(),
+	relicChance: z.number(),
+	relicChanceBonus: z.number(),
+	floorSpace: z.number(),
+	twinClock: z.boolean(),
+	notes,
+});
+
+const Trial = z.object({
+	trial: z.string(),
+	kind: z.enum(["Optional", "Dim star"]),
+	rule: z.string(), // Dim star: "<trial> and <trial>" (checked in T8)
+	stardustBonus: z.number(),
+	notes,
+});
+
+const GalaxyStar = z.object({
+	star: z.number(),
+	type: z.string(), // a Stars name or "Dim" (checked in T8)
+	dim: z.boolean(),
+	linksTo: z.array(z.number()),
+	trial: z.string().optional(),
+	notes,
+});
+
 const Global = z.object({
 	value: z.number(),
 	unit: z.string().optional(),
@@ -581,6 +725,12 @@ export const BalanceSchema = z.object({
 	traits: z.array(Trait),
 	events: z.array(VoyageEvent),
 	contracts: z.array(Contract),
+	stardustTree: z.array(StardustNode),
+	stardustGain: z.array(StardustGain),
+	research: z.array(Research),
+	stars: z.array(Star),
+	trials: z.array(Trial),
+	galaxy: z.array(GalaxyStar),
 	globals: z.record(z.enum(GLOBALS), Global),
 });
 

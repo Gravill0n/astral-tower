@@ -130,7 +130,6 @@ describe("buildBalance", () => {
 					[],
 				]),
 				globals(),
-				sheet("Notes for designers", [["Anything"]]),
 			]),
 		);
 		if (!("balance" in result)) throw new Error(result.errors.join("\n"));
@@ -225,6 +224,12 @@ describe("buildBalance", () => {
 		expect("errors" in result && result.errors).toEqual([
 			'missing tab "Resources"',
 		]);
+	});
+
+	it("reports an unknown extra tab", () => {
+		expect(
+			errors([RESOURCES, globals(), sheet("Notes for designers", [["Any"]])]),
+		).toEqual(['unknown tab "Notes for designers"']);
 	});
 
 	it("turns pairs into arrays, Yes/No into booleans and parses unlocks", () => {
@@ -534,6 +539,39 @@ describe("buildBalance", () => {
 		]);
 	});
 
+	it("turns Galaxy Links to into numbers and reports a bad list at its cell", () => {
+		const galaxy = (links: string) =>
+			sheet("Galaxy", [
+				["Star", "Type", "Dim", "Links to", "Trial", "Notes"],
+				[1, "First star", "No", links],
+			]);
+		const result = buildBalance(
+			withTabs([RESOURCES, globals(), galaxy("2, 10")]),
+		);
+		if (!("balance" in result)) throw new Error(result.errors.join("\n"));
+		expect(result.balance.galaxy).toEqual([
+			{ star: 1, type: "First star", dim: false, linksTo: [2, 10] },
+		]);
+		expect(errors([RESOURCES, globals(), galaxy("2, ten")])).toEqual([
+			'Galaxy!D2 (1): bad Links to "2, ten" (expected "n, n, …")',
+		]);
+	});
+
+	it("addresses a row on a tab with no name column", () => {
+		expect(
+			errors([
+				RESOURCES,
+				globals(),
+				sheet("Stardust gain", [
+					["Mana produced this run", "Stardust"],
+					[100000, "lots"],
+				]),
+			]),
+		).toEqual([
+			"Stardust gain!B2: Invalid input: expected number, received string",
+		]);
+	});
+
 	it("builds every defined tab from the real workbook", () => {
 		const result = buildBalance(
 			readXlsx(
@@ -565,6 +603,20 @@ describe("buildBalance", () => {
 				b.contracts,
 			].map((t) => t.length),
 		).toEqual([5, 3, 7, 6, 13, 6, 7, 8, 9]);
+		expect(
+			[
+				b.stardustTree,
+				b.stardustGain,
+				b.research,
+				b.stars,
+				b.trials,
+				b.galaxy,
+			].map((t) => t.length),
+		).toEqual([13, 6, 3, 7, 9, 20]);
+		expect(Object.keys(b)).toHaveLength(23);
+		expect(b.stardustGain[0]).toEqual({ mana: 100000, stardust: 31 });
+		expect(b.stars.find((s) => s.star === "Twin Stars")?.twinClock).toBe(true);
+		expect(b.galaxy[5].linksTo).toEqual([5, 7, 8, 9]);
 		expect(b.voyages[3].unlock).toEqual({
 			text: "Own a Clipper",
 			kind: "ownShip",

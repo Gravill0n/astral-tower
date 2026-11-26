@@ -88,6 +88,19 @@ function convertRow(
 				row.failed.add(key);
 			} else obj[key] = parsed;
 		}
+		if (kind === "perLevel" && v !== undefined) {
+			const hit = /^\+(\d+(?:\.\d+)?)(?: (Safety)|% (speed))$/.exec(String(v));
+			if (hit) {
+				obj[key] = hit[2]
+					? { stat: "safety", value: Number(hit[1]) }
+					: { stat: "speed", value: Number(hit[1]) / 100 };
+			} else {
+				errors.push(
+					`${m.at(row, m.colOf[key])}: unknown Per level "${v}" (expected "+N Safety" or "+N% speed")`,
+				);
+				row.failed.add(key);
+			}
+		}
 	}
 }
 
@@ -129,7 +142,8 @@ export function buildBalance(
 		}
 		if (errors.length > before) continue;
 
-		const nameKey = def.nameColumn && def.columns[def.nameColumn];
+		const nameKeys = [def.nameColumn ?? []].flat().map((h) => def.columns[h]);
+		const nameKey = nameKeys[0];
 		const objects = body
 			.filter((r) => r.cells.some((c) => c.value !== undefined))
 			.map((r) => ({
@@ -148,10 +162,8 @@ export function buildBalance(
 				`${def.tab}!${col ?? nameCol}${row.r}${row.name ? ` (${row.name})` : ""}`,
 		};
 		for (const { r, obj } of objects) {
-			const name =
-				nameKey && obj[nameKey] !== undefined
-					? String(obj[nameKey])
-					: undefined;
+			const parts = nameKeys.map((k) => obj[k]).filter((v) => v !== undefined);
+			const name = parts.length ? parts.join(" / ") : undefined;
 			const row: MappedRow = { r, name, cols: {}, failed: new Set() };
 			convertRow(def, obj, row, m, names, errors);
 			m.rows.push(row);

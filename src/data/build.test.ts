@@ -409,6 +409,131 @@ describe("buildBalance", () => {
 		]);
 	});
 
+	it("parses Gear Per level and reports another form at its cell", () => {
+		const header = [
+			"Kind",
+			"Name",
+			"Unlock",
+			"Speed",
+			"Safety",
+			"Cargo",
+			"Per level",
+			"Max level",
+			"Notes",
+		];
+		const captain = (perLevel: string) => [
+			"Captain",
+			"Pell the Cautious",
+			"The Library opens",
+			-0.15,
+			10,
+			undefined,
+			perLevel,
+			10,
+		];
+		const ok = buildBalance(
+			withTabs([
+				RESOURCES,
+				globals(),
+				sheet("Gear", [header, captain("+2 Safety"), captain("+2% speed")]),
+			]),
+		);
+		if (!("balance" in ok)) throw new Error(ok.errors.join("\n"));
+		expect(ok.balance.gear.map((g) => g.perLevel)).toEqual([
+			{ stat: "safety", value: 2 },
+			{ stat: "speed", value: 0.02 },
+		]);
+		expect(
+			errors([
+				RESOURCES,
+				globals(),
+				sheet("Gear", [header, captain("+2 Luck")]),
+			]),
+		).toEqual([
+			'Gear!G2 (Pell the Cautious): unknown Per level "+2 Luck" (expected "+N Safety" or "+N% speed")',
+		]);
+	});
+
+	it("reports a non-number trait value", () => {
+		expect(
+			errors([
+				RESOURCES,
+				globals(),
+				sheet("Traits", [
+					["Trait", "Effect", "Common", "Bright", "Radiant", "Stellar"],
+					["Swift", "Job speed", 0.05, "lots", 0.15, 0.25],
+				]),
+			]),
+		).toEqual([
+			"Traits!D2 (Swift): Invalid input: expected number, received string",
+		]);
+	});
+
+	it("reports an unknown Library Kind", () => {
+		expect(
+			errors([
+				RESOURCES,
+				globals(),
+				sheet("Library", [
+					[
+						"Constellation",
+						"Kind",
+						"Stars",
+						"Unlock",
+						"Per-star bonus",
+						"Full-set reward",
+						"Value",
+					],
+					[
+						"The Anvil",
+						"Forge",
+						5,
+						"The Library opens",
+						undefined,
+						"Blueprint",
+					],
+				]),
+			]),
+		).toEqual([
+			expect.stringMatching(/^Library!B2 \(The Anvil\): Invalid option/),
+		]);
+	});
+
+	it("names an Events row by Event and Option", () => {
+		expect(
+			errors([
+				RESOURCES,
+				globals(),
+				sheet("Events", [
+					[
+						"Event",
+						"Option",
+						"Time",
+						"Time of",
+						"Loot",
+						"Relic chance +",
+						"Danger +",
+						"Picked by",
+					],
+					[
+						"Drifting cargo",
+						"Haul it in",
+						0.1,
+						"forever",
+						0.25,
+						undefined,
+						undefined,
+						"Mira",
+					],
+				]),
+			]),
+		).toEqual([
+			expect.stringMatching(
+				/^Events!D2 \(Drifting cargo \/ Haul it in\): Invalid option/,
+			),
+		]);
+	});
+
 	it("builds every defined tab from the real workbook", () => {
 		const result = buildBalance(
 			readXlsx(
@@ -426,5 +551,28 @@ describe("buildBalance", () => {
 		expect(
 			[recipes, buildings, upgrades, crops, buffs, clock].map((t) => t.length),
 		).toEqual([32, 17, 14, 6, 13, 6]);
+		const b = result.balance;
+		expect(
+			[
+				b.voyages,
+				b.ships,
+				b.gear,
+				b.pace,
+				b.library,
+				b.familiars,
+				b.traits,
+				b.events,
+				b.contracts,
+			].map((t) => t.length),
+		).toEqual([5, 3, 7, 6, 13, 6, 7, 8, 9]);
+		expect(b.voyages[3].unlock).toEqual({
+			text: "Own a Clipper",
+			kind: "ownShip",
+			ship: "Clipper",
+		});
+		expect(b.gear.find((g) => g.name === "Mira Quickwind")?.perLevel).toEqual({
+			stat: "speed",
+			value: 0.02,
+		});
 	});
 });

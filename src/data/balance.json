@@ -1901,6 +1901,782 @@
 			"currentTo": "Hollow Reach"
 		}
 	],
+	"voyages": [
+		{
+			"nebula": "Cinder Shoals",
+			"unlock": {
+				"kind": "own",
+				"text": "Build the first Dock",
+				"building": "Dock",
+				"count": 1
+			},
+			"baseTime": 2,
+			"danger": 5,
+			"provisions": 1,
+			"aetherCharge": 100,
+			"loot": [
+				{
+					"resource": "Ember ore",
+					"qty": 150
+				}
+			],
+			"relicChance": 0.03,
+			"eggChance": 0,
+			"notes": "First voyage"
+		},
+		{
+			"nebula": "Glimmerdrift",
+			"unlock": {
+				"kind": "voyages",
+				"text": "Complete 3 voyages to Cinder Shoals",
+				"count": 3,
+				"destination": "Cinder Shoals"
+			},
+			"baseTime": 5,
+			"danger": 10,
+			"provisions": 2,
+			"aetherCharge": 200,
+			"loot": [
+				{
+					"resource": "Glimmer ore",
+					"qty": 150
+				},
+				{
+					"resource": "Comet pepper seeds",
+					"qty": 3
+				}
+			],
+			"relicChance": 0.05,
+			"eggChance": 0
+		},
+		{
+			"nebula": "Frostveil Nebula",
+			"unlock": {
+				"kind": "produce",
+				"text": "Craft the first Compass",
+				"resource": "Compass",
+				"count": 1
+			},
+			"baseTime": 15,
+			"danger": 30,
+			"provisions": 4,
+			"aetherCharge": 500,
+			"loot": [
+				{
+					"resource": "Frost ore",
+					"qty": 300
+				},
+				{
+					"resource": "Nebula pearls",
+					"qty": 3
+				}
+			],
+			"relicChance": 0.1,
+			"eggChance": 0,
+			"notes": "First risky route"
+		},
+		{
+			"nebula": "Hollow Reach",
+			"unlock": {
+				"kind": "ownShip",
+				"text": "Own a Clipper",
+				"ship": "Clipper"
+			},
+			"baseTime": 40,
+			"danger": 55,
+			"provisions": 10,
+			"aetherCharge": 1500,
+			"loot": [
+				{
+					"resource": "Void ore",
+					"qty": 4
+				},
+				{
+					"resource": "Voidbloom seeds",
+					"qty": 3
+				}
+			],
+			"relicChance": 0.2,
+			"eggChance": 0.1,
+			"notes": "Wild eggs: Star Whale, Key Owl, Void Moth"
+		},
+		{
+			"nebula": "Graveyard of Gods",
+			"unlock": {
+				"kind": "ownShip",
+				"text": "Own a Galleon",
+				"ship": "Galleon"
+			},
+			"baseTime": 120,
+			"danger": 85,
+			"provisions": 25,
+			"aetherCharge": 5000,
+			"loot": [
+				{
+					"resource": "Nebula pearls",
+					"qty": 10
+				},
+				{
+					"resource": "Void ore",
+					"qty": 10
+				}
+			],
+			"relicChance": 0.4,
+			"eggChance": 0.2,
+			"notes": "Only source of god relics"
+		}
+	],
+	"ships": [
+		{
+			"ship": "Skiff",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Dock",
+				"building": "Dock"
+			},
+			"costs": [
+				{
+					"resource": "Ship hull",
+					"qty": 1
+				},
+				{
+					"resource": "Star-sail",
+					"qty": 1
+				}
+			],
+			"speed": 1,
+			"safety": 10,
+			"cargo": 1,
+			"gearSlots": 1,
+			"crew": 2
+		},
+		{
+			"ship": "Clipper",
+			"unlock": {
+				"kind": "contracts",
+				"text": "Complete 3 contracts",
+				"count": 3
+			},
+			"costs": [
+				{
+					"resource": "Ship hull",
+					"qty": 3
+				},
+				{
+					"resource": "Star-sail",
+					"qty": 2
+				}
+			],
+			"speed": 1.3,
+			"safety": 25,
+			"cargo": 2,
+			"gearSlots": 2,
+			"crew": 4
+		},
+		{
+			"ship": "Galleon",
+			"unlock": {
+				"kind": "libraryComplete",
+				"text": "Complete The Mast (Library)",
+				"constellation": "The Mast"
+			},
+			"costs": [
+				{
+					"resource": "Ship hull",
+					"qty": 6
+				},
+				{
+					"resource": "Nebula pearls",
+					"qty": 5
+				}
+			],
+			"speed": 1.1,
+			"safety": 45,
+			"cargo": 4,
+			"gearSlots": 3,
+			"crew": 8
+		}
+	],
+	"gear": [
+		{
+			"kind": "Gear",
+			"name": "Star-sail",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Dock",
+				"building": "Dock"
+			},
+			"speed": 0.15,
+			"notes": "Sails slot"
+		},
+		{
+			"kind": "Gear",
+			"name": "Lantern",
+			"unlock": {
+				"kind": "returnFrom",
+				"text": "Return from Glimmerdrift",
+				"destination": "Glimmerdrift"
+			},
+			"safety": 10,
+			"notes": "Lanterns slot"
+		},
+		{
+			"kind": "Gear",
+			"name": "Cargo hold",
+			"unlock": {
+				"kind": "voyages",
+				"text": "Complete 3 voyages",
+				"count": 3
+			},
+			"cargo": 0.5,
+			"notes": "Holds slot"
+		},
+		{
+			"kind": "Gear",
+			"name": "Compass",
+			"unlock": {
+				"kind": "returnFrom",
+				"text": "Return from Glimmerdrift",
+				"destination": "Glimmerdrift"
+			},
+			"notes": "Shows route Danger and exact odds"
+		},
+		{
+			"kind": "Captain",
+			"name": "Pell the Cautious",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Dock",
+				"building": "Dock"
+			},
+			"speed": -0.15,
+			"safety": 10,
+			"perLevel": {
+				"stat": "safety",
+				"value": 2
+			},
+			"maxLevel": 10,
+			"notes": "Starter captain; unlocks an extra-slow pace"
+		},
+		{
+			"kind": "Captain",
+			"name": "Mira Quickwind",
+			"unlock": {
+				"kind": "contracts",
+				"text": "Complete 5 contracts",
+				"count": 5
+			},
+			"speed": 0.15,
+			"perLevel": {
+				"stat": "speed",
+				"value": 0.02
+			},
+			"maxLevel": 10,
+			"notes": "Halves the Dash Danger penalty; more events"
+		},
+		{
+			"kind": "Companion",
+			"name": "Star Whale",
+			"unlock": {
+				"kind": "hatch",
+				"text": "Hatch a Star Whale",
+				"count": 1,
+				"species": "Star Whale"
+			},
+			"speed": 0.15,
+			"safety": 15,
+			"notes": "Tows"
+		}
+	],
+	"pace": [
+		{
+			"pace": "Dash",
+			"time": 0.5,
+			"danger": 1.5,
+			"provisions": 0.75
+		},
+		{
+			"pace": "Swift",
+			"time": 0.75,
+			"danger": 1.2,
+			"provisions": 0.9
+		},
+		{
+			"pace": "Steady",
+			"time": 1,
+			"danger": 1,
+			"provisions": 1,
+			"notes": "Default"
+		},
+		{
+			"pace": "Careful",
+			"time": 1.5,
+			"danger": 0.75,
+			"provisions": 1.3,
+			"notes": "Suggested before going offline"
+		},
+		{
+			"pace": "Cautious",
+			"time": 2,
+			"danger": 0.6,
+			"provisions": 1.6
+		},
+		{
+			"pace": "Becalmed",
+			"time": 2.5,
+			"danger": 0.45,
+			"provisions": 1.9,
+			"notes": "Pell the Cautious only"
+		}
+	],
+	"library": [
+		{
+			"constellation": "The Lantern",
+			"kind": "Clock",
+			"stars": 3,
+			"unlock": {
+				"kind": "milestone",
+				"text": "The Library opens",
+				"milestone": "libraryOpens"
+			},
+			"perStarBonus": "+2% Attuner mana",
+			"fullSetReward": "Lantern phase +50%; Attuners +10% mana",
+			"value": 0.1
+		},
+		{
+			"constellation": "The Comet Fox",
+			"kind": "Clock",
+			"stars": 4,
+			"unlock": {
+				"kind": "milestone",
+				"text": "The Library opens",
+				"milestone": "libraryOpens"
+			},
+			"perStarBonus": "+2% line speed",
+			"fullSetReward": "Fox phase +50%; Foundry lines +10% speed",
+			"value": 0.1
+		},
+		{
+			"constellation": "The Teapot",
+			"kind": "Clock",
+			"stars": 4,
+			"unlock": {
+				"kind": "milestone",
+				"text": "The Library opens",
+				"milestone": "libraryOpens"
+			},
+			"perStarBonus": "+2% crop yield",
+			"fullSetReward": "Teapot phase +50%; crops +10% yield",
+			"value": 0.1
+		},
+		{
+			"constellation": "The Star Whale",
+			"kind": "Clock",
+			"stars": 5,
+			"unlock": {
+				"kind": "milestone",
+				"text": "The Library opens",
+				"milestone": "libraryOpens"
+			},
+			"perStarBonus": "-2% voyage time",
+			"fullSetReward": "Whale phase +50%; voyages -10% time",
+			"value": 0.1
+		},
+		{
+			"constellation": "The Key",
+			"kind": "Clock",
+			"stars": 3,
+			"unlock": {
+				"kind": "milestone",
+				"text": "The Library opens",
+				"milestone": "libraryOpens"
+			},
+			"perStarBonus": "+5% study speed",
+			"fullSetReward": "Key phase +50%; study +25% speed",
+			"value": 0.25
+		},
+		{
+			"constellation": "The Void Moth",
+			"kind": "Clock",
+			"stars": 5,
+			"unlock": {
+				"kind": "milestone",
+				"text": "The Library opens",
+				"milestone": "libraryOpens"
+			},
+			"perStarBonus": "+1% relic chance",
+			"fullSetReward": "Moth phase +50%; +10% relic chance",
+			"value": 0.1
+		},
+		{
+			"constellation": "The Anvil",
+			"kind": "Craft",
+			"stars": 5,
+			"unlock": {
+				"kind": "clockConstellations",
+				"text": "Complete 1 clock constellation",
+				"count": 1
+			},
+			"fullSetReward": "Blueprint: alternate Frostglass recipe"
+		},
+		{
+			"constellation": "The Rune",
+			"kind": "Craft",
+			"stars": 6,
+			"unlock": {
+				"kind": "clockConstellations",
+				"text": "Complete 2 clock constellations",
+				"count": 2
+			},
+			"fullSetReward": "Blueprint: 2 rune sockets per line"
+		},
+		{
+			"constellation": "The Sprout",
+			"kind": "Craft",
+			"stars": 6,
+			"unlock": {
+				"kind": "libraryComplete",
+				"text": "Complete The Teapot",
+				"constellation": "The Teapot"
+			},
+			"fullSetReward": "Blueprint: Almanac II"
+		},
+		{
+			"constellation": "The Mast",
+			"kind": "Craft",
+			"stars": 7,
+			"unlock": {
+				"kind": "libraryComplete",
+				"text": "Complete The Star Whale",
+				"constellation": "The Star Whale"
+			},
+			"fullSetReward": "Blueprint: Galleon"
+		},
+		{
+			"constellation": "The Drill",
+			"kind": "Craft",
+			"stars": 8,
+			"unlock": {
+				"kind": "clockConstellations",
+				"text": "Complete 3 clock constellations",
+				"count": 3
+			},
+			"fullSetReward": "Blueprint: deep mining (opens the Bestiary)"
+		},
+		{
+			"constellation": "The Weaver",
+			"kind": "God",
+			"stars": 10,
+			"unlock": {
+				"kind": "godRelic",
+				"text": "Bring back a god relic (Graveyard of Gods)",
+				"destination": "Graveyard of Gods"
+			},
+			"perStarBonus": "Lore page",
+			"fullSetReward": "Lore chapter; +10% all production",
+			"value": 0.1
+		},
+		{
+			"constellation": "The Sleeper",
+			"kind": "God",
+			"stars": 12,
+			"unlock": {
+				"kind": "godRelic",
+				"text": "Bring back a god relic (Graveyard of Gods)",
+				"destination": "Graveyard of Gods"
+			},
+			"perStarBonus": "Lore page",
+			"fullSetReward": "Lore chapter; +1 Starseed slot",
+			"value": 1
+		}
+	],
+	"familiars": [
+		{
+			"species": "Comet Fox",
+			"eggSource": "Hollow (first egg)",
+			"hatchTime": 20,
+			"incubatorCharms": 1,
+			"feed": "Starwheat",
+			"feedPerHour": 10,
+			"breedTime": 60,
+			"job": "Line foreman",
+			"jobBonus": "Line speed",
+			"bonusValue": 0.2
+		},
+		{
+			"species": "Lantern Wisp",
+			"eggSource": "Breeding",
+			"hatchTime": 30,
+			"incubatorCharms": 1,
+			"feed": "Starwheat",
+			"feedPerHour": 10,
+			"breedTime": 60,
+			"job": "Attuner helper",
+			"jobBonus": "Attuner mana",
+			"bonusValue": 0.15
+		},
+		{
+			"species": "Teapot Tortoise",
+			"eggSource": "Breeding",
+			"hatchTime": 30,
+			"incubatorCharms": 1,
+			"feed": "Starwheat",
+			"feedPerHour": 10,
+			"breedTime": 60,
+			"job": "Gardener (4 beds)",
+			"jobBonus": "Crop yield",
+			"bonusValue": 0.15
+		},
+		{
+			"species": "Void Moth",
+			"eggSource": "Hollow Reach",
+			"hatchTime": 30,
+			"incubatorCharms": 1,
+			"feed": "Voidbloom",
+			"feedPerHour": 1,
+			"breedTime": 90,
+			"job": "Pollinator (4 beds)",
+			"jobBonus": "Crop yield",
+			"bonusValue": 0.2
+		},
+		{
+			"species": "Key Owl",
+			"eggSource": "Hollow Reach",
+			"hatchTime": 45,
+			"incubatorCharms": 2,
+			"feed": "Voidbloom",
+			"feedPerHour": 1,
+			"breedTime": 90,
+			"job": "Archivist",
+			"jobBonus": "Study speed",
+			"bonusValue": 0.3
+		},
+		{
+			"species": "Star Whale",
+			"eggSource": "Hollow Reach",
+			"hatchTime": 60,
+			"incubatorCharms": 2,
+			"feed": "Voidbloom",
+			"feedPerHour": 2,
+			"breedTime": 120,
+			"job": "Ship companion",
+			"jobBonus": "Safety (points)",
+			"bonusValue": 15
+		}
+	],
+	"traits": [
+		{
+			"trait": "Swift",
+			"effect": "Job speed",
+			"common": 0.05,
+			"bright": 0.1,
+			"radiant": 0.15,
+			"stellar": 0.25
+		},
+		{
+			"trait": "Thrifty",
+			"effect": "Less mana",
+			"common": 0.05,
+			"bright": 0.1,
+			"radiant": 0.15,
+			"stellar": 0.25
+		},
+		{
+			"trait": "Hardy",
+			"effect": "Safety (points)",
+			"common": 3,
+			"bright": 6,
+			"radiant": 10,
+			"stellar": 15
+		},
+		{
+			"trait": "Green Paw",
+			"effect": "Crop yield",
+			"common": 0.05,
+			"bright": 0.1,
+			"radiant": 0.15,
+			"stellar": 0.25
+		},
+		{
+			"trait": "Scholarly",
+			"effect": "Study speed",
+			"common": 0.05,
+			"bright": 0.1,
+			"radiant": 0.15,
+			"stellar": 0.25
+		},
+		{
+			"trait": "Lucky",
+			"effect": "Relic chance",
+			"common": 0.01,
+			"bright": 0.02,
+			"radiant": 0.04,
+			"stellar": 0.06
+		},
+		{
+			"trait": "Sparky",
+			"effect": "Job speed; surges +25%",
+			"common": 0.08,
+			"bright": 0.15,
+			"radiant": 0.22,
+			"stellar": 0.3
+		}
+	],
+	"events": [
+		{
+			"event": "A star whale offers a tow",
+			"option": "Accept",
+			"time": -0.25,
+			"timeOf": "remaining",
+			"loot": -0.2,
+			"pickedBy": "Mira"
+		},
+		{
+			"event": "A star whale offers a tow",
+			"option": "Decline",
+			"pickedBy": "Pell, third captain"
+		},
+		{
+			"event": "A glittering wreck",
+			"option": "Search it",
+			"time": 0.1,
+			"timeOf": "trip",
+			"relicChance": 0.05,
+			"pickedBy": "Mira"
+		},
+		{
+			"event": "A glittering wreck",
+			"option": "Sail on",
+			"pickedBy": "Pell, third captain"
+		},
+		{
+			"event": "A comet shower ahead",
+			"option": "Go around",
+			"time": 0.2,
+			"timeOf": "remaining",
+			"pickedBy": "Pell, third captain"
+		},
+		{
+			"event": "A comet shower ahead",
+			"option": "Push through",
+			"danger": 15,
+			"pickedBy": "Mira"
+		},
+		{
+			"event": "Drifting cargo",
+			"option": "Haul it in",
+			"time": 0.1,
+			"timeOf": "trip",
+			"loot": 0.25,
+			"pickedBy": "Pell, third captain"
+		},
+		{
+			"event": "Drifting cargo",
+			"option": "Leave it",
+			"pickedBy": "Mira"
+		}
+	],
+	"contracts": [
+		{
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Dock",
+				"building": "Dock"
+			},
+			"goodAsked": "Emberbrass",
+			"reward": "Glimmer ore",
+			"rewardQty": 100,
+			"reputation": 1
+		},
+		{
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Dock",
+				"building": "Dock"
+			},
+			"goodAsked": "Runeplates",
+			"reward": "Comet pepper seeds",
+			"rewardQty": 2,
+			"reputation": 1
+		},
+		{
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Dock",
+				"building": "Dock"
+			},
+			"goodAsked": "Starwheat",
+			"reward": "Frost ore",
+			"rewardQty": 100,
+			"reputation": 1
+		},
+		{
+			"unlock": {
+				"kind": "returnFrom",
+				"text": "Return from Frostveil Nebula",
+				"destination": "Frostveil Nebula"
+			},
+			"goodAsked": "Runeplates",
+			"reward": "Nebula pearls",
+			"rewardQty": 3,
+			"reputation": 1
+		},
+		{
+			"unlock": {
+				"kind": "returnFrom",
+				"text": "Return from Frostveil Nebula",
+				"destination": "Frostveil Nebula"
+			},
+			"goodAsked": "Lenses",
+			"reward": "Nebula pearls",
+			"rewardQty": 2,
+			"reputation": 1
+		},
+		{
+			"unlock": {
+				"kind": "returnFrom",
+				"text": "Return from Frostveil Nebula",
+				"destination": "Frostveil Nebula"
+			},
+			"goodAsked": "Charm coils",
+			"reward": "Nebula pearls",
+			"rewardQty": 3,
+			"reputation": 1
+		},
+		{
+			"unlock": {
+				"kind": "ownShip",
+				"text": "Own a Clipper",
+				"ship": "Clipper"
+			},
+			"goodAsked": "Glimmersilk",
+			"reward": "Void ore",
+			"rewardQty": 2,
+			"reputation": 1
+		},
+		{
+			"unlock": {
+				"kind": "ownShip",
+				"text": "Own a Clipper",
+				"ship": "Clipper"
+			},
+			"goodAsked": "Provisions",
+			"reward": "Voidbloom seeds",
+			"rewardQty": 2,
+			"reputation": 1
+		},
+		{
+			"unlock": {
+				"kind": "milestone",
+				"text": "The Library opens",
+				"milestone": "libraryOpens"
+			},
+			"goodAsked": "Starberry pie",
+			"reward": "Void ore",
+			"rewardQty": 3,
+			"reputation": 1
+		}
+	],
 	"globals": {
 		"Constellation length": {
 			"value": 10,

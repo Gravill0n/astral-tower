@@ -5,7 +5,8 @@ import { UnlockSchema } from "./unlock.ts";
 export type TabDef = {
 	tab: string;
 	// Raw name column: names rows in error messages (and keys a keyed tab).
-	nameColumn?: string;
+	// Two columns (Events) name a row "A / B"; addresses use the first.
+	nameColumn?: string | [string, string];
 	// Exact header text → row key. Every listed header must be present.
 	columns: Record<string, string>;
 	// Derived helper columns, dropped.
@@ -16,7 +17,7 @@ export type TabDef = {
 	// Half a pair is an error.
 	pairs?: Record<string, [string, string][]>;
 	// Row key → conversion run before Zod.
-	convert?: Record<string, "yesNo" | "unlock">;
+	convert?: Record<string, "yesNo" | "unlock" | "perLevel">;
 };
 
 // The 53 Globals parameters, exactly as named in the sheet.
@@ -200,6 +201,143 @@ export const TABS = {
 		},
 		convert: { starlightCollector: "yesNo" },
 	},
+	voyages: {
+		tab: "Voyages",
+		nameColumn: "Nebula",
+		columns: {
+			Nebula: "nebula",
+			Unlock: "unlock",
+			"Base time (min)": "baseTime",
+			Danger: "danger",
+			Provisions: "provisions",
+			"Aether charge (mana)": "aetherCharge",
+			"Relic chance": "relicChance",
+			"Egg chance": "eggChance",
+			Notes: "notes",
+		},
+		pairs: {
+			loot: [
+				["Loot 1", "Qty 1"],
+				["Loot 2", "Qty 2"],
+			],
+		},
+		convert: { unlock: "unlock" },
+		ignore: ["Loot 1 /h", "Loot 2 /h", "Time on current (min)"],
+	},
+	ships: {
+		tab: "Ships",
+		nameColumn: "Ship",
+		columns: {
+			Ship: "ship",
+			Unlock: "unlock",
+			Speed: "speed",
+			Safety: "safety",
+			"Cargo ×": "cargo",
+			"Gear slots": "gearSlots",
+			Crew: "crew",
+		},
+		pairs: {
+			costs: [
+				["Cost 1", "Qty 1"],
+				["Cost 2", "Qty 2"],
+			],
+		},
+		convert: { unlock: "unlock" },
+	},
+	gear: {
+		tab: "Gear",
+		nameColumn: "Name",
+		columns: {
+			Kind: "kind",
+			Name: "name",
+			Unlock: "unlock",
+			Speed: "speed",
+			Safety: "safety",
+			Cargo: "cargo",
+			"Per level": "perLevel",
+			"Max level": "maxLevel",
+			Notes: "notes",
+		},
+		convert: { unlock: "unlock", perLevel: "perLevel" },
+	},
+	pace: {
+		tab: "Pace",
+		nameColumn: "Pace",
+		columns: {
+			Pace: "pace",
+			"Time ×": "time",
+			"Danger ×": "danger",
+			"Provisions ×": "provisions",
+			Notes: "notes",
+		},
+	},
+	library: {
+		tab: "Library",
+		nameColumn: "Constellation",
+		columns: {
+			Constellation: "constellation",
+			Kind: "kind",
+			Stars: "stars",
+			Unlock: "unlock",
+			"Per-star bonus": "perStarBonus",
+			"Full-set reward": "fullSetReward",
+			Value: "value",
+		},
+		convert: { unlock: "unlock" },
+	},
+	familiars: {
+		tab: "Familiars",
+		nameColumn: "Species",
+		columns: {
+			Species: "species",
+			"Egg source": "eggSource",
+			"Hatch time (min)": "hatchTime",
+			"Incubator charms": "incubatorCharms",
+			Feed: "feed",
+			"Feed /h": "feedPerHour",
+			"Breed time (min)": "breedTime",
+			Job: "job",
+			"Job bonus": "jobBonus",
+			"Bonus value": "bonusValue",
+		},
+	},
+	traits: {
+		tab: "Traits",
+		nameColumn: "Trait",
+		columns: {
+			Trait: "trait",
+			Effect: "effect",
+			Common: "common",
+			Bright: "bright",
+			Radiant: "radiant",
+			Stellar: "stellar",
+		},
+	},
+	events: {
+		tab: "Events",
+		nameColumn: ["Event", "Option"],
+		columns: {
+			Event: "event",
+			Option: "option",
+			Time: "time",
+			"Time of": "timeOf",
+			Loot: "loot",
+			"Relic chance +": "relicChance",
+			"Danger +": "danger",
+			"Picked by": "pickedBy",
+		},
+	},
+	contracts: {
+		tab: "Contracts",
+		columns: {
+			Unlock: "unlock",
+			"Good asked": "goodAsked",
+			Reward: "reward",
+			"Reward qty": "rewardQty",
+			Reputation: "reputation",
+		},
+		convert: { unlock: "unlock" },
+	},
 	globals: {
 		tab: "Globals",
 		nameColumn: "Parameter",
@@ -320,6 +458,104 @@ const ClockPhase = z.object({
 	currentTo: z.string().optional(),
 });
 
+const Voyage = z.object({
+	nebula: z.string(),
+	unlock: UnlockSchema,
+	baseTime: z.number(),
+	danger: z.number(),
+	provisions: z.number(),
+	aetherCharge: z.number(),
+	loot: pairs,
+	relicChance: z.number(),
+	eggChance: z.number(),
+	notes,
+});
+
+const Ship = z.object({
+	ship: z.string(),
+	unlock: UnlockSchema,
+	costs: pairs,
+	speed: z.number(),
+	safety: z.number(),
+	cargo: z.number(),
+	gearSlots: z.number(),
+	crew: z.number(),
+});
+
+const Gear = z.object({
+	kind: z.enum(["Gear", "Captain", "Companion"]),
+	name: z.string(),
+	unlock: UnlockSchema,
+	speed: z.number().optional(),
+	safety: z.number().optional(),
+	cargo: z.number().optional(),
+	// "+2 Safety" → { safety, 2 }; "+2% speed" → { speed, 0.02 }
+	perLevel: z
+		.object({ stat: z.enum(["safety", "speed"]), value: z.number() })
+		.optional(),
+	maxLevel: z.number().optional(),
+	notes,
+});
+
+const Pace = z.object({
+	pace: z.string(),
+	time: z.number(),
+	danger: z.number(),
+	provisions: z.number(),
+	notes,
+});
+
+const LibraryConstellation = z.object({
+	constellation: z.string(),
+	kind: z.enum(["Clock", "Craft", "God"]),
+	stars: z.number(),
+	unlock: UnlockSchema,
+	perStarBonus: z.string().optional(),
+	fullSetReward: z.string(),
+	value: z.number().optional(),
+});
+
+const Familiar = z.object({
+	species: z.string(),
+	eggSource: z.string(),
+	hatchTime: z.number(),
+	incubatorCharms: z.number(),
+	feed: z.string(),
+	feedPerHour: z.number(),
+	breedTime: z.number(),
+	job: z.string(),
+	jobBonus: z.string(),
+	bonusValue: z.number(),
+});
+
+const Trait = z.object({
+	trait: z.string(),
+	effect: z.string(),
+	common: z.number(),
+	bright: z.number(),
+	radiant: z.number(),
+	stellar: z.number(),
+});
+
+const VoyageEvent = z.object({
+	event: z.string(),
+	option: z.string(),
+	time: z.number().optional(),
+	timeOf: z.enum(["remaining", "trip"]).optional(),
+	loot: z.number().optional(),
+	relicChance: z.number().optional(),
+	danger: z.number().optional(),
+	pickedBy: z.string(), // captain first names or "third captain" (checked in T8)
+});
+
+const Contract = z.object({
+	unlock: UnlockSchema,
+	goodAsked: z.string(),
+	reward: z.string(),
+	rewardQty: z.number(),
+	reputation: z.number(),
+});
+
 const Global = z.object({
 	value: z.number(),
 	unit: z.string().optional(),
@@ -336,6 +572,15 @@ export const BalanceSchema = z.object({
 	crops: z.array(Crop),
 	buffs: z.array(Buff),
 	clock: z.array(ClockPhase),
+	voyages: z.array(Voyage),
+	ships: z.array(Ship),
+	gear: z.array(Gear),
+	pace: z.array(Pace),
+	library: z.array(LibraryConstellation),
+	familiars: z.array(Familiar),
+	traits: z.array(Trait),
+	events: z.array(VoyageEvent),
+	contracts: z.array(Contract),
 	globals: z.record(z.enum(GLOBALS), Global),
 });
 

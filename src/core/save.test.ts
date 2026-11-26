@@ -17,6 +17,7 @@ import {
 	type State,
 	TICK,
 } from "./state.ts";
+import { step } from "./step.ts";
 import { UNLOCK_KEYS } from "./unlocks.ts";
 
 const recipe = balance.recipes[0];
@@ -374,6 +375,29 @@ describe("save versions (GDD 11.3)", () => {
 		expect(result).toMatchObject({ ok: true });
 	});
 
+	const current = fixtures.filter(
+		(f) =>
+			JSON.parse(readFileSync(new URL(f, savesDir), "utf8")).version ===
+			SAVE_VERSION,
+	);
+
+	it("has fixtures at SAVE_VERSION", () => {
+		expect(current.length).toBeGreaterThan(0);
+	});
+
+	it.each(current)(
+		"loads %s unchanged and plays 60 s with no negative stock",
+		(file) => {
+			const text = readFileSync(new URL(file, savesDir), "utf8");
+			const result = loadSave(text);
+			if (!result.ok) throw new Error(result.error);
+			expect(result.state).toEqual(JSON.parse(text));
+			step(result.state, result.state.time + 60_000);
+			for (const [name, qty] of Object.entries(result.state.run.stock))
+				expect(qty, name).toBeGreaterThanOrEqual(0);
+		},
+	);
+
 	// Synthetic v0 shape: the same save before `recruited` existed.
 	const v0 = () => {
 		const raw = JSON.parse(saveToString(populated()));
@@ -397,6 +421,26 @@ describe("save versions (GDD 11.3)", () => {
 		migrate({ version: 0 }, steps);
 		migrate({ version: SAVE_VERSION }, steps);
 		expect(order).toEqual([0]);
+	});
+
+	it("migrate chains steps oldest first, each fed the previous output", () => {
+		const order: number[] = [];
+		const fromA = { version: 0, by: "a" };
+		let bGot: unknown;
+		const steps = {
+			[-1]: () => {
+				order.push(-1);
+				return fromA;
+			},
+			0: (raw: unknown) => {
+				order.push(0);
+				bGot = raw;
+				return { version: 1 };
+			},
+		};
+		expect(migrate({ version: -1 }, steps)).toEqual({ version: 1 });
+		expect(order).toEqual([-1, 0]);
+		expect(bGot).toBe(fromA);
 	});
 
 	it("loads an old save through an injected migration", () => {

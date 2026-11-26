@@ -19,6 +19,10 @@ describe("phaseAt", () => {
 		expect(phaseAt(hour + cycle)).toBe(first);
 	});
 
+	it("wraps times before the epoch into the previous cycle", () => {
+		expect(phaseAt(-1)).toBe(last);
+	});
+
 	it("gives every row its own window", () => {
 		for (const row of balance.clock) {
 			expect(phaseAt(hour + row.starts * MIN)).toBe(row);

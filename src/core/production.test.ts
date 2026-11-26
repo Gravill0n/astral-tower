@@ -171,6 +171,15 @@ describe("runLines (gdd 5.1, 3.1)", () => {
 		expect(s.run.milestones.fillAnyStorage).toBe(true);
 	});
 
+	it("stops a line whose main output is a float drift below cap", () => {
+		const s = withLines(brass, 1);
+		s.run.stock[brass.output] = cap(s, brass.output) * (1 - 1e-12);
+		s.run.stock[brassIn.resource] = cap(s, brassIn.resource);
+		runLines(s, brass.time, ones);
+		expect(s.run.stock[brassIn.resource]).toBe(cap(s, brassIn.resource));
+		expect(s.run.produced).toEqual({});
+	});
+
 	it("discards a byproduct at cap and keeps running", () => {
 		const s = withLines(brass, 1);
 		s.run.stock[slag.resource] = cap(s, slag.resource);
@@ -242,9 +251,14 @@ describe("mineByHand (gdd 4.3, 5.1)", () => {
 		expect(s.run.handMined[unit]).toBeUndefined();
 	});
 
-	it("unlocks the Star Drill after ten clicks", () => {
+	it("unlocks the Star Drill after its Mine-by-hand count of clicks", () => {
+		const drill = balance.buildings.find((b) => b.building === mine.building);
+		if (drill?.unlock.kind !== "mineByHand")
+			throw new Error("Star Drill: expected a Mine-by-hand unlock");
+		const clicks = drill.unlock.count / hand.value;
+		expect(Number.isInteger(clicks)).toBe(true);
 		const s = newGame(0);
-		for (let i = 0; i < 9; i++) mineByHand(s);
+		for (let i = 0; i < clicks - 1; i++) mineByHand(s);
 		expect(s.unlocked).not.toContain(`buildings/${mine.building}`);
 		mineByHand(s);
 		expect(s.unlocked).toContain(`buildings/${mine.building}`);

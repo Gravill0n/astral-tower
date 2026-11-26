@@ -181,6 +181,20 @@ describe("Mana Jars (gdd 3.3)", () => {
 		expect(s.run.milestones.fillManaJar).toBeUndefined();
 	});
 
+	it("does not set fillManaJar with no jars", () => {
+		const gated = balance.upgrades
+			.filter(
+				(u) =>
+					u.unlock.kind === "milestone" && u.unlock.milestone === "fillManaJar",
+			)
+			.map((u) => `upgrades/${u.upgrade}`);
+		expect(gated.length).toBeGreaterThan(0);
+		const s = newGame(0);
+		tick(s, dark);
+		expect(s.run.milestones.fillManaJar).toBeUndefined();
+		for (const key of gated) expect(s.unlocked).not.toContain(key);
+	});
+
 	it("discharges at most rate per jar and lifts the factor", () => {
 		const s = newGame(0);
 		jars(s, 1);

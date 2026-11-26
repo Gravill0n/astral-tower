@@ -37,6 +37,10 @@ describe("atLeast", () => {
 		expect(atLeast(29.99, 30)).toBe(false);
 		expect(atLeast(0, 0)).toBe(true);
 	});
+
+	it("scales the tolerance with large costs", () => {
+		expect(atLeast(1e9 * (1 - 1e-12), 1e9)).toBe(true);
+	});
 });
 
 describe("spend", () => {
@@ -102,6 +106,17 @@ describe("maxAffordable", () => {
 		expect(maxAffordable(item, 2, {})).toBe(0);
 	});
 
+	it("returns 0 when one of two resources is short by 1", () => {
+		const [first, second] = bench.costs;
+		const stock = {
+			[first.resource]: first.qty,
+			[second.resource]: second.qty - 1,
+		};
+		const before = { ...stock };
+		expect(maxAffordable(buildingCost(bench), 0, stock)).toBe(0);
+		expect(stock).toEqual(before);
+	});
+
 	it("respects the limit", () => {
 		const stock = { [ore.resource]: sum(ore.qty, drill.growth, 0, 50) };
 		expect(maxAffordable(item, 0, stock, 3)).toBe(3);
@@ -127,6 +142,35 @@ describe("buyBuilding", () => {
 		state.run.stock[ore.resource] = sum(ore.qty, drill.growth, 0, 10) - 1;
 		const before = structuredClone(state);
 		expect(buyBuilding(state, drill.building, 10)).toBe(false);
+		expect(state).toEqual(before);
+	});
+
+	it("refuses a two-resource building when the second resource is short by 1", () => {
+		const [first, second] = bench.costs;
+		const state = newGame(0);
+		state.unlocked.push(`buildings/${bench.building}`);
+		state.run.stock[first.resource] = first.qty;
+		state.run.stock[second.resource] = second.qty - 1;
+		const before = structuredClone(state);
+		expect(buyBuilding(state, bench.building, 1)).toBe(false);
+		expect(state).toEqual(before);
+	});
+
+	it.each([0, -1, 1.5, Number.NaN])("refuses a count of %s", (n) => {
+		const state = newGame(0);
+		state.unlocked.push(key);
+		state.run.stock[ore.resource] = 1e9;
+		const before = structuredClone(state);
+		expect(buyBuilding(state, drill.building, n)).toBe(false);
+		expect(state).toEqual(before);
+	});
+
+	it("refuses an unknown building", () => {
+		const state = newGame(0);
+		state.unlocked.push("buildings/Nope");
+		state.run.stock[ore.resource] = 1e9;
+		const before = structuredClone(state);
+		expect(buyBuilding(state, "Nope", 1)).toBe(false);
 		expect(state).toEqual(before);
 	});
 
@@ -167,6 +211,33 @@ describe("buyUpgrade", () => {
 		state.run.stock[bits.cost] = 1e12;
 		const before = structuredClone(state);
 		expect(buyUpgrade(state, bits.upgrade, 1)).toBe(false);
+		expect(state).toEqual(before);
+	});
+
+	it("refuses when unaffordable and leaves state untouched", () => {
+		const state = newGame(0);
+		state.unlocked.push(key);
+		state.run.stock[bits.cost] = bits.baseQty - 1;
+		const before = structuredClone(state);
+		expect(buyUpgrade(state, bits.upgrade, 1)).toBe(false);
+		expect(state).toEqual(before);
+	});
+
+	it.each([0, -1, 1.5, Number.NaN])("refuses a count of %s", (n) => {
+		const state = newGame(0);
+		state.unlocked.push(key);
+		state.run.stock[bits.cost] = 1e12;
+		const before = structuredClone(state);
+		expect(buyUpgrade(state, bits.upgrade, n)).toBe(false);
+		expect(state).toEqual(before);
+	});
+
+	it("refuses an unknown upgrade", () => {
+		const state = newGame(0);
+		state.unlocked.push("upgrades/Nope");
+		state.run.stock[bits.cost] = 1e12;
+		const before = structuredClone(state);
+		expect(buyUpgrade(state, "Nope", 1)).toBe(false);
 		expect(state).toEqual(before);
 	});
 

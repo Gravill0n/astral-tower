@@ -212,7 +212,7 @@ describe("offline equals online from the mid-game save (GDD 11.1)", () => {
 		expect(moved).toEqual(steady);
 	});
 
-	it("plays a building bought mid-catch-up the same as after a fresh load", () => {
+	it("plays the same after a buy and a save round trip as without the round trip", () => {
 		const played = midGame();
 		step(played, t0 + H);
 		const drills = owned(played, DRILL);

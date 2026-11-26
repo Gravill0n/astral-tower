@@ -32,6 +32,9 @@ const add = (s: State, type: string, r: string | null, n: number) => {
 };
 // Crucibles needing `extra` apprentices more than the starting pool.
 const short = (extra: number) => (start + extra) / crucible.apprentices;
+// Ore for one tick of n Crucibles at full speed, so inputs never limit them.
+const fullTick = (n: number) => (brass.inputs[0].qty * n * TICK_S) / brass.time;
+const jar = row(MANA_JAR);
 const dark = balance.clock.find((p) => !p.starlightCollector);
 if (!dark) throw new Error("Clock: need a dark phase");
 
@@ -85,10 +88,10 @@ describe("apprentice shortage in tick (gdd 3.4)", () => {
 		const s = newGame(0);
 		add(s, crucible.building, brass.recipe, n);
 		add(s, mine.building, mine.recipe, 1);
-		s.run.stock[brass.inputs[0].resource] = 100; // under the cap
+		s.run.stock[brass.inputs[0].resource] = fullTick(n);
 		// A full Mana Jar covers the deficit, so only apprentices limit speed.
 		add(s, MANA_JAR, null, 1);
-		s.run.jarMana = 1000;
+		s.run.jarMana = jar.provides ?? 0;
 		expect(manaFlow(s, dark).factor).toBe(1);
 		tick(s, dark);
 		const f = start / (start + 2);
@@ -102,7 +105,7 @@ describe("apprentice shortage in tick (gdd 3.4)", () => {
 		const n = short(2);
 		const s = newGame(0);
 		add(s, crucible.building, brass.recipe, n);
-		s.run.stock[brass.inputs[0].resource] = 100; // under the cap
+		s.run.stock[brass.inputs[0].resource] = fullTick(n);
 		const fApprentice = apprentices(s).factor;
 		const fMana = manaFlow(s, dark).factor;
 		expect(fApprentice).toBeLessThan(1);

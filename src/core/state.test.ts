@@ -45,17 +45,18 @@ describe("newRun", () => {
 
 		expect(next.run).toEqual(newGame(0).run);
 		expect(next.unlocked).toEqual(["buildings/Star Drill"]);
+		expect(next.unlocked).not.toBe(state.unlocked);
 		expect(next.time).toBe(state.time);
 	});
 });
 
 describe("src/core purity", () => {
 	const dir = new URL("./", import.meta.url);
-	const files = readdirSync(dir).filter(
+	const files = readdirSync(dir, { recursive: true, encoding: "utf8" }).filter(
 		(f) => f.endsWith(".ts") && !f.endsWith(".test.ts"),
 	);
 	const banned =
-		/Date\.now|\bwindow\b|\bdocument\b|localStorage|Math\.random|from\s+["']react/;
+		/Date\.now|new Date\(|performance\.now|\bwindow\b|\bdocument\b|localStorage|Math\.random|from\s+["']react/;
 
 	it("has source files to check", () => {
 		expect(files).toContain("state.ts");
@@ -63,5 +64,21 @@ describe("src/core purity", () => {
 
 	it.each(files)("%s uses no clock, DOM, randomness or React", (file) => {
 		expect(readFileSync(new URL(file, dir), "utf8")).not.toMatch(banned);
+	});
+});
+
+describe("src/core has no callers outside src/core in M2", () => {
+	const src = new URL("../", import.meta.url);
+	const files = readdirSync(src, { recursive: true, encoding: "utf8" }).filter(
+		(f) => /\.tsx?$/.test(f) && !f.startsWith("core/"),
+	);
+	const importsCore = /(from\s+|import\s*\(\s*)["'][^"']*\bcore\//;
+
+	it("has files to check", () => {
+		expect(files).toContain("main.tsx");
+	});
+
+	it.each(files)("%s does not import from core/", (file) => {
+		expect(readFileSync(new URL(file, src), "utf8")).not.toMatch(importsCore);
 	});
 });

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { balance } from "../data/index.ts";
-import { manaFlow } from "./mana.ts";
+import { MANA_JAR, manaFlow } from "./mana.ts";
 import { STARLIGHT_COLLECTOR } from "./production.ts";
-import { newGame, type State } from "./state.ts";
-import { tick } from "./step.ts";
+import { newGame, type State, TICK } from "./state.ts";
+import { step, tick } from "./step.ts";
 
 const recipe = (name: string) => {
 	const row = balance.recipes.find((r) => r.recipe === name);
@@ -42,6 +42,8 @@ describe("manaFlow (gdd 3.3)", () => {
 			demand: 0,
 			factor: 1,
 			wasted: base,
+			charge: 0,
+			discharge: 0,
 		});
 	});
 
@@ -131,5 +133,110 @@ describe("tick with the mana grid (gdd 3.3)", () => {
 		expect(s.run.produced.Mana).toBeCloseTo(
 			2 * perTick - collect.outQty / collect.time,
 		);
+	});
+});
+
+const jarRow = balance.buildings.find((b) => b.building === MANA_JAR);
+const jarCap = jarRow?.provides ?? 0;
+const jarRate = balance.globals["Mana Jar rate"].value;
+const jars = (s: State, n: number) => {
+	for (let i = 0; i < n; i++)
+		s.run.buildings.push({ type: MANA_JAR, recipe: null });
+};
+
+describe("Mana Jars (gdd 3.3)", () => {
+	it("names a building with a capacity in the Buildings tab", () => {
+		expect(jarCap).toBeGreaterThan(0);
+	});
+
+	it("charges from the surplus at most rate per jar, wasting the rest", () => {
+		const s = newGame(0);
+		jars(s, 1);
+		add(s, collect, Math.ceil((2 * jarRate) / collect.outQty));
+		const f = manaFlow(s, lit);
+		expect(f.charge).toBeCloseTo(jarRate);
+		expect(f.wasted).toBeCloseTo(f.made - jarRate);
+		tick(s, 1, lit);
+		expect(s.run.jarMana).toBeCloseTo(jarRate);
+	});
+
+	it("stops at capacity and sets fillManaJar", () => {
+		const s = newGame(0);
+		jars(s, 2);
+		s.run.jarMana = 2 * jarCap - 1;
+		const f = manaFlow(s, dark);
+		expect(f.charge).toBeCloseTo(1);
+		expect(f.wasted).toBeCloseTo(base - 1);
+		tick(s, 1, dark);
+		expect(s.run.jarMana).toBeCloseTo(2 * jarCap);
+		expect(s.run.milestones.fillManaJar).toBe(true);
+		expect(manaFlow(s, dark).charge).toBe(0);
+	});
+
+	it("does not set fillManaJar before the pool is full", () => {
+		const s = newGame(0);
+		jars(s, 2);
+		s.run.jarMana = jarCap; // one jar's worth, of two
+		tick(s, 1, dark);
+		expect(s.run.milestones.fillManaJar).toBeUndefined();
+	});
+
+	it("discharges at most rate per jar and lifts the factor", () => {
+		const s = newGame(0);
+		jars(s, 1);
+		s.run.jarMana = jarCap;
+		add(s, mine, drills(2) + (2 * jarRate) / mine.mana);
+		const f = manaFlow(s, dark);
+		expect(f.discharge).toBeCloseTo(jarRate);
+		expect(f.factor).toBeCloseTo((base + jarRate) / f.demand);
+		expect(f.drawn).toBeCloseTo(base + jarRate);
+		tick(s, 1, dark);
+		expect(s.run.jarMana).toBeCloseTo(jarCap - jarRate);
+	});
+
+	it("discharges no more than is stored, and covers a small deficit fully", () => {
+		const s = newGame(0);
+		jars(s, 1);
+		s.run.jarMana = 3;
+		add(s, mine, drills(2));
+		expect(manaFlow(s, dark).discharge).toBeCloseTo(3);
+		s.run.jarMana = jarCap;
+		const f = manaFlow(s, dark);
+		expect(f.discharge).toBeCloseTo(base);
+		expect(f.factor).toBe(1);
+		tick(s, 1, dark);
+		expect(s.run.milestones.manaShortage).toBeUndefined();
+	});
+
+	it("does not count jar discharge in produced Mana", () => {
+		const run = (n: number) => {
+			const s = newGame(0);
+			jars(s, n);
+			s.run.jarMana = n * jarCap;
+			add(s, mine, drills(2));
+			tick(s, 1, dark);
+			return s.run.produced.Mana;
+		};
+		expect(run(1)).toBe(run(0));
+	});
+
+	it("gives the same 2 h run in one step as in one-second steps", () => {
+		const H = 3_600_000;
+		const start = 1_000 * H;
+		const setup = () => {
+			const s = newGame(start);
+			jars(s, 2);
+			s.run.jarMana = jarCap;
+			add(s, mine, drills(2));
+			add(s, collect, 4);
+			return s;
+		};
+		const once = setup();
+		step(once, start + 2 * H);
+		const perSecond = setup();
+		for (let t = start + TICK; t <= start + 2 * H; t += TICK)
+			step(perSecond, t);
+		expect(perSecond).toEqual(once);
+		expect(once.run.milestones.fillManaJar).toBe(true);
 	});
 });

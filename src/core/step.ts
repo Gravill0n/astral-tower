@@ -4,7 +4,7 @@
 import { balance } from "../data/index.ts";
 import { type Phase, phaseAt } from "./clock.ts";
 import { atLeast } from "./cost.ts";
-import { baseMana, manaFlow } from "./mana.ts";
+import { baseMana, chargeJars, manaFlow } from "./mana.ts";
 import { MANA, runLines } from "./production.ts";
 import { type State, TICK } from "./state.ts";
 import { updateUnlocks } from "./unlocks.ts";
@@ -18,7 +18,9 @@ const capTicks = (balance.globals["Offline cap"].value * 3_600_000) / TICK;
 export const tick = (state: State, dt: number, phase: Phase): void => {
 	const run = state.run;
 	const grid = manaFlow(state, phase);
-	if (!atLeast(grid.made, grid.demand)) run.milestones.manaShortage = true;
+	// Shortage = supply (base, lines and jar discharge) below demand (GDD 3.3).
+	if (grid.factor < 1) run.milestones.manaShortage = true;
+	chargeJars(state, grid);
 	// Seams: apprentice factor (Task 13), hunger (M5).
 	const lines = runLines(state, dt, {
 		overchannel: run.overchannel,

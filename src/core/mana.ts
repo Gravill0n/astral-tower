@@ -8,6 +8,19 @@ import { type State, TICK } from "./state.ts";
 export const baseMana = balance.globals["Base mana generation"].value;
 const dt = TICK / 1000;
 
+export const MANA_JAR = "Mana Jar";
+const jarRow = balance.buildings.find((b) => b.building === MANA_JAR);
+if (!jarRow?.provides)
+	throw new Error(`Buildings: ${MANA_JAR} has no provides`);
+const jarSize = jarRow.provides;
+const jarRate = balance.globals["Mana Jar rate"].value;
+
+// Jars pool their mana in run.jarMana. Seam: Bigger jars (M4) scales capacity.
+const jarsOf = (state: State) => {
+	const n = state.run.buildings.filter((b) => b.type === MANA_JAR).length;
+	return { capacity: n * jarSize, rate: n * jarRate };
+};
+
 // Mana/s at full mana: made = base + Mana lines (input-limited, Collectors only
 // in starlight phases), demand = Σ draw × uptime, factor = supply ÷ demand
 // capped at 1. Pure: runs the lines on a scratch copy of the run. One pass, so
@@ -28,7 +41,14 @@ export const manaFlow = (state: State, phase: Phase) => {
 	});
 	const made = baseMana + lines.made / dt;
 	const demand = lines.drawn;
-	const discharge = 0; // seam: Mana Jars (Task 12)
+	// Jars cover a deficit or take a surplus, at most rate and what is stored
+	// or room left; the rest of a surplus is wasted.
+	const jars = jarsOf(state);
+	const stored = run.jarMana / dt;
+	const room = Math.max(0, jars.capacity - run.jarMana) / dt;
+	const net = made - demand;
+	const discharge = Math.min(jars.rate, stored, Math.max(0, -net));
+	const charge = Math.min(jars.rate, room, Math.max(0, net));
 	const supply = made + discharge;
 	const factor = atLeast(supply, demand) ? 1 : supply / demand;
 	return {
@@ -36,6 +56,20 @@ export const manaFlow = (state: State, phase: Phase) => {
 		drawn: demand * factor,
 		demand,
 		factor,
-		wasted: Math.max(0, made - demand),
+		wasted: Math.max(0, net - charge),
+		charge,
+		discharge,
 	};
+};
+
+// Applies one tick of jar flow; sets fillManaJar when the pool is full.
+export const chargeJars = (
+	state: State,
+	grid: ReturnType<typeof manaFlow>,
+): void => {
+	const run = state.run;
+	run.jarMana += (grid.charge - grid.discharge) * dt;
+	const { capacity } = jarsOf(state);
+	if (capacity > 0 && atLeast(run.jarMana, capacity))
+		run.milestones.fillManaJar = true;
 };

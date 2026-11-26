@@ -1,6 +1,13 @@
 // Apprentices (GDD 3.4): one shared pool, automatic assignment, shortage factor.
 import { balance } from "../data/index.ts";
-import { affordable, atLeast, bulkCost, recruitCost, spend } from "./cost.ts";
+import {
+	affordable,
+	atLeast,
+	bulkCost,
+	EPSILON,
+	recruitCost,
+	spend,
+} from "./cost.ts";
 import type { State } from "./state.ts";
 
 // Named in code; a test asserts it exists in the Buildings tab.
@@ -36,7 +43,7 @@ export const apprentices = (state: State) => {
 	};
 };
 
-const recruitTime = balance.globals["Recruit time"].value;
+export const recruitTime = balance.globals["Recruit time"].value;
 
 // All-or-nothing: paid now, at growth^(recruited + queued); queued recruits
 // count against room so the queue never exceeds it.
@@ -53,15 +60,18 @@ export const recruit = (state: State, n: number): boolean => {
 };
 
 // One recruit at a time, each Recruit time s; leftover time carries to the next
-// and is dropped once the queue is empty.
+// and is dropped once the queue is empty. O(1): k whole recruits at once, with
+// the same tolerance as atLeast(progress, k × Recruit time).
 export const advanceRecruits = (state: State, dt: number): void => {
 	const run = state.run;
 	if (run.recruitQueue === 0) return;
 	run.recruitProgress += dt;
-	while (run.recruitQueue > 0 && atLeast(run.recruitProgress, recruitTime)) {
-		run.recruitProgress = Math.max(0, run.recruitProgress - recruitTime);
-		run.recruitQueue--;
-		run.recruited++;
-	}
+	const k = Math.min(
+		run.recruitQueue,
+		Math.floor(run.recruitProgress / recruitTime + EPSILON),
+	);
+	run.recruitProgress = Math.max(0, run.recruitProgress - k * recruitTime);
+	run.recruitQueue -= k;
+	run.recruited += k;
 	if (run.recruitQueue === 0) run.recruitProgress = 0;
 };

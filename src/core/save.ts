@@ -3,10 +3,14 @@
 import { z } from "zod";
 import { balance } from "../data/index.ts";
 import { MilestoneSchema } from "../data/unlock.ts";
-import { SAVE_VERSION, type State, TICK } from "./state.ts";
+import { recruitTime } from "./apprentices.ts";
+import { MAX_BUILDINGS, SAVE_VERSION, type State, TICK } from "./state.ts";
 import { UNLOCK_KEYS } from "./unlocks.ts";
 
 export const MAX_SAVE_LENGTH = 1024 * 1024; // characters; both formats are ~1 byte each
+const MAX_TIME = 8.64e15; // ms, the largest valid Date
+const MAX_ISSUES = 5;
+const MAX_ERROR_LENGTH = 300;
 
 export type LoadResult =
 	| { ok: true; state: State }
@@ -28,30 +32,36 @@ const counts = (key: z.ZodEnum, value = amount) => z.partialRecord(key, value);
 
 const SaveSchema = z.strictObject({
 	version: z.literal(SAVE_VERSION),
-	time: count.multipleOf(TICK),
+	// A save from the future pauses until real time catches up (clock rule).
+	time: count.multipleOf(TICK).max(MAX_TIME),
 	unlocked: z.array(names(UNLOCK_KEYS)),
 	run: z.strictObject({
 		elapsed: amount,
 		stock: counts(Resource),
-		buildings: z.array(
-			z
-				.strictObject({ type: BuildingType, recipe: Recipe.nullable() })
-				.refine(
-					(b) => b.recipe === null || recipeBuilding.get(b.recipe) === b.type,
-					{
-						message: "recipe does not belong to this building",
-					},
-				),
-		),
+		buildings: z
+			.array(
+				z
+					.strictObject({ type: BuildingType, recipe: Recipe.nullable() })
+					.refine(
+						(b) => b.recipe === null || recipeBuilding.get(b.recipe) === b.type,
+						{
+							message: "recipe does not belong to this building",
+						},
+					),
+			)
+			.max(MAX_BUILDINGS),
 		upgrades: counts(Upgrade, count),
 		produced: counts(z.enum([...Resource.options, "Mana"])),
 		handMined: counts(Resource),
 		milestones: z.partialRecord(MilestoneSchema, z.literal(true)),
 		jarMana: amount,
-		overchannel: amount,
+		overchannel: z
+			.number()
+			.min(1)
+			.max(balance.globals["Overchannel max"].value),
 		recruited: count,
 		recruitQueue: count,
-		recruitProgress: amount,
+		recruitProgress: amount.max(recruitTime),
 	}),
 });
 
@@ -73,7 +83,14 @@ export const migrate = (raw: unknown, migrations = MIGRATIONS): unknown => {
 	return raw;
 };
 
-export const saveToString = (state: State): string => JSON.stringify(state);
+// Throws if any number is NaN or ±Infinity: JSON would write it as null and
+// loadSave would reject the save, so fail loudly here instead (a core bug).
+export const saveToString = (state: State): string =>
+	JSON.stringify(state, (key, value) => {
+		if (typeof value === "number" && !Number.isFinite(value))
+			throw new Error(`Save: ${key || "value"} is not finite (${value})`);
+		return value;
+	});
 
 // Base64 of the UTF-8 JSON, for copy and paste.
 export const exportSave = (state: State): string => {
@@ -118,10 +135,10 @@ export const loadSave = (text: string, migrations = MIGRATIONS): LoadResult => {
 	}
 	const result = SaveSchema.safeParse(raw);
 	if (!result.success) {
-		return {
-			ok: false,
-			error: `Save is invalid: ${z.prettifyError(result.error)}`,
-		};
+		// Bounded: a hostile save can carry thousands of issues.
+		const issues = result.error.issues.slice(0, MAX_ISSUES);
+		const error = `Save is invalid: ${z.prettifyError({ issues })}`;
+		return { ok: false, error: error.slice(0, MAX_ERROR_LENGTH) };
 	}
 	return { ok: true, state: result.data as State };
 };

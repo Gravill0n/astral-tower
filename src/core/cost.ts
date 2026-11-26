@@ -1,7 +1,7 @@
 // Costs and bulk buying (GDD 3.2). One cost shape for Buildings, Upgrades and
 // recruiting. `atLeast` is the only affordability and threshold test in the core.
 import { type Balance, balance } from "../data/index.ts";
-import type { Counts, State } from "./state.ts";
+import { type Counts, MAX_BUILDINGS, type State } from "./state.ts";
 import { updateUnlocks } from "./unlocks.ts";
 
 // Engine constant, not a balance value: relative tolerance for float drift.
@@ -76,12 +76,18 @@ export const maxAffordable = (
 
 const validCount = (n: number) => Number.isInteger(n) && n > 0;
 
-// All-or-nothing: false and state untouched when locked or unaffordable. New
+// All-or-nothing: false and state untouched when locked, unaffordable or past
+// MAX_BUILDINGS. New
 // buildings start on the first unlocked recipe of their type (GDD 4.3), checked
 // after owning them, so "Build the first X" recipes count.
 export const buyBuilding = (state: State, type: string, n: number): boolean => {
 	const row = balance.buildings.find((b) => b.building === type);
-	if (!row || !validCount(n) || !state.unlocked.includes(`buildings/${type}`))
+	if (
+		!row ||
+		!validCount(n) ||
+		!state.unlocked.includes(`buildings/${type}`) ||
+		state.run.buildings.length + n > MAX_BUILDINGS
+	)
 		return false;
 	const owned = state.run.buildings.filter((b) => b.type === type).length;
 	const costs = bulkCost(buildingCost(row), owned, n);

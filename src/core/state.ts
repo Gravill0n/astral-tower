@@ -5,6 +5,9 @@ import type { Unlock } from "../data/index.ts";
 // Engine constants, not balance values.
 export const TICK = 1000; // ms per simulated tick
 export const SAVE_VERSION = 1;
+// Cap on owned buildings so a save or a ×max buy cannot grow without bound.
+// ponytail: flat cap; revisit in M4 when floors land (space may bound it instead).
+export const MAX_BUILDINGS = 2000;
 
 export type Milestone = Extract<Unlock, { kind: "milestone" }>["milestone"];
 

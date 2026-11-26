@@ -12,7 +12,7 @@ import {
 	spend,
 	upgradeCost,
 } from "./cost.ts";
-import { newGame } from "./state.ts";
+import { MAX_BUILDINGS, newGame } from "./state.ts";
 
 const drill = balance.buildings.find((b) => b.building === "Star Drill");
 const bench = balance.buildings.find(
@@ -128,6 +128,18 @@ describe("buyBuilding", () => {
 		const before = structuredClone(state);
 		expect(buyBuilding(state, drill.building, 10)).toBe(false);
 		expect(state).toEqual(before);
+	});
+
+	it("refuses a purchase past MAX_BUILDINGS and leaves state untouched", () => {
+		const state = newGame(0);
+		state.unlocked.push(key);
+		for (let i = 0; i < MAX_BUILDINGS - 1; i++)
+			state.run.buildings.push({ type: "Apprentice quarters", recipe: null });
+		state.run.stock[ore.resource] = Number.MAX_VALUE;
+		const before = structuredClone(state);
+		expect(buyBuilding(state, drill.building, 2)).toBe(false);
+		expect(state).toEqual(before);
+		expect(buyBuilding(state, drill.building, 1)).toBe(true);
 	});
 
 	it("spends the bulk cost and adds n buildings on the first unlocked recipe", () => {

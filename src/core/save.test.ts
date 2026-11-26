@@ -1,6 +1,8 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { balance } from "../data/index.ts";
+import { MilestoneSchema } from "../data/unlock.ts";
+import names from "./names-v1.json";
 import {
 	exportSave,
 	loadSave,
@@ -8,7 +10,14 @@ import {
 	migrate,
 	saveToString,
 } from "./save.ts";
-import { newGame, SAVE_VERSION, type State, TICK } from "./state.ts";
+import {
+	MAX_BUILDINGS,
+	newGame,
+	SAVE_VERSION,
+	type State,
+	TICK,
+} from "./state.ts";
+import { UNLOCK_KEYS } from "./unlocks.ts";
 
 const recipe = balance.recipes[0];
 const otherRecipe = balance.recipes.find((r) => r.building !== recipe.building);
@@ -242,6 +251,57 @@ describe("loadSave rejects hostile input without throwing", () => {
 		expectRejected(JSON.stringify(raw));
 	});
 
+	it.each([
+		[
+			"recruit progress over Recruit time",
+			(r) => {
+				r.run.recruitProgress = balance.globals["Recruit time"].value + 1;
+			},
+		],
+		[
+			"overchannel below 100%",
+			(r) => {
+				r.run.overchannel = 0.5;
+			},
+		],
+		[
+			"overchannel over Overchannel max",
+			(r) => {
+				r.run.overchannel = balance.globals["Overchannel max"].value + 0.01;
+			},
+		],
+		[
+			"more than MAX_BUILDINGS buildings",
+			(r) => {
+				r.run.buildings = Array.from({ length: MAX_BUILDINGS + 1 }, () => ({
+					type: recipe.building,
+					recipe: null,
+				}));
+			},
+		],
+	] satisfies [string, (raw: { run: Record<string, unknown> }) => void][])(
+		"rejects %s",
+		(_, edit) => expectRejected(tampered(edit)),
+	);
+
+	it("rejects a time past the largest valid Date", () => {
+		const raw = JSON.parse(saveToString(newGame(0)));
+		raw.time = 8.64e15 + TICK;
+		expectRejected(JSON.stringify(raw));
+		raw.time = 8.64e15;
+		expect(loadSave(JSON.stringify(raw)).ok).toBe(true);
+	});
+
+	it("keeps the error short for a save with thousands of issues", () => {
+		const text = tampered((r) => {
+			r.run.buildings = Array.from({ length: 30_000 }, () => ({ type: "?" }));
+		});
+		expect(text.length).toBeLessThan(MAX_SAVE_LENGTH);
+		const result = loadSave(text);
+		expect(result.ok).toBe(false);
+		if (!result.ok) expect(result.error.length).toBeLessThanOrEqual(400);
+	});
+
 	it("rejects an extra top-level field", () => {
 		const raw = JSON.parse(saveToString(newGame(0)));
 		raw.extra = 1;
@@ -258,6 +318,46 @@ describe("loadSave rejects hostile input without throwing", () => {
 		const raw = JSON.parse(saveToString(newGame(0)));
 		raw.unlocked = ["buildings/Nope"];
 		expectRejected(JSON.stringify(raw));
+	});
+});
+
+describe("saveToString", () => {
+	it.each([
+		["NaN", Number.NaN],
+		["Infinity", Number.POSITIVE_INFINITY],
+	])("throws on %s instead of writing an unloadable save", (_, bad) => {
+		const state = populated();
+		state.run.jarMana = bad;
+		expect(() => saveToString(state)).toThrow(/not finite/);
+	});
+});
+
+// names-v1.json freezes every sheet name a v1 save can hold. A rename or
+// removal in the sheet would make old saves fail to load.
+describe("save-relevant names (frozen v1 snapshot)", () => {
+	const fix =
+		"a sheet rename/removal breaks old saves: bump SAVE_VERSION, add a migration, then update src/core/names-v1.json";
+	const missing = (frozen: string[], now: string[]) =>
+		frozen.filter((n) => !now.includes(n));
+
+	it.each([
+		["resources", names.resources, balance.resources.map((r) => r.resource)],
+		["buildings", names.buildings, balance.buildings.map((b) => b.building)],
+		["upgrades", names.upgrades, balance.upgrades.map((u) => u.upgrade)],
+		["milestones", names.milestones, MilestoneSchema.options],
+		["unlock keys", names.unlockKeys, UNLOCK_KEYS],
+	])("still has every frozen %s", (_, frozen, now) => {
+		expect(missing(frozen, now), fix).toEqual([]);
+	});
+
+	it("still has every frozen recipe on the same building", () => {
+		const now = Object.fromEntries(
+			balance.recipes.map((r) => [r.recipe, r.building]),
+		);
+		const changed = Object.entries(names.recipes).filter(
+			([r, b]) => now[r] !== b,
+		);
+		expect(changed, fix).toEqual([]);
 	});
 });
 

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { balance } from "../data/index.ts";
-import { APPRENTICE_QUARTERS, apprentices, recruit } from "./apprentices.ts";
+import {
+	APPRENTICE_QUARTERS,
+	advanceRecruits,
+	apprentices,
+	recruit,
+} from "./apprentices.ts";
 import { bulkCost, recruitCost } from "./cost.ts";
 import { MANA_JAR, manaFlow } from "./mana.ts";
 import { loadSave, saveToString } from "./save.ts";
@@ -207,6 +212,22 @@ describe("recruiting (gdd 3.4)", () => {
 		}
 		expect(b.run.recruited).toBe(a.run.recruited);
 		expect(b.run.recruitQueue).toBe(0);
+	});
+
+	it("finishes a huge queue in one call and keeps leftover progress", () => {
+		const t = g["Recruit time"].value;
+		const s = newGame(0);
+		s.run.recruitQueue = 5;
+		advanceRecruits(s, 2.5 * t);
+		expect(s.run).toMatchObject({ recruited: 2, recruitQueue: 3 });
+		expect(s.run.recruitProgress).toBeCloseTo(0.5 * t);
+		s.run.recruitQueue = 1e15; // would loop 1e15 times one by one
+		advanceRecruits(s, 1e300);
+		expect(s.run).toMatchObject({
+			recruited: 2 + 1e15,
+			recruitQueue: 0,
+			recruitProgress: 0,
+		});
 	});
 
 	it("partial progress carries over and nothing accrues with an empty queue", () => {

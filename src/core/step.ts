@@ -2,7 +2,7 @@
 // or closed tab runs the identical tick sequence. Phase boundaries fall on whole
 // ticks, so no tick straddles a constellation change.
 import { balance } from "../data/index.ts";
-import { apprentices } from "./apprentices.ts";
+import { advanceRecruits, apprentices } from "./apprentices.ts";
 import { type Phase, phaseAt } from "./clock.ts";
 import { atLeast } from "./cost.ts";
 import { baseMana, chargeJars, manaFlow } from "./mana.ts";
@@ -32,6 +32,7 @@ export const tick = (state: State, dt: number, phase: Phase): void => {
 	});
 	// Supplied mana: base + Attuners + Collectors (GDD 3.3).
 	run.produced[MANA] = (run.produced[MANA] ?? 0) + baseMana * dt + lines.made;
+	advanceRecruits(state, dt);
 	run.elapsed += dt;
 	if (atLeast(run.elapsed, cycleS)) run.milestones.clockCycle = true;
 	updateUnlocks(state);

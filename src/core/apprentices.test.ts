@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { balance } from "../data/index.ts";
-import { APPRENTICE_QUARTERS, apprentices } from "./apprentices.ts";
+import { APPRENTICE_QUARTERS, apprentices, recruit } from "./apprentices.ts";
+import { bulkCost, recruitCost } from "./cost.ts";
 import { MANA_JAR, manaFlow } from "./mana.ts";
+import { loadSave, saveToString } from "./save.ts";
 import { newGame, type State } from "./state.ts";
-import { tick } from "./step.ts";
+import { step, tick } from "./step.ts";
 
 const start = balance.globals["Starting apprentices"].value;
 const row = (name: string) => {
@@ -100,5 +102,106 @@ describe("apprentice shortage in tick (gdd 3.4)", () => {
 		add(s, crucible.building, brass.recipe, n);
 		s.run.stock[ore.resource] = (ore.qty * n * f) / brass.time;
 		expect(manaFlow(s, dark).demand).toBeCloseTo(n * brass.mana);
+	});
+});
+
+describe("recruiting (gdd 3.4)", () => {
+	const g = balance.globals;
+	const unit = g["Recruit cost"].unit ?? "";
+	const recruitMs = g["Recruit time"].value * 1000;
+	// Σ round(Recruit cost × growth^(owned+i)), straight from the Globals.
+	const price = (owned: number, k: number) => {
+		let q = 0;
+		for (let i = 0; i < k; i++)
+			q += Math.round(
+				g["Recruit cost"].value * g["Recruit cost growth"].value ** (owned + i),
+			);
+		return q;
+	};
+	// Room for `extra` recruits, `stock` Recruit cost units in hand.
+	const ready = (extra: number, stock: number) => {
+		const s = newGame(0);
+		add(
+			s,
+			APPRENTICE_QUARTERS,
+			null,
+			Math.ceil(extra / (quarters.provides ?? 1)),
+		);
+		s.run.stock[unit] = stock;
+		return s;
+	};
+
+	it("cost adapter matches the Globals", () => {
+		expect(bulkCost(recruitCost, 2, 3)).toEqual([
+			{ resource: unit, qty: price(2, 3) },
+		]);
+	});
+
+	it("queues k recruits for the growing price, owned = recruited + queued", () => {
+		const s = ready(4, 1e9);
+		s.run.recruited = 1;
+		s.run.recruitQueue = 1;
+		expect(recruit(s, 2)).toBe(true);
+		expect(s.run.recruitQueue).toBe(3);
+		expect(s.run.stock[unit]).toBe(1e9 - price(2, 2));
+	});
+
+	it("refuses beyond room, leaving state untouched", () => {
+		const s = ready(2, 1e9);
+		s.run.recruitQueue = 1;
+		const room = apprentices(s).room - apprentices(s).count - 1;
+		const before = structuredClone(s);
+		expect(recruit(s, room + 1)).toBe(false);
+		expect(s).toEqual(before);
+		expect(recruit(s, room)).toBe(true);
+	});
+
+	it("refuses when unaffordable or n is not a positive integer", () => {
+		const s = ready(2, price(0, 2) - 1);
+		const before = structuredClone(s);
+		expect(recruit(s, 2)).toBe(false);
+		expect(recruit(s, 0)).toBe(false);
+		expect(recruit(s, 1.5)).toBe(false);
+		expect(s).toEqual(before);
+	});
+
+	it("k × Recruit time of step adds k apprentices, one at a time", () => {
+		const k = 3;
+		const s = ready(k, price(0, k));
+		expect(recruit(s, k)).toBe(true);
+		step(s, recruitMs);
+		expect(s.run.recruited).toBe(1);
+		expect(s.run.recruitQueue).toBe(k - 1);
+		step(s, k * recruitMs);
+		expect(apprentices(s).count).toBe(start + k);
+		expect(s.run.recruitQueue).toBe(0);
+		expect(s.run.recruitProgress).toBe(0);
+	});
+
+	it("one long step equals many short ones; progress survives a save", () => {
+		const k = 2;
+		const a = ready(k, price(0, k));
+		recruit(a, k);
+		const b = structuredClone(a);
+		step(a, k * recruitMs);
+		for (let t = 1000; t <= k * recruitMs; t += 1000) {
+			const loaded = loadSave(saveToString(b));
+			if (!loaded.ok) throw new Error(loaded.error);
+			Object.assign(b, loaded.state);
+			step(b, t);
+		}
+		expect(b.run.recruited).toBe(a.run.recruited);
+		expect(b.run.recruitQueue).toBe(0);
+	});
+
+	it("partial progress carries over and nothing accrues with an empty queue", () => {
+		const s = ready(1, price(0, 1));
+		tick(s, 5, dark);
+		expect(s.run.recruitProgress).toBe(0);
+		recruit(s, 1);
+		tick(s, 5, dark);
+		const loaded = loadSave(saveToString(s));
+		if (!loaded.ok) throw new Error(loaded.error);
+		expect(loaded.state.run.recruitProgress).toBe(5);
 	});
 });

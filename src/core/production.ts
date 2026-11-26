@@ -11,10 +11,15 @@ export type Bonus = Partial<
 export type Multipliers = Required<{ [K in keyof Bonus]: number }>;
 export type Factors = {
 	overchannel: number;
-	mana: number; // grid shortage factor
+	mana: number; // grid shortage factor, for mana-drawing lines only
 	apprentice: number; // apprentice shortage factor
 	apprenticeSpeed: number;
+	starlight: boolean; // phase powers Starlight Collectors
 };
+
+// Named in code; a test asserts each exists in the Buildings tab.
+export const STARLIGHT_COLLECTOR = "Starlight Collector";
+export const MANA = "Mana"; // output of lines that feed the grid
 
 // Same kind adds, kinds multiply (each kind is 1 + Σ).
 export const multipliers = (bonuses: Bonus[]): Multipliers => {
@@ -34,7 +39,11 @@ export const bonusesFor = (_state: State, _building: Building): Bonus[] => [];
 // Per building: cycles/s, mana draw (mana/s) and output per cycle.
 export const lineRates = (recipe: Recipe, m: Multipliers, f: Factors) => ({
 	cycles:
-		(m.speed * f.overchannel * f.mana * f.apprentice * f.apprenticeSpeed) /
+		(m.speed *
+			f.overchannel *
+			(recipe.mana > 0 ? f.mana : 1) *
+			f.apprentice *
+			f.apprenticeSpeed) /
 		recipe.time,
 	mana: recipe.mana * f.overchannel * m.mana,
 	output: recipe.outQty * m.output,
@@ -79,6 +88,7 @@ export const runLines = (state: State, dt: number, f: Factors) => {
 		let draw = 0;
 		for (const b of state.run.buildings) {
 			if (b.recipe !== r.recipe) continue;
+			if (b.type === STARLIGHT_COLLECTOR && !f.starlight) continue;
 			const rates = lineRates(r, multipliers(bonusesFor(state, b)), f);
 			cycles += rates.cycles * dt;
 			out += rates.cycles * rates.output * dt;
@@ -91,7 +101,7 @@ export const runLines = (state: State, dt: number, f: Factors) => {
 				share,
 				(state.run.stock[i.resource] ?? 0) / (i.qty * cycles),
 			);
-		const mana = r.output === "Mana";
+		const mana = r.output === MANA;
 		if (!mana) share = Math.min(share, room(state, r.output) / out);
 		if (!(share > 0)) continue;
 		spend(

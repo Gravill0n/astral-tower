@@ -36,7 +36,13 @@ describe("multipliers (gdd 3.6)", () => {
 });
 
 describe("lineRates (gdd 3.6)", () => {
-	const ones = { overchannel: 1, mana: 1, apprentice: 1, apprenticeSpeed: 1 };
+	const ones = {
+		overchannel: 1,
+		mana: 1,
+		apprentice: 1,
+		apprenticeSpeed: 1,
+		starlight: true,
+	};
 
 	it("runs at 1/time with no bonuses or shortages", () => {
 		const r = lineRates(crucible, multipliers([]), ones);
@@ -52,6 +58,7 @@ describe("lineRates (gdd 3.6)", () => {
 			mana: 0.5,
 			apprentice: 0.8,
 			apprenticeSpeed: 0.9,
+			starlight: true,
 		};
 		const r = lineRates(crucible, m, f);
 		expect(r.cycles).toBeCloseTo(
@@ -89,7 +96,13 @@ const recipe = (name: string) => {
 	if (!row) throw new Error(`Recipes: no ${name}`);
 	return row;
 };
-const ones = { overchannel: 1, mana: 1, apprentice: 1, apprenticeSpeed: 1 };
+const ones = {
+	overchannel: 1,
+	mana: 1,
+	apprentice: 1,
+	apprenticeSpeed: 1,
+	starlight: true,
+};
 const withLines = (r: ReturnType<typeof recipe>, n: number): State => {
 	const s = newGame(0);
 	for (let i = 0; i < n; i++)

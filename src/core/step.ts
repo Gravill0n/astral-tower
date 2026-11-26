@@ -4,7 +4,8 @@
 import { balance } from "../data/index.ts";
 import { type Phase, phaseAt } from "./clock.ts";
 import { atLeast } from "./cost.ts";
-import { runLines } from "./production.ts";
+import { baseMana, manaFlow } from "./mana.ts";
+import { MANA, runLines } from "./production.ts";
 import { type State, TICK } from "./state.ts";
 import { updateUnlocks } from "./unlocks.ts";
 
@@ -13,16 +14,21 @@ export const TICK_S = TICK / 1000;
 const cycleS = balance.globals["Clock cycle"].value * 60;
 const capTicks = (balance.globals["Offline cap"].value * 3_600_000) / TICK;
 
-// One tick of dt seconds in `phase`. Later tasks add mana and apprentices.
-export const tick = (state: State, dt: number, _phase: Phase): void => {
+// One tick of dt seconds in `phase`. Later tasks add apprentices.
+export const tick = (state: State, dt: number, phase: Phase): void => {
 	const run = state.run;
-	// Seams: mana factor (Task 11), apprentice factor (Task 13), hunger (M5).
-	runLines(state, dt, {
+	const grid = manaFlow(state, phase);
+	if (!atLeast(grid.made, grid.demand)) run.milestones.manaShortage = true;
+	// Seams: apprentice factor (Task 13), hunger (M5).
+	const lines = runLines(state, dt, {
 		overchannel: run.overchannel,
-		mana: 1,
+		mana: grid.factor,
 		apprentice: 1,
 		apprenticeSpeed: 1,
+		starlight: phase.starlightCollector,
 	});
+	// Supplied mana: base + Attuners + Collectors (GDD 3.3).
+	run.produced[MANA] = (run.produced[MANA] ?? 0) + baseMana * dt + lines.made;
 	run.elapsed += dt;
 	if (atLeast(run.elapsed, cycleS)) run.milestones.clockCycle = true;
 	updateUnlocks(state);

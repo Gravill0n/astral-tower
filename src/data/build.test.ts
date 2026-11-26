@@ -308,6 +308,34 @@ describe("buildBalance", () => {
 		]);
 	});
 
+	it("reports a Globals row with a Value but no Parameter", () => {
+		const g = sheet("Globals", [
+			["Parameter", "Value", "Unit", "Notes"],
+			...GLOBALS.map((n) => [n, 1, n === "Offline cap" ? "h" : undefined]),
+			[undefined, 1],
+		]);
+		expect(errors([sheet("Resources", [RESOURCES_HEADER]), g])).toEqual([
+			'Globals!A55: missing "Parameter"',
+		]);
+	});
+
+	it("keeps crops aligned when a Resources Tier is empty", () => {
+		expect(
+			errors([
+				sheet("Resources", [
+					RESOURCES_HEADER,
+					["Ember ore", undefined, "Foundry", "Star Drill", 500],
+					["Starwheat", "Crop", "Gardens", "Garden bed", 500],
+				]),
+				globals(),
+				sheet("Buildings", [
+					BUILDINGS_HEADER,
+					DRILL.map((v, i) => (i === 2 ? "Harvest the first Starwheat" : v)),
+				]),
+			]),
+		).toEqual([expect.stringMatching(/^Resources!B2 \(Ember ore\): /)]);
+	});
+
 	it("reports a missing tab", () => {
 		const result = buildBalance(
 			withTabs([globals()]).filter((s) => s.name !== "Resources"),

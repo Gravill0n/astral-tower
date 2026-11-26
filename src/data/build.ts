@@ -3,21 +3,25 @@ import { type Balance, BalanceSchema, TABS, type TabDef } from "./schema.ts";
 import { parseUnlock, type UnlockNames } from "./unlock.ts";
 import type { CellValue, Sheet } from "./xlsx.ts";
 
-// Raw values under a header, data rows only (no type checks: used before Zod).
+// Raw values under a header, one per data row, empty cells kept as undefined
+// (no type checks: used before Zod).
 function column(sheet: Sheet | undefined, header: string): CellValue[] {
 	const col = sheet?.rows[0]?.cells.find((c) => c.value === header)?.col;
 	if (!sheet || !col) return [];
 	return sheet.rows
 		.slice(1)
-		.map((r) => r.cells.find((c) => c.col === col)?.value)
-		.filter((v) => v !== undefined);
+		.map((r) => r.cells.find((c) => c.col === col)?.value);
 }
 
 // Name sets for the unlock parser (GDD 13), from each tab's raw name column.
 export function unlockNames(sheets: Sheet[]): UnlockNames {
 	const tab = (name: string) => sheets.find((s) => s.name === name);
 	const set = (name: string, header: string) =>
-		new Set(column(tab(name), header).map(String));
+		new Set(
+			column(tab(name), header)
+				.filter((v) => v !== undefined)
+				.map(String),
+		);
 	const resources = tab("Resources");
 	const tiers = column(resources, "Tier");
 	return {
@@ -25,7 +29,7 @@ export function unlockNames(sheets: Sheet[]): UnlockNames {
 		resources: set("Resources", "Resource"),
 		crops: new Set(
 			column(resources, "Resource")
-				.filter((_, i) => tiers[i] === "Crop")
+				.filter((v, i) => v !== undefined && tiers[i] === "Crop")
 				.map(String),
 		),
 		voyages: set("Voyages", "Nebula"),
@@ -181,6 +185,12 @@ export function buildBalance(
 			const parts = nameKeys.map((k) => obj[k]).filter((v) => v !== undefined);
 			const name = parts.length ? parts.join(" / ") : undefined;
 			const row: MappedRow = { r, name, cols: {}, failed: new Set() };
+			if (def.nameColumn && name === undefined) {
+				errors.push(
+					`${m.at(row)}: missing "${[def.nameColumn].flat().join('" / "')}"`,
+				);
+				for (const k of nameKeys) row.failed.add(k);
+			}
 			if (def.nameColumn && name !== undefined) {
 				const first = firstRow.get(name);
 				if (first)
@@ -227,6 +237,10 @@ export function buildBalance(
 		errors.push(`${at(row, col)}: ${issue.message}`);
 	}
 
+	// Never fail without saying why (an issue no row could be matched to).
+	if (!parsed.success && !errors.length)
+		for (const i of parsed.error.issues)
+			errors.push(`${i.path.join(".")}: ${i.message}`);
 	if (errors.length || !parsed.success) return { errors };
 	const refErrors = crossRefs(parsed.data, mapped);
 	return refErrors.length ? { errors: refErrors } : { balance: parsed.data };

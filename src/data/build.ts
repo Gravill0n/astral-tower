@@ -1,6 +1,6 @@
 // Sheets → Balance, or every error found, each addressed as `Tab!Cell (row name)`.
 import { type Balance, BalanceSchema, TABS, type TabDef } from "./schema.ts";
-import type { UnlockNames } from "./unlock.ts";
+import { parseUnlock, type UnlockNames } from "./unlock.ts";
 import type { CellValue, Sheet } from "./xlsx.ts";
 
 // Raw values under a header, data rows only (no type checks: used before Zod).
@@ -35,11 +35,61 @@ export function unlockNames(sheets: Sheet[]): UnlockNames {
 	};
 }
 
-type Mapped = {
-	def: TabDef;
-	colOf: Record<string, string>; // row key → column letter
-	rows: { r: number; name?: string }[]; // in sheet order
+type MappedRow = {
+	r: number;
+	name?: string;
+	cols: Record<string, string>; // issue path inside a pair ("costs.0.qty") → column letter
+	failed: Set<string>; // row keys whose conversion already reported an error
 };
+
+type Mapped = {
+	colOf: Record<string, string>; // row key or pair header → column letter
+	rows: MappedRow[]; // in sheet order
+	at: (row: MappedRow, col?: string) => string;
+};
+
+// Pairs → arrays and per-column conversions, in place, before Zod.
+function convertRow(
+	def: TabDef,
+	obj: Record<string, unknown>,
+	row: MappedRow,
+	m: Mapped,
+	names: UnlockNames,
+	errors: string[],
+) {
+	for (const [key, slots] of Object.entries(def.pairs ?? {})) {
+		const list: unknown[] = [];
+		for (const [a, b] of slots) {
+			const resource = obj[a];
+			const qty = obj[b];
+			delete obj[a];
+			delete obj[b];
+			if (resource === undefined && qty === undefined) continue;
+			if (resource === undefined || qty === undefined) {
+				const [set, empty] = resource === undefined ? [b, a] : [a, b];
+				errors.push(
+					`${m.at(row, m.colOf[empty])}: half a pair: "${set}" is set but "${empty}" is empty`,
+				);
+				continue;
+			}
+			row.cols[`${key}.${list.length}.resource`] = m.colOf[a];
+			row.cols[`${key}.${list.length}.qty`] = m.colOf[b];
+			list.push({ resource, qty });
+		}
+		obj[key] = list;
+	}
+	for (const [key, kind] of Object.entries(def.convert ?? {})) {
+		const v = obj[key];
+		if (kind === "yesNo" && (v === "Yes" || v === "No")) obj[key] = v === "Yes";
+		if (kind === "unlock" && typeof v === "string") {
+			const parsed = parseUnlock(v, names);
+			if ("error" in parsed) {
+				errors.push(`${m.at(row, m.colOf[key])}: ${parsed.error}`);
+				row.failed.add(key);
+			} else obj[key] = parsed;
+		}
+	}
+}
 
 export function buildBalance(
 	sheets: Sheet[],
@@ -47,6 +97,7 @@ export function buildBalance(
 	const errors: string[] = [];
 	const raw: Record<string, unknown> = {};
 	const mapped: Record<string, Mapped> = {};
+	const names = unlockNames(sheets);
 
 	for (const [key, def] of Object.entries(TABS) as [string, TabDef][]) {
 		const sheet = sheets.find((s) => s.name === def.tab);
@@ -58,9 +109,11 @@ export function buildBalance(
 		const colOf: Record<string, string> = {};
 		const keyOf: Record<string, string> = {}; // column letter → row key
 		const before = errors.length;
+		const pairHeaders = Object.values(def.pairs ?? {}).flat(2);
 		for (const c of header?.cells ?? []) {
 			if (c.value === undefined) continue;
-			const k = def.columns[String(c.value)];
+			const h = String(c.value);
+			const k = def.columns[h] ?? (pairHeaders.includes(h) ? h : undefined);
 			if (k) {
 				colOf[k] = c.col;
 				keyOf[c.col] = k;
@@ -68,7 +121,10 @@ export function buildBalance(
 				errors.push(`${def.tab}!${c.ref}: unknown header "${c.value}"`);
 			}
 		}
-		for (const [h, k] of Object.entries(def.columns)) {
+		for (const [h, k] of [
+			...Object.entries(def.columns),
+			...pairHeaders.map((h) => [h, h]),
+		]) {
 			if (!colOf[k]) errors.push(`${def.tab}: missing header "${h}"`);
 		}
 		if (errors.length > before) continue;
@@ -84,14 +140,23 @@ export function buildBalance(
 						.map((c) => [keyOf[c.col], c.value]),
 				),
 			}));
-		const rows = objects.map(({ r, obj }) => ({
-			r,
-			name:
+		const nameCol = nameKey && colOf[nameKey];
+		const m: Mapped = {
+			colOf,
+			rows: [],
+			at: (row, col) =>
+				`${def.tab}!${col ?? nameCol}${row.r}${row.name ? ` (${row.name})` : ""}`,
+		};
+		for (const { r, obj } of objects) {
+			const name =
 				nameKey && obj[nameKey] !== undefined
 					? String(obj[nameKey])
-					: undefined,
-		}));
-		mapped[key] = { def, colOf, rows };
+					: undefined;
+			const row: MappedRow = { r, name, cols: {}, failed: new Set() };
+			convertRow(def, obj, row, m, names, errors);
+			m.rows.push(row);
+		}
+		mapped[key] = m;
 		raw[key] = def.keyed
 			? Object.fromEntries(
 					objects.map(({ obj }) => {
@@ -106,10 +171,7 @@ export function buildBalance(
 	for (const issue of parsed.error?.issues ?? []) {
 		const m = mapped[String(issue.path[0])];
 		if (!m) continue; // tab already failed on its headers or is missing
-		const { def, colOf, rows } = m;
-		const nameCol = def.nameColumn && colOf[def.columns[def.nameColumn]];
-		const at = (row: { r: number; name?: string }, col?: string) =>
-			`${def.tab}!${col ?? nameCol}${row.r}${row.name ? ` (${row.name})` : ""}`;
+		const { colOf, rows, at } = m;
 		if (issue.code === "unrecognized_keys") {
 			for (const k of issue.keys) {
 				const row = rows.find((r) => r.name === k);
@@ -117,14 +179,18 @@ export function buildBalance(
 			}
 			continue;
 		}
-		const [, id, field] = issue.path;
+		const [tab, id, field, ...inside] = issue.path;
 		const row =
 			typeof id === "number" ? rows[id] : rows.find((r) => r.name === id);
 		if (!row) {
-			errors.push(`${def.tab}: missing "${String(id)}"`);
+			errors.push(
+				`${TABS[tab as keyof typeof TABS].tab}: missing "${String(id)}"`,
+			);
 			continue;
 		}
-		errors.push(`${at(row, colOf[String(field)])}: ${issue.message}`);
+		if (row.failed.has(String(field))) continue;
+		const col = row.cols[[field, ...inside].join(".")] ?? colOf[String(field)];
+		errors.push(`${at(row, col)}: ${issue.message}`);
 	}
 
 	if (errors.length || !parsed.success) return { errors };

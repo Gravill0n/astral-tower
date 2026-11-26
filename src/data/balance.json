@@ -274,6 +274,1633 @@
 			"storageCap": 50
 		}
 	],
+	"recipes": [
+		{
+			"recipe": "Mine Ember ore",
+			"building": "Star Drill",
+			"unlock": {
+				"kind": "own",
+				"text": "Build the first Star Drill",
+				"building": "Star Drill",
+				"count": 1
+			},
+			"output": "Ember ore",
+			"outQty": 1,
+			"inputs": [],
+			"time": 2,
+			"mana": 0.5,
+			"byproducts": [],
+			"notes": "Hand mining gives 1 per click before this"
+		},
+		{
+			"recipe": "Mine Frost ore",
+			"building": "Star Drill",
+			"unlock": {
+				"kind": "produce",
+				"text": "Produce 50 Runeplates",
+				"resource": "Runeplates",
+				"count": 50
+			},
+			"output": "Frost ore",
+			"outQty": 1,
+			"inputs": [],
+			"time": 2,
+			"mana": 0.5,
+			"byproducts": []
+		},
+		{
+			"recipe": "Mine Glimmer ore",
+			"building": "Star Drill",
+			"unlock": {
+				"kind": "produce",
+				"text": "Produce 20 Lenses",
+				"resource": "Lenses",
+				"count": 20
+			},
+			"output": "Glimmer ore",
+			"outQty": 1,
+			"inputs": [],
+			"time": 3,
+			"mana": 0.5,
+			"byproducts": []
+		},
+		{
+			"recipe": "Mine Mana crystals",
+			"building": "Star Drill",
+			"unlock": {
+				"kind": "own",
+				"text": "Own 2 Runewright's Benches",
+				"building": "Runewright's Bench",
+				"count": 2
+			},
+			"output": "Mana crystals",
+			"outQty": 1,
+			"inputs": [],
+			"time": 4,
+			"mana": 0.5,
+			"byproducts": []
+		},
+		{
+			"recipe": "Emberbrass",
+			"building": "Crucible",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Crucible",
+				"building": "Crucible"
+			},
+			"output": "Emberbrass",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Ember ore",
+					"qty": 2
+				}
+			],
+			"time": 3,
+			"mana": 1,
+			"byproducts": [
+				{
+					"resource": "Star slag",
+					"qty": 0.25
+				}
+			],
+			"notes": "4 drills feed 3 crucibles"
+		},
+		{
+			"recipe": "Frostglass",
+			"building": "Glassblower",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Glassblower",
+				"building": "Glassblower"
+			},
+			"output": "Frostglass",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Frost ore",
+					"qty": 2
+				}
+			],
+			"time": 4,
+			"mana": 1,
+			"byproducts": [
+				{
+					"resource": "Star slag",
+					"qty": 0.25
+				}
+			],
+			"notes": "1 drill feeds 1 glassblower"
+		},
+		{
+			"recipe": "Frostglass (alternate)",
+			"building": "Glassblower",
+			"unlock": {
+				"kind": "libraryComplete",
+				"text": "Complete The Anvil (Library)",
+				"constellation": "The Anvil"
+			},
+			"output": "Frostglass",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Frost ore",
+					"qty": 1
+				},
+				{
+					"resource": "Ember ore",
+					"qty": 2
+				}
+			],
+			"time": 4,
+			"mana": 0.5,
+			"byproducts": [
+				{
+					"resource": "Star slag",
+					"qty": 0.25
+				}
+			],
+			"notes": "Less mana, more ore"
+		},
+		{
+			"recipe": "Glimmersilk",
+			"building": "Loom",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Loom",
+				"building": "Loom"
+			},
+			"output": "Glimmersilk",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Glimmer ore",
+					"qty": 3
+				}
+			],
+			"time": 6,
+			"mana": 1.5,
+			"byproducts": [
+				{
+					"resource": "Star slag",
+					"qty": 0.25
+				}
+			],
+			"notes": "3 drills feed 2 looms"
+		},
+		{
+			"recipe": "Runeplates",
+			"building": "Runewright's Bench",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Runewright's Bench",
+				"building": "Runewright's Bench"
+			},
+			"output": "Runeplates",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Emberbrass",
+					"qty": 2
+				},
+				{
+					"resource": "Ember ore",
+					"qty": 2
+				}
+			],
+			"time": 5,
+			"mana": 2,
+			"byproducts": [],
+			"notes": "First 2-input recipe"
+		},
+		{
+			"recipe": "Lenses",
+			"building": "Runewright's Bench",
+			"unlock": {
+				"kind": "produce",
+				"text": "Produce 10 Frostglass",
+				"resource": "Frostglass",
+				"count": 10
+			},
+			"output": "Lenses",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Frostglass",
+					"qty": 2
+				},
+				{
+					"resource": "Emberbrass",
+					"qty": 1
+				}
+			],
+			"time": 6,
+			"mana": 2,
+			"byproducts": []
+		},
+		{
+			"recipe": "Charm coils",
+			"building": "Runewright's Bench",
+			"unlock": {
+				"kind": "produce",
+				"text": "Produce 10 Glimmersilk",
+				"resource": "Glimmersilk",
+				"count": 10
+			},
+			"output": "Charm coils",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Glimmersilk",
+					"qty": 2
+				},
+				{
+					"resource": "Emberbrass",
+					"qty": 1
+				}
+			],
+			"time": 8,
+			"mana": 2,
+			"byproducts": []
+		},
+		{
+			"recipe": "Cargo hold",
+			"building": "Runewright's Bench",
+			"unlock": {
+				"kind": "voyages",
+				"text": "Complete 3 voyages",
+				"count": 3
+			},
+			"output": "Cargo hold",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Runeplates",
+					"qty": 6
+				},
+				{
+					"resource": "Glimmersilk",
+					"qty": 2
+				}
+			],
+			"time": 30,
+			"mana": 2,
+			"byproducts": [],
+			"notes": "Ship gear"
+		},
+		{
+			"recipe": "Floor frame",
+			"building": "Enchanting Circle",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Enchanting Circle",
+				"building": "Enchanting Circle"
+			},
+			"output": "Floor frame",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Runeplates",
+					"qty": 8
+				},
+				{
+					"resource": "Lenses",
+					"qty": 4
+				}
+			],
+			"time": 60,
+			"mana": 8,
+			"byproducts": []
+		},
+		{
+			"recipe": "Planter",
+			"building": "Enchanting Circle",
+			"unlock": {
+				"kind": "own",
+				"text": "Build the first Apprentice quarters",
+				"building": "Apprentice quarters",
+				"count": 1
+			},
+			"output": "Planter",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Runeplates",
+					"qty": 3
+				},
+				{
+					"resource": "Charm coils",
+					"qty": 1
+				}
+			],
+			"time": 15,
+			"mana": 4,
+			"byproducts": []
+		},
+		{
+			"recipe": "Starlamp",
+			"building": "Enchanting Circle",
+			"unlock": {
+				"kind": "harvestUnder",
+				"text": "Harvest under 3 different constellations",
+				"count": 3
+			},
+			"output": "Starlamp",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Lenses",
+					"qty": 2
+				},
+				{
+					"resource": "Charm coils",
+					"qty": 1
+				}
+			],
+			"time": 20,
+			"mana": 5,
+			"byproducts": []
+		},
+		{
+			"recipe": "Ship hull",
+			"building": "Enchanting Circle",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Dock",
+				"building": "Dock"
+			},
+			"output": "Ship hull",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Runeplates",
+					"qty": 12
+				},
+				{
+					"resource": "Lenses",
+					"qty": 4
+				}
+			],
+			"time": 90,
+			"mana": 8,
+			"byproducts": []
+		},
+		{
+			"recipe": "Star-sail",
+			"building": "Enchanting Circle",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Dock",
+				"building": "Dock"
+			},
+			"output": "Star-sail",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Glimmersilk",
+					"qty": 4
+				},
+				{
+					"resource": "Charm coils",
+					"qty": 1
+				}
+			],
+			"time": 30,
+			"mana": 6,
+			"byproducts": []
+		},
+		{
+			"recipe": "Lantern",
+			"building": "Enchanting Circle",
+			"unlock": {
+				"kind": "returnFrom",
+				"text": "Return from Glimmerdrift",
+				"destination": "Glimmerdrift"
+			},
+			"output": "Lantern",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Lenses",
+					"qty": 1
+				},
+				{
+					"resource": "Glimmersilk",
+					"qty": 2
+				}
+			],
+			"time": 20,
+			"mana": 4,
+			"byproducts": []
+		},
+		{
+			"recipe": "Compass",
+			"building": "Enchanting Circle",
+			"unlock": {
+				"kind": "returnFrom",
+				"text": "Return from Glimmerdrift",
+				"destination": "Glimmerdrift"
+			},
+			"output": "Compass",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Lenses",
+					"qty": 3
+				},
+				{
+					"resource": "Charm coils",
+					"qty": 2
+				}
+			],
+			"time": 40,
+			"mana": 6,
+			"byproducts": []
+		},
+		{
+			"recipe": "Haste rune",
+			"building": "Enchanting Circle",
+			"unlock": {
+				"kind": "returnFrom",
+				"text": "Return from Frostveil Nebula",
+				"destination": "Frostveil Nebula"
+			},
+			"output": "Haste rune",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Runeplates",
+					"qty": 4
+				},
+				{
+					"resource": "Charm coils",
+					"qty": 2
+				}
+			],
+			"time": 60,
+			"mana": 8,
+			"byproducts": []
+		},
+		{
+			"recipe": "Thrift rune",
+			"building": "Enchanting Circle",
+			"unlock": {
+				"kind": "returnFrom",
+				"text": "Return from Frostveil Nebula",
+				"destination": "Frostveil Nebula"
+			},
+			"output": "Thrift rune",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Lenses",
+					"qty": 4
+				},
+				{
+					"resource": "Charm coils",
+					"qty": 2
+				}
+			],
+			"time": 60,
+			"mana": 8,
+			"byproducts": []
+		},
+		{
+			"recipe": "Bounty rune",
+			"building": "Enchanting Circle",
+			"unlock": {
+				"kind": "returnFrom",
+				"text": "Return from Frostveil Nebula",
+				"destination": "Frostveil Nebula"
+			},
+			"output": "Bounty rune",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Glimmersilk",
+					"qty": 6
+				},
+				{
+					"resource": "Nebula pearls",
+					"qty": 1
+				}
+			],
+			"time": 60,
+			"mana": 8,
+			"byproducts": []
+		},
+		{
+			"recipe": "Scrying lens",
+			"building": "Enchanting Circle",
+			"unlock": {
+				"kind": "milestone",
+				"text": "Bring back the first relic",
+				"milestone": "firstRelic"
+			},
+			"output": "Scrying lens",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Lenses",
+					"qty": 2
+				},
+				{
+					"resource": "Nebula pearls",
+					"qty": 1
+				}
+			],
+			"time": 30,
+			"mana": 6,
+			"byproducts": []
+		},
+		{
+			"recipe": "Incubator charm",
+			"building": "Enchanting Circle",
+			"unlock": {
+				"kind": "milestone",
+				"text": "Find the first egg in the Hollow",
+				"milestone": "firstEgg"
+			},
+			"output": "Incubator charm",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Charm coils",
+					"qty": 2
+				},
+				{
+					"resource": "Void ore",
+					"qty": 1
+				}
+			],
+			"time": 45,
+			"mana": 8,
+			"byproducts": []
+		},
+		{
+			"recipe": "Attune crystals",
+			"building": "Attuner",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Attuner",
+				"building": "Attuner"
+			},
+			"output": "Mana",
+			"outQty": 80,
+			"inputs": [
+				{
+					"resource": "Mana crystals",
+					"qty": 1
+				}
+			],
+			"time": 10,
+			"mana": 0,
+			"byproducts": [],
+			"notes": "1 crystal drill feeds 2.5 Attuners"
+		},
+		{
+			"recipe": "Attune Lumen moss",
+			"building": "Attuner",
+			"unlock": {
+				"kind": "harvest",
+				"text": "Harvest the first Lumen moss",
+				"crop": "Lumen moss",
+				"count": 1
+			},
+			"output": "Mana",
+			"outQty": 150,
+			"inputs": [
+				{
+					"resource": "Lumen moss",
+					"qty": 1
+				}
+			],
+			"time": 15,
+			"mana": 0,
+			"byproducts": [],
+			"notes": "Fuel from the Gardens"
+		},
+		{
+			"recipe": "Collect starlight",
+			"building": "Starlight Collector",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Starlight Collector",
+				"building": "Starlight Collector"
+			},
+			"output": "Mana",
+			"outQty": 4,
+			"inputs": [],
+			"time": 1,
+			"mana": 0,
+			"byproducts": [],
+			"notes": "Only under The Lantern and The Key, so about a third of the time"
+		},
+		{
+			"recipe": "Starberry pie",
+			"building": "Kitchen",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Kitchen",
+				"building": "Kitchen"
+			},
+			"output": "Starberry pie",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Starberries",
+					"qty": 6
+				},
+				{
+					"resource": "Starwheat",
+					"qty": 4
+				}
+			],
+			"time": 60,
+			"mana": 1,
+			"byproducts": [],
+			"notes": "Buff in the Buffs tab"
+		},
+		{
+			"recipe": "Pepper stew",
+			"building": "Kitchen",
+			"unlock": {
+				"kind": "harvest",
+				"text": "Harvest the first Comet peppers",
+				"crop": "Comet peppers",
+				"count": 1
+			},
+			"output": "Pepper stew",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Comet peppers",
+					"qty": 3
+				},
+				{
+					"resource": "Starwheat",
+					"qty": 4
+				}
+			],
+			"time": 60,
+			"mana": 1,
+			"byproducts": [],
+			"notes": "Buff in the Buffs tab"
+		},
+		{
+			"recipe": "Provisions",
+			"building": "Kitchen",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Dock",
+				"building": "Dock"
+			},
+			"output": "Provisions",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Starwheat",
+					"qty": 4
+				},
+				{
+					"resource": "Starberries",
+					"qty": 2
+				}
+			],
+			"time": 30,
+			"mana": 1,
+			"byproducts": [],
+			"notes": "Voyage supplies"
+		},
+		{
+			"recipe": "Dreamcap ink",
+			"building": "Kitchen",
+			"unlock": {
+				"kind": "milestone",
+				"text": "Bring back the first relic",
+				"milestone": "firstRelic"
+			},
+			"output": "Dreamcap ink",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Dreamcaps",
+					"qty": 3
+				}
+			],
+			"time": 30,
+			"mana": 1,
+			"byproducts": [],
+			"notes": "For relic identification"
+		},
+		{
+			"recipe": "Rich soil",
+			"building": "Composter",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the Composter",
+				"building": "Composter"
+			},
+			"output": "Rich soil",
+			"outQty": 1,
+			"inputs": [
+				{
+					"resource": "Star slag",
+					"qty": 4
+				}
+			],
+			"time": 20,
+			"mana": 0.5,
+			"byproducts": [],
+			"notes": "One rich harvest per unit"
+		}
+	],
+	"buildings": [
+		{
+			"building": "Star Drill",
+			"module": "Foundry",
+			"unlock": {
+				"kind": "mineByHand",
+				"text": "Mine 10 Ember ore by hand",
+				"resource": "Ember ore",
+				"count": 10
+			},
+			"space": 0,
+			"apprentices": 0,
+			"costs": [
+				{
+					"resource": "Ember ore",
+					"qty": 10
+				}
+			],
+			"growth": 1.15,
+			"notes": "Orbits the star, so no floor space"
+		},
+		{
+			"building": "Crucible",
+			"module": "Foundry",
+			"unlock": {
+				"kind": "own",
+				"text": "Own 2 Star Drills",
+				"building": "Star Drill",
+				"count": 2
+			},
+			"space": 1,
+			"apprentices": 1,
+			"costs": [
+				{
+					"resource": "Ember ore",
+					"qty": 25
+				}
+			],
+			"growth": 1.12
+		},
+		{
+			"building": "Runewright's Bench",
+			"module": "Foundry",
+			"unlock": {
+				"kind": "produce",
+				"text": "Produce 20 Emberbrass",
+				"resource": "Emberbrass",
+				"count": 20
+			},
+			"space": 2,
+			"apprentices": 1,
+			"costs": [
+				{
+					"resource": "Emberbrass",
+					"qty": 15
+				},
+				{
+					"resource": "Ember ore",
+					"qty": 30
+				}
+			],
+			"growth": 1.12,
+			"notes": "2-input recipes"
+		},
+		{
+			"building": "Attuner",
+			"module": "Foundry",
+			"unlock": {
+				"kind": "own",
+				"text": "Own 2 Runewright's Benches",
+				"building": "Runewright's Bench",
+				"count": 2
+			},
+			"space": 1,
+			"apprentices": 0,
+			"costs": [
+				{
+					"resource": "Emberbrass",
+					"qty": 20
+				},
+				{
+					"resource": "Runeplates",
+					"qty": 5
+				}
+			],
+			"growth": 1.12,
+			"notes": "Burns fuel into mana/s"
+		},
+		{
+			"building": "Glassblower",
+			"module": "Foundry",
+			"unlock": {
+				"kind": "produce",
+				"text": "Produce 50 Runeplates",
+				"resource": "Runeplates",
+				"count": 50
+			},
+			"space": 1,
+			"apprentices": 1,
+			"costs": [
+				{
+					"resource": "Emberbrass",
+					"qty": 30
+				},
+				{
+					"resource": "Runeplates",
+					"qty": 10
+				}
+			],
+			"growth": 1.12
+		},
+		{
+			"building": "Loom",
+			"module": "Foundry",
+			"unlock": {
+				"kind": "produce",
+				"text": "Produce 20 Lenses",
+				"resource": "Lenses",
+				"count": 20
+			},
+			"space": 1,
+			"apprentices": 1,
+			"costs": [
+				{
+					"resource": "Frostglass",
+					"qty": 20
+				},
+				{
+					"resource": "Runeplates",
+					"qty": 15
+				}
+			],
+			"growth": 1.12
+		},
+		{
+			"building": "Enchanting Circle",
+			"module": "Foundry",
+			"unlock": {
+				"kind": "produce",
+				"text": "Produce 20 Charm coils",
+				"resource": "Charm coils",
+				"count": 20
+			},
+			"space": 3,
+			"apprentices": 2,
+			"costs": [
+				{
+					"resource": "Runeplates",
+					"qty": 30
+				},
+				{
+					"resource": "Lenses",
+					"qty": 15
+				}
+			],
+			"growth": 1.25,
+			"notes": "Enchanted items and runes"
+		},
+		{
+			"building": "Tower floor",
+			"module": "Tower",
+			"unlock": {
+				"kind": "floorFull",
+				"text": "Use all of floor 1's space",
+				"floor": 1
+			},
+			"space": 0,
+			"apprentices": 0,
+			"costs": [
+				{
+					"resource": "Floor frame",
+					"qty": 1
+				}
+			],
+			"growth": 1.6,
+			"provides": 24,
+			"providesUnit": "space",
+			"notes": "Floor 2 is the first one bought"
+		},
+		{
+			"building": "Apprentice quarters",
+			"module": "Shared",
+			"unlock": {
+				"kind": "floor",
+				"text": "Build floor 2",
+				"floor": 2
+			},
+			"space": 2,
+			"apprentices": 0,
+			"costs": [
+				{
+					"resource": "Runeplates",
+					"qty": 20
+				},
+				{
+					"resource": "Lenses",
+					"qty": 5
+				}
+			],
+			"growth": 1.15,
+			"provides": 4,
+			"providesUnit": "apprentices",
+			"notes": "Unlocks the Gardens"
+		},
+		{
+			"building": "Garden bed",
+			"module": "Gardens",
+			"unlock": {
+				"kind": "own",
+				"text": "Build the first Apprentice quarters",
+				"building": "Apprentice quarters",
+				"count": 1
+			},
+			"space": 1,
+			"apprentices": 1,
+			"costs": [
+				{
+					"resource": "Planter",
+					"qty": 2
+				}
+			],
+			"growth": 1.1,
+			"provides": 1,
+			"providesUnit": "crop at a time",
+			"notes": "Terraces share floor space with lines"
+		},
+		{
+			"building": "Composter",
+			"module": "Gardens",
+			"unlock": {
+				"kind": "have",
+				"text": "Have 100 Star slag",
+				"resource": "Star slag",
+				"count": 100
+			},
+			"space": 1,
+			"apprentices": 0,
+			"costs": [
+				{
+					"resource": "Emberbrass",
+					"qty": 40
+				},
+				{
+					"resource": "Frostglass",
+					"qty": 10
+				}
+			],
+			"growth": 1.12
+		},
+		{
+			"building": "Kitchen",
+			"module": "Gardens",
+			"unlock": {
+				"kind": "harvest",
+				"text": "Harvest 200 Starwheat",
+				"crop": "Starwheat",
+				"count": 200
+			},
+			"space": 2,
+			"apprentices": 1,
+			"costs": [
+				{
+					"resource": "Runeplates",
+					"qty": 25
+				},
+				{
+					"resource": "Charm coils",
+					"qty": 5
+				}
+			],
+			"growth": 1.3,
+			"notes": "Meals, Provisions, Dreamcap ink"
+		},
+		{
+			"building": "Mana Jar",
+			"module": "Foundry",
+			"unlock": {
+				"kind": "milestone",
+				"text": "Mana demand exceeds supply once",
+				"milestone": "manaShortage"
+			},
+			"space": 1,
+			"apprentices": 0,
+			"costs": [
+				{
+					"resource": "Frostglass",
+					"qty": 15
+				},
+				{
+					"resource": "Charm coils",
+					"qty": 5
+				}
+			],
+			"growth": 1.12,
+			"provides": 500,
+			"providesUnit": "mana stored",
+			"notes": "Charges and discharges at 25 mana/s"
+		},
+		{
+			"building": "Starlight Collector",
+			"module": "Foundry",
+			"unlock": {
+				"kind": "milestone",
+				"text": "See a full constellation cycle",
+				"milestone": "clockCycle"
+			},
+			"space": 1,
+			"apprentices": 0,
+			"costs": [
+				{
+					"resource": "Lenses",
+					"qty": 10
+				},
+				{
+					"resource": "Glimmersilk",
+					"qty": 10
+				}
+			],
+			"growth": 1.12,
+			"notes": "Free mana under The Lantern and The Key"
+		},
+		{
+			"building": "Dock",
+			"module": "Guild",
+			"unlock": {
+				"kind": "floor",
+				"text": "Build floor 3",
+				"floor": 3
+			},
+			"space": 4,
+			"apprentices": 2,
+			"costs": [
+				{
+					"resource": "Runeplates",
+					"qty": 60
+				},
+				{
+					"resource": "Charm coils",
+					"qty": 15
+				}
+			],
+			"growth": 2.5,
+			"provides": 1,
+			"providesUnit": "ship at sea",
+			"notes": "Docks = ships at sea at once"
+		},
+		{
+			"building": "Library shelf",
+			"module": "Library",
+			"unlock": {
+				"kind": "milestone",
+				"text": "Bring back the first relic",
+				"milestone": "firstRelic"
+			},
+			"space": 1,
+			"apprentices": 1,
+			"costs": [
+				{
+					"resource": "Lenses",
+					"qty": 20
+				},
+				{
+					"resource": "Glimmersilk",
+					"qty": 10
+				}
+			],
+			"growth": 1.25,
+			"provides": 1,
+			"providesUnit": "relic studied",
+			"notes": "The apprentice is a scholar"
+		},
+		{
+			"building": "Hollow chamber",
+			"module": "Bestiary",
+			"unlock": {
+				"kind": "libraryComplete",
+				"text": "Complete The Drill (Library)",
+				"constellation": "The Drill"
+			},
+			"space": 0,
+			"apprentices": 0,
+			"costs": [
+				{
+					"resource": "Charm coils",
+					"qty": 25
+				},
+				{
+					"resource": "Void ore",
+					"qty": 5
+				}
+			],
+			"growth": 1.3,
+			"provides": 2,
+			"providesUnit": "familiars",
+			"notes": "Dug by Star Drills, so no floor space"
+		}
+	],
+	"upgrades": [
+		{
+			"upgrade": "Drill bits",
+			"target": "Star Drills",
+			"unlock": {
+				"kind": "own",
+				"text": "Own 3 Star Drills",
+				"building": "Star Drill",
+				"count": 3
+			},
+			"effect": "Speed",
+			"perLevel": 0.1,
+			"cost": "Emberbrass",
+			"baseQty": 20,
+			"growth": 1.25,
+			"maxLevel": 10
+		},
+		{
+			"upgrade": "Hot crucibles",
+			"target": "Crucibles",
+			"unlock": {
+				"kind": "own",
+				"text": "Own 3 Crucibles",
+				"building": "Crucible",
+				"count": 3
+			},
+			"effect": "Speed",
+			"perLevel": 0.1,
+			"cost": "Emberbrass",
+			"baseQty": 40,
+			"growth": 1.3,
+			"maxLevel": 10
+		},
+		{
+			"upgrade": "Fine benches",
+			"target": "Runewright's Benches",
+			"unlock": {
+				"kind": "own",
+				"text": "Own 2 Runewright's Benches",
+				"building": "Runewright's Bench",
+				"count": 2
+			},
+			"effect": "Speed",
+			"perLevel": 0.1,
+			"cost": "Runeplates",
+			"baseQty": 20,
+			"growth": 1.3,
+			"maxLevel": 10
+		},
+		{
+			"upgrade": "Attuner coils",
+			"target": "Attuners",
+			"unlock": {
+				"kind": "own",
+				"text": "Own 3 Attuners",
+				"building": "Attuner",
+				"count": 3
+			},
+			"effect": "Mana output",
+			"perLevel": 0.1,
+			"cost": "Runeplates",
+			"baseQty": 30,
+			"growth": 1.3,
+			"maxLevel": 10
+		},
+		{
+			"upgrade": "Bigger stores",
+			"target": "All storage",
+			"unlock": {
+				"kind": "milestone",
+				"text": "Fill any storage to its cap",
+				"milestone": "fillAnyStorage"
+			},
+			"effect": "Storage cap",
+			"perLevel": 0.5,
+			"cost": "Runeplates",
+			"baseQty": 25,
+			"growth": 1.6,
+			"maxLevel": 10
+		},
+		{
+			"upgrade": "Bunk beds",
+			"target": "Apprentice quarters",
+			"unlock": {
+				"kind": "own",
+				"text": "Own 3 Apprentice quarters",
+				"building": "Apprentice quarters",
+				"count": 3
+			},
+			"effect": "Apprentices per quarters",
+			"perLevel": 1,
+			"cost": "Lenses",
+			"baseQty": 20,
+			"growth": 1.5,
+			"maxLevel": 4
+		},
+		{
+			"upgrade": "Rich beds",
+			"target": "Garden beds",
+			"unlock": {
+				"kind": "own",
+				"text": "Own 4 Garden beds",
+				"building": "Garden bed",
+				"count": 4
+			},
+			"effect": "Yield",
+			"perLevel": 0.1,
+			"cost": "Planter",
+			"baseQty": 3,
+			"growth": 1.4,
+			"maxLevel": 10
+		},
+		{
+			"upgrade": "Almanac",
+			"target": "Gardens",
+			"unlock": {
+				"kind": "harvestUnder",
+				"text": "Harvest under all 6 constellations",
+				"count": 6
+			},
+			"effect": "Queue plantings ahead",
+			"perLevel": 1,
+			"cost": "Charm coils",
+			"baseQty": 20,
+			"growth": 1,
+			"maxLevel": 1
+		},
+		{
+			"upgrade": "Almanac II",
+			"target": "Gardens",
+			"unlock": {
+				"kind": "libraryComplete",
+				"text": "Complete The Sprout (Library)",
+				"constellation": "The Sprout"
+			},
+			"effect": "Auto harvest and replant, offline too",
+			"perLevel": 1,
+			"cost": "Charm coils",
+			"baseQty": 100,
+			"growth": 1,
+			"maxLevel": 1
+		},
+		{
+			"upgrade": "Bigger jars",
+			"target": "Mana Jars",
+			"unlock": {
+				"kind": "milestone",
+				"text": "Fill a Mana Jar",
+				"milestone": "fillManaJar"
+			},
+			"effect": "Capacity",
+			"perLevel": 0.5,
+			"cost": "Charm coils",
+			"baseQty": 10,
+			"growth": 1.5,
+			"maxLevel": 5
+		},
+		{
+			"upgrade": "Steady hands",
+			"target": "Overchannel",
+			"unlock": {
+				"kind": "sparks",
+				"text": "Get 10 Overchannel sparks",
+				"count": 10
+			},
+			"effect": "Surge fill rate",
+			"perLevel": -0.1,
+			"cost": "Lenses",
+			"baseQty": 15,
+			"growth": 1.4,
+			"maxLevel": 5
+		},
+		{
+			"upgrade": "Reinforced hulls",
+			"target": "Ships",
+			"unlock": {
+				"kind": "milestone",
+				"text": "Have a voyage end Bumpy",
+				"milestone": "voyageBumpy"
+			},
+			"effect": "Safety",
+			"perLevel": 5,
+			"cost": "Runeplates",
+			"baseQty": 50,
+			"growth": 1.5,
+			"maxLevel": 5
+		},
+		{
+			"upgrade": "Scholar desks",
+			"target": "Library shelves",
+			"unlock": {
+				"kind": "identify",
+				"text": "Identify 5 relics",
+				"count": 5
+			},
+			"effect": "Study speed",
+			"perLevel": 0.1,
+			"cost": "Lenses",
+			"baseQty": 40,
+			"growth": 1.4,
+			"maxLevel": 10
+		},
+		{
+			"upgrade": "Warm chambers",
+			"target": "Hollow",
+			"unlock": {
+				"kind": "hatch",
+				"text": "Hatch 3 eggs",
+				"count": 3
+			},
+			"effect": "Hatch speed",
+			"perLevel": 0.1,
+			"cost": "Incubator charm",
+			"baseQty": 2,
+			"growth": 1.5,
+			"maxLevel": 5
+		}
+	],
+	"crops": [
+		{
+			"crop": "Starwheat",
+			"unlock": {
+				"kind": "comesWith",
+				"text": "Comes with the first Garden bed",
+				"building": "Garden bed"
+			},
+			"sowUnder": "Any",
+			"harvestUnder": "Any",
+			"growTime": 5,
+			"yield": 10,
+			"seeds": [],
+			"foodValue": 1,
+			"use": "Basic food; common familiar feed"
+		},
+		{
+			"crop": "Starberries",
+			"unlock": {
+				"kind": "harvest",
+				"text": "Harvest 100 Starwheat",
+				"crop": "Starwheat",
+				"count": 100
+			},
+			"sowUnder": "Any",
+			"harvestUnder": "The Teapot",
+			"growTime": 15,
+			"yield": 40,
+			"seeds": [],
+			"foodValue": 2,
+			"use": "Starberry pie, Provisions"
+		},
+		{
+			"crop": "Lumen moss",
+			"unlock": {
+				"kind": "harvest",
+				"text": "Harvest Starberries once",
+				"crop": "Starberries",
+				"count": 1
+			},
+			"sowUnder": "The Lantern",
+			"harvestUnder": "The Lantern",
+			"growTime": 8,
+			"yield": 90,
+			"seeds": [],
+			"foodValue": 0,
+			"use": "Attuner fuel (150 mana each)"
+		},
+		{
+			"crop": "Comet peppers",
+			"unlock": {
+				"kind": "seedsFrom",
+				"text": "Seeds from Glimmerdrift",
+				"destination": "Glimmerdrift"
+			},
+			"sowUnder": "The Comet Fox",
+			"harvestUnder": "The Star Whale",
+			"growTime": 20,
+			"yield": 15,
+			"seeds": [
+				{
+					"resource": "Comet pepper seeds",
+					"qty": 1
+				}
+			],
+			"foodValue": 2,
+			"use": "Pepper stew"
+		},
+		{
+			"crop": "Dreamcaps",
+			"unlock": {
+				"kind": "milestone",
+				"text": "Bring back the first relic",
+				"milestone": "firstRelic"
+			},
+			"sowUnder": "The Void Moth",
+			"harvestUnder": "The Void Moth",
+			"growTime": 8,
+			"yield": 30,
+			"seeds": [],
+			"foodValue": 0,
+			"use": "Dreamcap ink"
+		},
+		{
+			"crop": "Voidbloom",
+			"unlock": {
+				"kind": "seedsFrom",
+				"text": "Seeds from Hollow Reach",
+				"destination": "Hollow Reach"
+			},
+			"sowUnder": "The Void Moth",
+			"harvestUnder": "The Lantern",
+			"growTime": 10,
+			"yield": 6,
+			"seeds": [
+				{
+					"resource": "Voidbloom seeds",
+					"qty": 1
+				}
+			],
+			"foodValue": 0,
+			"use": "Feed for rare familiars"
+		}
+	],
+	"buffs": [
+		{
+			"source": "Starberry pie",
+			"kind": "Meal",
+			"appliesTo": "Foundry lines",
+			"speed": 0.1,
+			"duration": 10
+		},
+		{
+			"source": "Pepper stew",
+			"kind": "Meal",
+			"appliesTo": "Apprentices",
+			"speed": 0.15,
+			"duration": 10
+		},
+		{
+			"source": "Haste rune",
+			"kind": "Rune",
+			"appliesTo": "1 line",
+			"speed": 0.25,
+			"mana": 0.3,
+			"notes": "Stays while socketed"
+		},
+		{
+			"source": "Thrift rune",
+			"kind": "Rune",
+			"appliesTo": "1 line",
+			"mana": -0.3,
+			"notes": "Stays while socketed"
+		},
+		{
+			"source": "Bounty rune",
+			"kind": "Rune",
+			"appliesTo": "1 line",
+			"mana": 0.2,
+			"output": 0.15,
+			"notes": "Stays while socketed"
+		},
+		{
+			"source": "Overchannel at max",
+			"kind": "Mana grid",
+			"appliesTo": "All lines",
+			"speed": 0.5,
+			"mana": 0.5,
+			"notes": "Surge meter fills"
+		},
+		{
+			"source": "Hungry apprentices",
+			"kind": "Gardens",
+			"appliesTo": "Apprentices",
+			"speed": -0.5,
+			"notes": "While food is at 0"
+		},
+		{
+			"source": "Comet Fox foreman",
+			"kind": "Familiar",
+			"appliesTo": "1 line",
+			"speed": 0.2,
+			"notes": "Surges fill 50% faster"
+		},
+		{
+			"source": "Rich soil",
+			"kind": "Gardens",
+			"appliesTo": "1 harvest",
+			"yield": 0.25,
+			"notes": "Uses 1 Rich soil"
+		},
+		{
+			"source": "Favored constellation",
+			"kind": "Gardens",
+			"appliesTo": "1 harvest",
+			"yield": 0.5,
+			"notes": "Harvested under the right constellation"
+		},
+		{
+			"source": "Sleepy harvest",
+			"kind": "Gardens",
+			"appliesTo": "1 harvest",
+			"yield": -0.5,
+			"notes": "Window missed"
+		},
+		{
+			"source": "Starlamp",
+			"kind": "Gardens",
+			"appliesTo": "1 bed",
+			"notes": "Bed counts as under another constellation; draws 2 mana/s"
+		},
+		{
+			"source": "Lit clock star",
+			"kind": "Library",
+			"appliesTo": "Its module",
+			"output": 0.02,
+			"notes": "Per star placed"
+		}
+	],
+	"clock": [
+		{
+			"index": 1,
+			"constellation": "The Lantern",
+			"starts": 0,
+			"ends": 10,
+			"bonus": "Faster growth",
+			"appliesTo": "All crops",
+			"value": 0.25,
+			"starlightCollector": true,
+			"breedsFaster": "Lantern Wisp",
+			"currentTo": "Glimmerdrift"
+		},
+		{
+			"index": 2,
+			"constellation": "The Comet Fox",
+			"starts": 10,
+			"ends": 20,
+			"bonus": "Spicy crops sown now",
+			"appliesTo": "Comet peppers (yield)",
+			"value": 0.5,
+			"starlightCollector": false,
+			"breedsFaster": "Comet Fox",
+			"currentTo": "Cinder Shoals"
+		},
+		{
+			"index": 3,
+			"constellation": "The Teapot",
+			"starts": 20,
+			"ends": 30,
+			"bonus": "Bigger harvests",
+			"appliesTo": "Food crops harvested now",
+			"value": 0.5,
+			"starlightCollector": false,
+			"breedsFaster": "Teapot Tortoise"
+		},
+		{
+			"index": 4,
+			"constellation": "The Star Whale",
+			"starts": 30,
+			"ends": 40,
+			"bonus": "Large, slow crops",
+			"appliesTo": "Crops of 15 min or more (yield)",
+			"value": 0.25,
+			"starlightCollector": false,
+			"breedsFaster": "Star Whale",
+			"currentTo": "Frostveil Nebula"
+		},
+		{
+			"index": 5,
+			"constellation": "The Key",
+			"starts": 40,
+			"ends": 50,
+			"bonus": "Faster identification",
+			"appliesTo": "Library",
+			"value": 1,
+			"starlightCollector": true,
+			"breedsFaster": "Key Owl"
+		},
+		{
+			"index": 6,
+			"constellation": "The Void Moth",
+			"starts": 50,
+			"ends": 60,
+			"bonus": "Shade and rare crops",
+			"appliesTo": "Dreamcaps, Voidbloom (yield)",
+			"value": 0.25,
+			"starlightCollector": false,
+			"breedsFaster": "Void Moth",
+			"currentTo": "Hollow Reach"
+		}
+	],
 	"globals": {
 		"Constellation length": {
 			"value": 10,

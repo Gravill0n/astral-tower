@@ -11,7 +11,7 @@ Astral Tower: a single-player browser incremental/management game. See [README.m
 ## Hard rules from the design
 
 - **Nothing is ever lost for good**: no ship, crew, captain, familiar or crop is destroyed. Shortages scale speed down in proportion and never break anything.
-- **Data-driven balance**: a script turns the Balance sheet into game data. Unlock conditions are parsed from fixed phrasings ("Own N …", "Produce N …", "Build floor N", "Return from …"…). Adding a phrasing means updating the script.
+- **Data-driven balance**: a script turns the Balance sheet into game data. Unlock conditions are parsed from fixed phrasings ("Own N …", "Produce N …", "Build floor N", "Return from …"…). Adding a phrasing means updating `src/data/unlock.ts`.
 - **Real-time clock**: constellation phases come from wall-clock minutes (Lantern :00–:10, Comet Fox :10–:20, … Void Moth :50–:60). Offline catch-up replays the same phases. A clock moved backwards pauses progress and is never punished.
 - **Offline = online**: everything in GDD 11.1 "Keeps going offline" must give the same result whether the tab was open, hidden or closed (up to the offline cap).
 - **Saves never break**: every save from an earlier version must load. Version the save and migrate it.
@@ -33,14 +33,15 @@ Reduced motion, at least two colorblind palettes, keyboard shortcuts on desktop,
 - **TypeScript + Vite + React**, **TanStack Router** (hash history: GitHub Pages has no SPA fallback, and it works offline).
 - **Game core is pure TS** (`src/core/`): no React, no DOM, no `Date.now()` inside. It advances via `step(state, dt, now)`. Offline catch-up runs the same function in bigger steps, cut at constellation phase changes. The UI reads snapshots through **TanStack Store**, throttled to a few renders per second.
 - **Numbers are plain `number`**. Never compare an accumulated stock to a cost with a raw `>=`; use the shared epsilon helper. Round only for display.
-- **Balance data**: the sheet is exported as `.xlsx` into the repo; a script turns it into typed JSON, validated with **Zod**. Saves are also Zod-validated on load and import (user-controlled input).
+- **Balance data**: the sheet is exported as `.xlsx` into the repo; a script turns it into typed JSON (`src/data/balance.json`, imported via `src/data/index.ts`), validated with **Zod**. To change balance: edit the Claude Sheet → export `.xlsx` over `balance/astral-tower-balance.xlsx` → `pnpm balance` → commit both. Saves are also Zod-validated on load and import (user-controlled input).
 - **Tests**: Vitest for the core (most of the risk); Playwright smoke tests on desktop and mobile viewports.
 - **Hosting**: GitHub Pages via GitHub Actions, on the custom domain https://astral-tower.gravillon.me/ (Vite base `/`); PWA via vite-plugin-pwa.
 
 ## Commands
 
 - `pnpm dev`: Vite dev server.
-- `pnpm build`: type-check, then build to `dist/`.
+- `pnpm balance`: regenerate `src/data/balance.json` from the workbook. `--check` only validates and diffs.
+- `pnpm build`: `pnpm balance --check` (fails on a bad sheet or stale JSON), type-check, then build to `dist/`.
 - `pnpm preview`: serve `dist/` (http://localhost:4173/).
 - `pnpm typecheck`: `tsc` only.
 - `pnpm lint`: Biome check.

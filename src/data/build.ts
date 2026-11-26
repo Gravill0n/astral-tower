@@ -176,10 +176,17 @@ export function buildBalance(
 			at: (row, col) =>
 				`${def.tab}!${col ?? nameCol}${row.r}${row.name ? ` (${row.name})` : ""}`,
 		};
+		const firstRow = new Map<string, number>(); // name → first sheet row (GDD 13)
 		for (const { r, obj } of objects) {
 			const parts = nameKeys.map((k) => obj[k]).filter((v) => v !== undefined);
 			const name = parts.length ? parts.join(" / ") : undefined;
 			const row: MappedRow = { r, name, cols: {}, failed: new Set() };
+			if (def.nameColumn && name !== undefined) {
+				const first = firstRow.get(name);
+				if (first)
+					errors.push(`${m.at(row)}: duplicate name (first on row ${first})`);
+				else firstRow.set(name, r);
+			}
 			convertRow(def, obj, row, m, names, errors);
 			m.rows.push(row);
 		}
@@ -221,5 +228,174 @@ export function buildBalance(
 	}
 
 	if (errors.length || !parsed.success) return { errors };
-	return { balance: parsed.data };
+	const refErrors = crossRefs(parsed.data, mapped);
+	return refErrors.length ? { errors: refErrors } : { balance: parsed.data };
+}
+
+// References between tabs (GDD 2, 10.5–10.6), on parsed data whose rows line up
+// with the mapped rows. `field` is the row key, or a path inside a pair.
+function crossRefs(b: Balance, mapped: Record<string, Mapped>): string[] {
+	const errors: string[] = [];
+	const fail = (tab: keyof Balance, i: number, field: string, msg: string) => {
+		const m = mapped[tab];
+		const row = m.rows[i];
+		errors.push(`${m.at(row, row.cols[field] ?? m.colOf[field])}: ${msg}`);
+	};
+	const check = (
+		tab: keyof Balance,
+		i: number,
+		field: string,
+		value: string | undefined,
+		set: Set<string>,
+		what: string,
+	) => {
+		if (value !== undefined && !set.has(value))
+			fail(tab, i, field, `unknown ${what} "${value}"`);
+	};
+	const resources = new Set(b.resources.map((r) => r.resource));
+	const pairs = (
+		tab: keyof Balance,
+		rows: Record<string, unknown>[],
+		key: string,
+	) =>
+		rows.forEach((row, i) => {
+			(row[key] as { resource: string }[]).forEach((p, j) => {
+				check(
+					tab,
+					i,
+					`${key}.${j}.resource`,
+					p.resource,
+					resources,
+					"resource",
+				);
+			});
+		});
+
+	const buildings = new Set(b.buildings.map((x) => x.building));
+	b.recipes.forEach((x, i) => {
+		check("recipes", i, "building", x.building, buildings, "building");
+		if (x.output !== "Mana")
+			check("recipes", i, "output", x.output, resources, "resource");
+	});
+	pairs("recipes", b.recipes, "inputs");
+	pairs("recipes", b.recipes, "byproducts");
+	pairs("buildings", b.buildings, "costs");
+	b.upgrades.forEach((x, i) => {
+		check("upgrades", i, "cost", x.cost, resources, "resource");
+	});
+	pairs("ships", b.ships, "costs");
+	pairs("voyages", b.voyages, "loot");
+	pairs("crops", b.crops, "seeds");
+	b.familiars.forEach((x, i) => {
+		check("familiars", i, "feed", x.feed, resources, "resource");
+	});
+	b.contracts.forEach((x, i) => {
+		check("contracts", i, "goodAsked", x.goodAsked, resources, "resource");
+		check("contracts", i, "reward", x.reward, resources, "resource");
+	});
+
+	const clock = new Set(b.clock.map((x) => x.constellation));
+	const underClock = new Set([...clock, "Any"]);
+	b.crops.forEach((x, i) => {
+		check("crops", i, "crop", x.crop, resources, "resource");
+		check("crops", i, "sowUnder", x.sowUnder, underClock, "constellation");
+		check(
+			"crops",
+			i,
+			"harvestUnder",
+			x.harvestUnder,
+			underClock,
+			"constellation",
+		);
+	});
+	const familiars = new Set(b.familiars.map((x) => x.species));
+	const voyages = new Set(b.voyages.map((x) => x.nebula));
+	b.clock.forEach((x, i) => {
+		check("clock", i, "breedsFaster", x.breedsFaster, familiars, "familiar");
+		check("clock", i, "currentTo", x.currentTo, voyages, "voyage");
+	});
+	b.gear.forEach((x, i) => {
+		if (x.kind === "Companion")
+			check("gear", i, "name", x.name, familiars, "familiar");
+		if (x.kind === "Gear")
+			check("gear", i, "name", x.name, resources, "resource");
+	});
+
+	// The Library's Clock-kind constellations are exactly the Clock tab's.
+	const libraryClock = new Set(
+		b.library.filter((x) => x.kind === "Clock").map((x) => x.constellation),
+	);
+	b.clock.forEach((x, i) => {
+		if (!libraryClock.has(x.constellation))
+			fail(
+				"clock",
+				i,
+				"constellation",
+				"missing from the Library Clock constellations",
+			);
+	});
+	b.library.forEach((x, i) => {
+		if (x.kind === "Clock" && !clock.has(x.constellation))
+			fail(
+				"library",
+				i,
+				"constellation",
+				"Clock constellation not on the Clock tab",
+			);
+	});
+
+	// Picked by: captain first names ("Pell" from "Pell the Cautious").
+	const pickers = new Set([
+		...b.gear
+			.filter((x) => x.kind === "Captain")
+			.map((x) => x.name.split(" ")[0]),
+		"third captain",
+	]);
+	b.events.forEach((x, i) => {
+		for (const token of x.pickedBy.split(", "))
+			check("events", i, "pickedBy", token, pickers, "captain");
+	});
+
+	const optional = b.trials
+		.filter((x) => x.kind === "Optional")
+		.map((x) => x.trial);
+	b.trials.forEach((x, i) => {
+		if (
+			x.kind === "Dim star" &&
+			!optional.some((p) => optional.some((q) => x.rule === `${p} and ${q}`))
+		)
+			fail(
+				"trials",
+				i,
+				"rule",
+				`Dim star rule "${x.rule}" is not "<Optional trial> and <Optional trial>"`,
+			);
+	});
+
+	const types = new Set([...b.stars.map((x) => x.star), "Dim"]);
+	const trials = new Map(b.trials.map((x) => [x.trial, x.kind]));
+	const links = new Map(b.galaxy.map((x) => [x.star, x.linksTo]));
+	b.galaxy.forEach((x, i) => {
+		check("galaxy", i, "type", x.type, types, "star type");
+		const kind = x.trial === undefined ? undefined : trials.get(x.trial);
+		if (x.trial !== undefined && !kind)
+			fail("galaxy", i, "trial", `unknown trial "${x.trial}"`);
+		else if (x.dim ? kind !== "Dim star" : kind === "Dim star")
+			fail(
+				"galaxy",
+				i,
+				"trial",
+				x.dim
+					? `a Dim star needs a Dim star trial, not "${x.trial ?? ""}"`
+					: `only a Dim star takes a Dim star trial ("${x.trial}")`,
+			);
+		for (const n of x.linksTo) {
+			const back = links.get(n);
+			if (!back)
+				fail("galaxy", i, "linksTo", `links to ${n}, which is not a star`);
+			else if (!back.includes(x.star))
+				fail("galaxy", i, "linksTo", `links to ${n}, which does not link back`);
+		}
+	});
+	return errors;
 }

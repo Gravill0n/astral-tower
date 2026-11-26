@@ -120,6 +120,97 @@ const RESOURCES = sheet("Resources", [
 	["Ember ore", "Raw", "Foundry", "Star Drill", 500],
 ]);
 
+const EVENTS_HEADER = [
+	"Event",
+	"Option",
+	"Time",
+	"Time of",
+	"Loot",
+	"Relic chance +",
+	"Danger +",
+	"Picked by",
+];
+
+const FAMILIARS_HEADER = [
+	"Species",
+	"Egg source",
+	"Hatch time (min)",
+	"Incubator charms",
+	"Feed",
+	"Feed /h",
+	"Breed time (min)",
+	"Job",
+	"Job bonus",
+	"Bonus value",
+];
+
+const LANTERN_WISP = [
+	"Lantern Wisp",
+	"Breeding",
+	60,
+	1,
+	"Ember ore",
+	1,
+	60,
+	"Light",
+	"Speed",
+	0.1,
+];
+
+const LIBRARY_HEADER = [
+	"Constellation",
+	"Kind",
+	"Stars",
+	"Unlock",
+	"Per-star bonus",
+	"Full-set reward",
+	"Value",
+];
+
+const GEAR_HEADER = [
+	"Kind",
+	"Name",
+	"Unlock",
+	"Speed",
+	"Safety",
+	"Cargo",
+	"Per level",
+	"Max level",
+	"Notes",
+];
+
+const STARS_HEADER = [
+	"Star",
+	"Phase length (min)",
+	"Drill output ×",
+	"Frost drill output ×",
+	"Mana draw ×",
+	"Surge fill ×",
+	"Pulse high ×",
+	"Pulse low ×",
+	"Pulse length (s)",
+	"Voyage time ×",
+	"Relic chance ×",
+	"Relic chance +",
+	"Floor space",
+	"Twin clock",
+	"Notes",
+];
+
+const STARS = sheet("Stars", [
+	STARS_HEADER,
+	["First star", 10, 1, 1, 1, 1, 1, 1, undefined, 1, 1, 0, 10, "No"],
+]);
+
+const TRIALS_HEADER = ["Trial", "Kind", "Rule", "Stardust bonus", "Notes"];
+
+const TRIALS = sheet("Trials", [
+	TRIALS_HEADER,
+	["One Dock", "Optional", "At most 1 Dock", 0.5],
+]);
+
+const GALAXY_HEADER = ["Star", "Type", "Dim", "Links to", "Trial", "Notes"];
+
 describe("buildBalance", () => {
 	it("maps Resources rows and Globals parameters to typed data", () => {
 		const result = buildBalance(
@@ -235,8 +326,17 @@ describe("buildBalance", () => {
 	it("turns pairs into arrays, Yes/No into booleans and parses unlocks", () => {
 		const result = buildBalance(
 			withTabs([
-				RESOURCES,
+				sheet("Resources", [
+					RESOURCES_HEADER,
+					["Ember ore", "Raw", "Foundry", "Star Drill", 500],
+					["Emberbrass", "Refined", "Foundry", "Crucible", 500],
+				]),
 				globals(),
+				sheet("Familiars", [FAMILIARS_HEADER, LANTERN_WISP]),
+				sheet("Library", [
+					LIBRARY_HEADER,
+					["The Lantern", "Clock", 5, "The Library opens", undefined, "x"],
+				]),
 				sheet("Buildings", [BUILDINGS_HEADER, DRILL]),
 				sheet("Recipes", [
 					RECIPES_HEADER,
@@ -426,9 +526,9 @@ describe("buildBalance", () => {
 			"Max level",
 			"Notes",
 		];
-		const captain = (perLevel: string) => [
+		const captain = (perLevel: string, name = "Pell the Cautious") => [
 			"Captain",
-			"Pell the Cautious",
+			name,
 			"The Library opens",
 			-0.15,
 			10,
@@ -440,7 +540,11 @@ describe("buildBalance", () => {
 			withTabs([
 				RESOURCES,
 				globals(),
-				sheet("Gear", [header, captain("+2 Safety"), captain("+2% speed")]),
+				sheet("Gear", [
+					header,
+					captain("+2 Safety"),
+					captain("+2% speed", "Mira Quickwind"),
+				]),
 			]),
 		);
 		if (!("balance" in ok)) throw new Error(ok.errors.join("\n"));
@@ -544,14 +648,19 @@ describe("buildBalance", () => {
 			sheet("Galaxy", [
 				["Star", "Type", "Dim", "Links to", "Trial", "Notes"],
 				[1, "First star", "No", links],
+				[2, "First star", "No", "1"],
+				[10, "First star", "No", "1"],
 			]);
 		const result = buildBalance(
-			withTabs([RESOURCES, globals(), galaxy("2, 10")]),
+			withTabs([RESOURCES, globals(), STARS, galaxy("2, 10")]),
 		);
 		if (!("balance" in result)) throw new Error(result.errors.join("\n"));
-		expect(result.balance.galaxy).toEqual([
-			{ star: 1, type: "First star", dim: false, linksTo: [2, 10] },
-		]);
+		expect(result.balance.galaxy[0]).toEqual({
+			star: 1,
+			type: "First star",
+			dim: false,
+			linksTo: [2, 10],
+		});
 		expect(errors([RESOURCES, globals(), galaxy("2, ten")])).toEqual([
 			'Galaxy!D2 (1): bad Links to "2, ten" (expected "n, n, …")',
 		]);
@@ -569,6 +678,242 @@ describe("buildBalance", () => {
 			]),
 		).toEqual([
 			"Stardust gain!B2: Invalid input: expected number, received string",
+		]);
+	});
+
+	it("reports a duplicate name in a tab, keyed Globals and Events pairs", () => {
+		const event = (option: string) => [
+			"Drifting cargo",
+			option,
+			undefined,
+			undefined,
+			0.25,
+			undefined,
+			undefined,
+			"Mira",
+		];
+		expect(
+			errors([
+				sheet("Resources", [
+					RESOURCES_HEADER,
+					["Ember ore", "Raw", "Foundry", "Star Drill", 500],
+					["Ember ore", "Raw", "Foundry", "Star Drill", 500],
+				]),
+				globals(undefined, "Offline cap"),
+				sheet("Events", [
+					EVENTS_HEADER,
+					event("Haul it in"),
+					event("Leave it"),
+					event("Haul it in"),
+				]),
+			]),
+		).toEqual([
+			"Resources!A3 (Ember ore): duplicate name (first on row 2)",
+			"Events!A4 (Drifting cargo / Haul it in): duplicate name (first on row 2)",
+			"Globals!A55 (Offline cap): duplicate name (first on row 36)",
+		]);
+	});
+
+	it("reports a cost naming a missing resource", () => {
+		expect(
+			errors([
+				RESOURCES,
+				globals(),
+				sheet("Buildings", [
+					BUILDINGS_HEADER,
+					DRILL.map((v, i) => (i === 5 ? "Moon ore" : v)),
+				]),
+			]),
+		).toEqual(['Buildings!F2 (Star Drill): unknown resource "Moon ore"']);
+	});
+
+	it("reports an unlock naming a missing building", () => {
+		expect(
+			errors([
+				RESOURCES,
+				globals(),
+				sheet("Buildings", [
+					BUILDINGS_HEADER,
+					DRILL.map((v, i) => (i === 2 ? "Own 2 Crucibles" : v)),
+				]),
+			]),
+		).toEqual([
+			expect.stringMatching(/^Buildings!C2 \(Star Drill\): .*Crucible/),
+		]);
+	});
+
+	it("reports a recipe on an unknown building, allows Mana output", () => {
+		const recipe = (name: string, building: string, output: string) => [
+			name,
+			building,
+			"Mine 10 Ember ore by hand",
+			output,
+			1,
+			"Ember ore",
+			1,
+			undefined,
+			undefined,
+			1,
+			0,
+		];
+		expect(
+			errors([
+				RESOURCES,
+				globals(),
+				sheet("Buildings", [BUILDINGS_HEADER, DRILL]),
+				sheet("Recipes", [
+					RECIPES_HEADER,
+					recipe("Attune", "Star Drill", "Mana"),
+					recipe("Dust", "Attuner", "Stardust"),
+				]),
+			]),
+		).toEqual([
+			'Recipes!B3 (Dust): unknown building "Attuner"',
+			'Recipes!D3 (Dust): unknown resource "Stardust"',
+		]);
+	});
+
+	it("reports Library Clock names that differ from the Clock tab", () => {
+		expect(
+			errors([
+				RESOURCES,
+				globals(),
+				sheet("Clock", [
+					CLOCK_HEADER,
+					[1, "The Lantern", 0, 10, "b", "a", 0.25, "No", "Lantern Wisp"],
+				]),
+				sheet("Familiars", [FAMILIARS_HEADER, LANTERN_WISP]),
+				sheet("Library", [
+					LIBRARY_HEADER,
+					["The Lamp", "Clock", 5, "The Library opens", undefined, "x"],
+				]),
+			]),
+		).toEqual([
+			"Clock!B2 (The Lantern): missing from the Library Clock constellations",
+			"Library!A2 (The Lamp): Clock constellation not on the Clock tab",
+		]);
+	});
+
+	it("reports unknown Clock, Familiar and captain references", () => {
+		expect(
+			errors([
+				RESOURCES,
+				globals(),
+				sheet("Clock", [
+					CLOCK_HEADER,
+					[
+						1,
+						"The Lantern",
+						0,
+						10,
+						"b",
+						"a",
+						0.25,
+						"No",
+						"Moon Hare",
+						"Nowhere",
+					],
+				]),
+				sheet("Library", [
+					LIBRARY_HEADER,
+					["The Lantern", "Clock", 5, "The Library opens", undefined, "x"],
+				]),
+				sheet("Gear", [
+					GEAR_HEADER,
+					["Captain", "Pell the Cautious", "The Library opens"],
+					["Companion", "Moon Hare", "The Library opens"],
+					["Gear", "Star-sail", "The Library opens"],
+				]),
+				sheet("Events", [
+					EVENTS_HEADER,
+					["Drifting cargo", "Leave it", ...Array(5), "Pell, Mira"],
+					["Drifting cargo", "Haul it in", ...Array(5), "third captain"],
+				]),
+			]),
+		).toEqual([
+			'Clock!I2 (The Lantern): unknown familiar "Moon Hare"',
+			'Clock!J2 (The Lantern): unknown voyage "Nowhere"',
+			'Gear!B3 (Moon Hare): unknown familiar "Moon Hare"',
+			'Gear!B4 (Star-sail): unknown resource "Star-sail"',
+			'Events!H2 (Drifting cargo / Leave it): unknown captain "Mira"',
+		]);
+	});
+
+	it("reports a crop sown under an unknown constellation", () => {
+		expect(
+			errors([
+				sheet("Resources", [
+					RESOURCES_HEADER,
+					["Starwheat", "Crop", "Gardens", "Garden bed", 500],
+				]),
+				globals(),
+				sheet("Crops", [
+					[
+						"Crop",
+						"Unlock",
+						"Sow under",
+						"Harvest under",
+						"Grow time (min)",
+						"Yield",
+						"Seed",
+						"Seed qty",
+						"Food value",
+						"Use",
+					],
+					[
+						"Starwheat",
+						"The Library opens",
+						"Any",
+						"The Moon",
+						5,
+						3,
+						undefined,
+						undefined,
+						1,
+						"Food",
+					],
+				]),
+			]),
+		).toEqual(['Crops!D2 (Starwheat): unknown constellation "The Moon"']);
+	});
+
+	it("reports an asymmetric or unknown galaxy link and a bad type or trial", () => {
+		expect(
+			errors([
+				RESOURCES,
+				globals(),
+				STARS,
+				TRIALS,
+				sheet("Galaxy", [
+					GALAXY_HEADER,
+					[1, "First star", "No", "2, 3"],
+					[2, "First star", "No", "9"],
+					[3, "Red Dwarf", "No", "1, 4", "No meals"],
+					[4, "Dim", "Yes", "3", "One Dock"],
+				]),
+			]),
+		).toEqual([
+			"Galaxy!D2 (1): links to 2, which does not link back",
+			"Galaxy!D3 (2): links to 9, which is not a star",
+			'Galaxy!B4 (3): unknown star type "Red Dwarf"',
+			'Galaxy!E4 (3): unknown trial "No meals"',
+			'Galaxy!E5 (4): a Dim star needs a Dim star trial, not "One Dock"',
+		]);
+	});
+
+	it("reports a Dim star rule naming an unknown trial", () => {
+		expect(
+			errors([
+				RESOURCES,
+				globals(),
+				sheet("Trials", [
+					TRIALS_HEADER,
+					["One Dock", "Optional", "At most 1 Dock", 0.5],
+					["The Quiet Ember", "Dim star", "One Dock and No meals", 0.5],
+				]),
+			]),
+		).toEqual([
+			'Trials!C3 (The Quiet Ember): Dim star rule "One Dock and No meals" is not "<Optional trial> and <Optional trial>"',
 		]);
 	});
 

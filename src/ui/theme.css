@@ -479,3 +479,49 @@ a:hover {
 	clip-path: inset(50%);
 	white-space: nowrap;
 }
+
+/* Shortcut list (GDD 12.5): a native modal, Esc closes it. */
+.shortcuts {
+	padding: 16px 20px;
+	border: 1px solid var(--line);
+	border-radius: 10px;
+	background: var(--ground);
+	color: var(--text);
+}
+
+.shortcuts::backdrop {
+	background: rgba(10, 5, 12, 0.6);
+}
+
+.shortcuts h2 {
+	margin: 0 0 12px;
+	font-size: 16px;
+}
+
+.shortcuts dl {
+	display: grid;
+	gap: 6px;
+	margin: 0 0 12px;
+}
+
+.shortcuts dl div {
+	display: flex;
+	gap: 12px;
+}
+
+.shortcuts dt {
+	min-width: 3em;
+}
+
+.shortcuts dd {
+	margin: 0;
+	color: var(--muted);
+}
+
+.shortcuts kbd {
+	padding: 0 6px;
+	border: 1px solid var(--line);
+	border-radius: 4px;
+	font: inherit;
+	color: var(--gold-hi);
+}

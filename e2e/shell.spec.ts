@@ -149,3 +149,73 @@ test("bottom tabs and the More sheet", async ({ page }, info) => {
 	await expect(page.getByRole("main")).toContainText("Locked.");
 	await noSideScroll(page);
 });
+
+test("keyboard shortcuts switch screens, list themselves and go back", async ({
+	page,
+}, info) => {
+	test.skip(info.project.name !== "desktop", "desktop shortcuts");
+	await page.goto("/");
+	await expect(page.getByRole("banner")).toBeVisible(); // app mounted
+	const key = page.keyboard;
+
+	await key.press("2");
+	await expect(page).toHaveURL(/#\/buildings$/);
+	await key.press("3");
+	await expect(page).toHaveURL(/#\/foundry$/);
+	await key.press("9");
+	await expect(page).toHaveURL(/#\/stats$/);
+	await key.press("5"); // Guild is hidden in a fresh game
+	await expect(page).toHaveURL(/#\/stats$/);
+	await key.press("Control+2");
+	await expect(page).toHaveURL(/#\/stats$/);
+	await key.press("1");
+	await expect(page).toHaveURL(/#\/$/);
+
+	// Exactly the shortcuts that work: visible screens, Esc and ?.
+	const stats = page
+		.getByRole("navigation", { name: "Modules" })
+		.getByRole("link", { name: "Stats" });
+	await stats.focus();
+	const list = page.getByRole("dialog", { name: "Keyboard shortcuts" });
+	await key.press("?");
+	await expect(list).toBeVisible();
+	await expect(list.locator("dd")).toHaveText([
+		"Overview",
+		"Buildings",
+		"Foundry",
+		"Gardens",
+		"Stats",
+		"Close a panel or go back",
+		"List shortcuts",
+	]);
+	await key.press("3"); // the open dialog owns the keys
+	await expect(page).toHaveURL(/#\/$/);
+	await key.press("Escape");
+	await expect(list).toBeHidden();
+	await expect(page).toHaveURL(/#\/$/); // closing did not also go back
+	await expect(stats).toBeFocused();
+
+	// Q9: Esc goes to the previous in-app screen.
+	await page.locator("main").click();
+	await key.press("3");
+	await expect(page).toHaveURL(/#\/foundry$/);
+	await key.press("Escape");
+	await expect(page).toHaveURL(/#\/$/);
+
+	// No shortcut fires while typing.
+	await page.evaluate(() => {
+		const input = document.createElement("input");
+		document.body.append(input);
+		input.focus();
+	});
+	await key.press("2");
+	await expect(page).toHaveURL(/#\/$/);
+});
+
+test("Esc with no in-app history goes to Overview", async ({ page }, info) => {
+	test.skip(info.project.name !== "desktop", "desktop shortcuts");
+	await page.goto("/#/stats");
+	await expect(page.getByRole("banner")).toBeVisible(); // app mounted
+	await page.keyboard.press("Escape");
+	await expect(page).toHaveURL(/#\/$/);
+});

@@ -21,6 +21,7 @@ import {
 	sprout,
 	whiteTower,
 } from "./icons.tsx";
+import { Shortcuts } from "./Shortcuts.tsx";
 import { TopBar } from "./TopBar.tsx";
 
 export type ScreenDef = {
@@ -266,6 +267,7 @@ export const Shell = () => (
 			</main>
 		</div>
 		<TabBar />
+		<Shortcuts />
 	</div>
 );
 

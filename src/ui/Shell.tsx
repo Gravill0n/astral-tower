@@ -4,8 +4,8 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import type { Store } from "@tanstack/react-store";
 import { useSelector } from "@tanstack/react-store";
-import { createContext, use } from "react";
-import type { Screen } from "../core/view.ts";
+import { createContext, use, useRef } from "react";
+import type { Nav, Screen } from "../core/view.ts";
 import type { Snapshot } from "../game.ts";
 import {
 	anvil,
@@ -15,6 +15,7 @@ import {
 	explosionRays,
 	foxHead,
 	galleon,
+	hamburgerMenu,
 	histogram,
 	Icon,
 	sprout,
@@ -147,6 +148,29 @@ export const useGame = <T,>(select: (s: Snapshot) => T): T => {
 	return useSelector(store, select);
 };
 
+// A sidebar or More sheet entry: a link when open, greyed with its unlock
+// condition when locked. Callers drop hidden screens.
+const NavItem = (p: { s: ScreenDef; n: Nav; onClick?: () => void }) =>
+	p.n.status === "locked" ? (
+		<span className="nav-item" aria-disabled="true">
+			<Icon d={p.s.icon} />
+			<span>
+				{p.s.label}
+				<small>{p.n.condition}</small>
+			</span>
+		</span>
+	) : (
+		<Link
+			to={p.s.path}
+			className="nav-item"
+			activeOptions={{ exact: true }}
+			onClick={p.onClick}
+		>
+			<Icon d={p.s.icon} />
+			<span>{p.s.label}</span>
+		</Link>
+	);
+
 const Sidebar = () => {
 	const nav = useGame((s) => s.view.nav);
 	return (
@@ -156,36 +180,78 @@ const Sidebar = () => {
 				const n = nav[s.screen];
 				if (n.status === "hidden") return null;
 				const divider = s.group === "star" && SCREENS[i - 1]?.group !== "star";
-				const item =
-					n.status === "locked" ? (
-						<span className="nav-item" aria-disabled="true">
-							<Icon d={s.icon} />
-							<span>
-								{s.label}
-								<small>{n.condition}</small>
-							</span>
-						</span>
-					) : (
-						<Link
-							to={s.path}
-							className="nav-item"
-							activeOptions={{ exact: true }}
-						>
-							<Icon d={s.icon} />
-							<span>{s.label}</span>
-						</Link>
-					);
 				return (
 					<div
 						key={s.screen}
 						className={s.group === "settings" ? "sidebar-end" : undefined}
 					>
 						{divider && <hr />}
-						{item}
+						<NavItem s={s} n={n} />
 					</div>
 				);
 			})}
 		</nav>
+	);
+};
+
+// Mobile (GDD 12.1): four fixed tabs plus More. Q7: a locked tab stays, greyed,
+// and opens the placeholder with its unlock condition. The sidebar and these
+// tabs are never visible together (one media query), so both are "Modules".
+const TabBar = () => {
+	const nav = useGame((s) => s.view.nav);
+	const sheet = useRef<HTMLDialogElement>(null);
+	const more = useRef<HTMLButtonElement>(null);
+	const close = () => sheet.current?.close();
+	return (
+		<>
+			<nav aria-label="Modules" className="tabbar">
+				{SCREENS.filter((s) => s.mobile === "tab").map((s) => (
+					<Link
+						key={s.screen}
+						to={s.path}
+						className="tab"
+						data-locked={nav[s.screen].status !== "open" || undefined}
+						activeOptions={{ exact: true }}
+					>
+						<Icon d={s.icon} />
+						<span>{s.label}</span>
+						{nav[s.screen].status !== "open" && (
+							<span className="sr-only"> (locked)</span>
+						)}
+					</Link>
+				))}
+				<button
+					ref={more}
+					type="button"
+					className="tab"
+					aria-haspopup="dialog"
+					onClick={() => sheet.current?.showModal()}
+				>
+					<Icon d={hamburgerMenu} />
+					<span>More</span>
+				</button>
+			</nav>
+			{/* Bottom sheet (GDD 12.5): Esc closes it natively; a click on the
+			    dialog itself (not its content) is a click on the backdrop. Kept
+			    outside the nav: a modal under a display:none parent would leave
+			    the page inert and invisible if the viewport crosses 768px. */}
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: Esc is native to <dialog> */}
+			<dialog
+				ref={sheet}
+				className="sheet"
+				aria-label="More"
+				onClick={(e) => e.target === e.currentTarget && close()}
+				onClose={() => more.current?.focus()}
+			>
+				<div className="sheet-body">
+					{SCREENS.filter(
+						(s) => s.mobile === "more" && nav[s.screen].status !== "hidden",
+					).map((s) => (
+						<NavItem key={s.screen} s={s} n={nav[s.screen]} onClick={close} />
+					))}
+				</div>
+			</dialog>
+		</>
 	);
 };
 
@@ -199,6 +265,7 @@ export const Shell = () => (
 				<Outlet />
 			</main>
 		</div>
+		<TabBar />
 	</div>
 );
 

@@ -39,8 +39,29 @@ const Chip = (p: {
 	</div>
 );
 
+// Mobile (GDD 12.1): the same figure, short form. CSS shows one set or the other.
+const Mini = (p: {
+	name: string;
+	icon: string;
+	tone: string;
+	value: ReactNode;
+}) => (
+	// biome-ignore lint/a11y/useSemanticElements: a named figure, not a form fieldset
+	<div role="group" aria-label={p.name} className="mini">
+		<span className={p.tone}>
+			<Icon d={p.icon} />
+		</span>
+		<span>{p.value}</span>
+	</div>
+);
+
 export const TopBar = () => {
 	const { mana, apprentices, space, clock } = useGame((s) => s.view);
+	const rate = (
+		<span className={mana.short ? "loss" : undefined}>
+			{formatRate(mana.net, format, "s")}
+		</span>
+	);
 	return (
 		<header className="topbar">
 			<span className="brand">
@@ -53,11 +74,7 @@ export const TopBar = () => {
 				tone="gold"
 				// Shortage: --loss plus a word, never colour alone (GDD 3.3).
 				label={mana.short ? "Mana · short" : "Mana"}
-				value={
-					<span className={mana.short ? "loss" : undefined}>
-						{formatRate(mana.net, format, "s")}
-					</span>
-				}
+				value={rate}
 				detail={`${n(mana.made)} made · ${n(mana.drawn)} drawn`}
 			/>
 			<Chip
@@ -84,6 +101,32 @@ export const TopBar = () => {
 				value={formatDuration(clock.leftS)}
 				detail={`left · ${clock.next.constellation} next`}
 			/>
+			<Mini
+				name="Constellation"
+				icon={ursaMajor}
+				tone="teal"
+				value={`${clock.phase.constellation} · ${formatDuration(clock.leftS)}`}
+			/>
+			<div className="minis">
+				<Mini
+					name="Mana"
+					icon={crystalGrowth}
+					tone="gold"
+					value={mana.short ? <>{rate} short</> : rate}
+				/>
+				<Mini
+					name="Apprentices"
+					icon={pointyHat}
+					tone="coral"
+					value={`${n(apprentices.free)}/${n(apprentices.needed)}`}
+				/>
+				<Mini
+					name="Floor space"
+					icon={stairs3d}
+					tone="lilac"
+					value={`${n(space.used)}/${n(space.total)}`}
+				/>
+			</div>
 		</header>
 	);
 };

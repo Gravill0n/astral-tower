@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { startGame } from "./game.ts";
 
 // Code-based routes: https://tanstack.com/router/latest/docs/framework/react/routing/code-based-routing
 // notFoundComponent on the root: https://tanstack.com/router/latest/docs/framework/react/guide/not-found-errors
@@ -40,6 +41,9 @@ declare module "@tanstack/react-router" {
 		router: typeof router;
 	}
 }
+
+// Module level, not an effect: StrictMode's double effects cannot start two loops.
+startGame(); // ponytail: Game not held yet; Task 5 passes game.store to the shell
 
 const root = document.getElementById("root");
 if (!root) throw new Error("#root not found");

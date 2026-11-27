@@ -66,19 +66,3 @@ describe("src/core purity", () => {
 		expect(readFileSync(new URL(file, dir), "utf8")).not.toMatch(banned);
 	});
 });
-
-describe("src/core has no callers outside src/core in M2", () => {
-	const src = new URL("../", import.meta.url);
-	const files = readdirSync(src, { recursive: true, encoding: "utf8" }).filter(
-		(f) => /\.tsx?$/.test(f) && !f.startsWith("core/"),
-	);
-	const importsCore = /(from\s+|import\s*\(\s*)["'][^"']*\bcore\//;
-
-	it("has files to check", () => {
-		expect(files).toContain("main.tsx");
-	});
-
-	it.each(files)("%s does not import from core/", (file) => {
-		expect(readFileSync(new URL(file, src), "utf8")).not.toMatch(importsCore);
-	});
-});

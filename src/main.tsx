@@ -10,6 +10,7 @@ import {
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { startGame } from "./game.ts";
+import "./ui/theme.css";
 
 // Code-based routes: https://tanstack.com/router/latest/docs/framework/react/routing/code-based-routing
 // notFoundComponent on the root: https://tanstack.com/router/latest/docs/framework/react/guide/not-found-errors

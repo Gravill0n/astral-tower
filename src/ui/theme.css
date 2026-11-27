@@ -1,0 +1,144 @@
+/* Grimoire theme (GDD 12.1 Look). Tokens taken from the Final-* mockups.
+ * Fonts: Cinzel and Spectral, SIL Open Font License 1.1, self-hosted from the
+ * Fontsource packages. Latin subset only: Fontsource has no subset entry point
+ * for variable fonts (https://fontsource.org/docs/getting-started/subsets), and
+ * its static CSS also ships .woff, so the faces are declared here, woff2 only. */
+
+@font-face {
+	font-family: "Cinzel";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 400 900;
+	src: url("@fontsource-variable/cinzel/files/cinzel-latin-wght-normal.woff2")
+		format("woff2");
+}
+
+@font-face {
+	font-family: "Spectral";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 400;
+	src: url("@fontsource/spectral/files/spectral-latin-400-normal.woff2")
+		format("woff2");
+}
+
+@font-face {
+	font-family: "Spectral";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 600;
+	src: url("@fontsource/spectral/files/spectral-latin-600-normal.woff2")
+		format("woff2");
+}
+
+@font-face {
+	font-family: "Spectral";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 700;
+	src: url("@fontsource/spectral/files/spectral-latin-700-normal.woff2")
+		format("woff2");
+}
+
+@font-face {
+	font-family: "Spectral";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 800;
+	src: url("@fontsource/spectral/files/spectral-latin-800-normal.woff2")
+		format("woff2");
+}
+
+:root {
+	color-scheme: dark;
+	--ground: #120b16;
+	--panel: rgba(28, 16, 34, 0.92);
+	--line: rgba(214, 170, 96, 0.38);
+	--text: #f6ead2;
+	--muted: #cdb994;
+	--gold: #e9b860;
+	--gold-hi: #f7d89a;
+	--teal: #8fd6c0;
+	--coral: #f08a76;
+	--lilac: #c7a2ff;
+	/* Gains and losses always use these two; colorblind palettes (M11) remap them. */
+	--gain: var(--teal);
+	--loss: var(--coral);
+	--font-heading: "Cinzel", serif;
+	--font-body: "Spectral", serif;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	color: var(--text);
+	font: 400 15px / 1.45 var(--font-body);
+	/* Sky: a vignette over the Grimoire starfield.
+	 * Kenney Space Shooter (Remastered) Backgrounds/purple.png, CC0 1.0. */
+	background:
+		radial-gradient(
+			ellipse at 50% 30%,
+			rgba(18, 11, 22, 0.15),
+			rgba(18, 11, 22, 0.8)
+		)
+		fixed,
+		url("/sky/grimoire.png") 0 0 / 256px repeat,
+		var(--ground);
+}
+
+h1,
+h2,
+h3 {
+	margin: 0;
+	font-family: var(--font-heading);
+	font-weight: 600;
+	letter-spacing: 0.03em;
+}
+
+h1 {
+	font-size: 32px;
+}
+
+h2 {
+	font-size: 20px;
+}
+
+h3 {
+	font-size: 17px;
+}
+
+small {
+	font-size: 13px;
+	color: var(--muted);
+}
+
+a {
+	color: var(--gold);
+}
+
+a:hover {
+	color: var(--gold-hi);
+}
+
+/* Gilded double frame: a gold border plus an inset gold outline. */
+.card {
+	padding: 16px;
+	border-radius: 18px;
+	background: var(--panel);
+	border: 1px solid color-mix(in srgb, var(--gold) 70%, transparent);
+	outline: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+	outline-offset: -6px;
+}
+
+/* GDD 12.5 Reduced motion: no animation or transition anywhere. */
+/* biome-ignore-start lint/complexity/noImportantStyles: must beat any component rule */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation: none !important;
+		transition: none !important;
+		scroll-behavior: auto !important;
+	}
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: see above */

@@ -21,6 +21,8 @@ Each milestone ends playable and deployed. Section numbers refer to the [GDD 1.0
 Notes:
 - **M0 status:** done (2026-11-25, branch feat/m0-setup, PR #1). Live at https://astral-tower.gravillon.me/
 - **M1 status:** done (2026-11-26, branch feat/m1-balance-pipeline, PR #3).
+- **M2 status:** done (2026-11-26, branch feat/m2-game-core, PR #4).
+- **M3 status:** done (2026-11-27, branch feat/m3-shell).
 - Supernova (M8) comes before the Bestiary (M9): it opens at 9:00, while the Bestiary often opens only in run 2.
 - The M12 bot can start small from M4 on, so pacing problems show up as each module lands.
 - Before M1, export the Balance sheet as `.xlsx` into `balance/`.

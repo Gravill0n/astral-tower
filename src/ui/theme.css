@@ -1,0 +1,732 @@
+/* Grimoire theme (GDD 12.1 Look). Tokens taken from the Final-* mockups.
+ * Fonts: Cinzel and Spectral, SIL Open Font License 1.1, self-hosted from the
+ * Fontsource packages. Latin subset only: Fontsource has no subset entry point
+ * for variable fonts (https://fontsource.org/docs/getting-started/subsets), and
+ * its static CSS also ships .woff, so the faces are declared here, woff2 only. */
+
+@font-face {
+	font-family: "Cinzel";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 400 900;
+	src: url("@fontsource-variable/cinzel/files/cinzel-latin-wght-normal.woff2")
+		format("woff2");
+}
+
+@font-face {
+	font-family: "Spectral";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 400;
+	src: url("@fontsource/spectral/files/spectral-latin-400-normal.woff2")
+		format("woff2");
+}
+
+@font-face {
+	font-family: "Spectral";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 600;
+	src: url("@fontsource/spectral/files/spectral-latin-600-normal.woff2")
+		format("woff2");
+}
+
+@font-face {
+	font-family: "Spectral";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 700;
+	src: url("@fontsource/spectral/files/spectral-latin-700-normal.woff2")
+		format("woff2");
+}
+
+@font-face {
+	font-family: "Spectral";
+	font-style: normal;
+	font-display: swap;
+	font-weight: 800;
+	src: url("@fontsource/spectral/files/spectral-latin-800-normal.woff2")
+		format("woff2");
+}
+
+:root {
+	color-scheme: dark;
+	--ground: #120b16;
+	--panel: rgba(28, 16, 34, 0.92);
+	--panel2: rgba(46, 28, 54, 0.94);
+	--line: rgba(214, 170, 96, 0.38);
+	--text: #f6ead2;
+	--muted: #cdb994;
+	--gold: #e9b860;
+	--gold-hi: #f7d89a;
+	--teal: #8fd6c0;
+	--coral: #f08a76;
+	--lilac: #c7a2ff;
+	/* Gains and losses always use these two; colorblind palettes (M11) remap them. */
+	--gain: var(--teal);
+	--loss: var(--coral);
+	--font-heading: "Cinzel", serif;
+	--font-body: "Spectral", serif;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	color: var(--text);
+	font: 400 15px / 1.45 var(--font-body);
+	/* Sky: a vignette over the Grimoire starfield.
+	 * Kenney Space Shooter (Remastered) Backgrounds/purple.png, CC0 1.0. */
+	background:
+		radial-gradient(
+			ellipse at 50% 30%,
+			rgba(18, 11, 22, 0.15),
+			rgba(18, 11, 22, 0.8)
+		)
+		fixed,
+		url("/sky/grimoire.png") 0 0 / 256px repeat,
+		var(--ground);
+}
+
+h1,
+h2,
+h3 {
+	margin: 0;
+	font-family: var(--font-heading);
+	font-weight: 600;
+	letter-spacing: 0.03em;
+}
+
+h1 {
+	font-size: 32px;
+}
+
+h2 {
+	font-size: 20px;
+}
+
+h3 {
+	font-size: 17px;
+}
+
+small {
+	font-size: 13px;
+	color: var(--muted);
+}
+
+a {
+	color: var(--gold);
+}
+
+a:hover {
+	color: var(--gold-hi);
+}
+
+/* Gilded double frame: a gold border plus an inset gold outline. */
+.card {
+	padding: 16px;
+	border-radius: 18px;
+	background: var(--panel);
+	border: 1px solid color-mix(in srgb, var(--gold) 70%, transparent);
+	outline: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+	outline-offset: -6px;
+}
+
+/* Shell A (GDD 12.1): top bar over the sidebar and the main content. */
+.shell {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.shell-body {
+	flex: 1;
+	display: flex;
+}
+
+.topbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 20px;
+	background: var(--panel);
+	border-bottom: 1px solid var(--line);
+}
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-right: auto;
+	font: 600 24px var(--font-heading);
+}
+
+.brand svg {
+	width: 30px;
+	height: 30px;
+	color: var(--gold);
+}
+
+.chip {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 14px;
+	border-radius: 14px;
+	border: 1px solid var(--line);
+	background: var(--panel2);
+}
+
+.chip svg {
+	display: block;
+}
+
+.chip-text {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.15;
+}
+
+.chip-label {
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--muted);
+}
+
+.chip-value {
+	font-size: 16px;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+}
+
+.chip-value small {
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.gold {
+	color: var(--gold);
+}
+
+.coral {
+	color: var(--coral);
+}
+
+.lilac {
+	color: var(--lilac);
+}
+
+.teal {
+	color: var(--teal);
+}
+
+.loss {
+	color: var(--loss);
+}
+
+.sidebar {
+	flex: 0 0 220px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 16px 12px;
+	background: var(--panel);
+	border-right: 1px solid var(--line);
+}
+
+.sidebar-group {
+	padding: 4px 14px 8px;
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+
+.sidebar hr {
+	margin: 12px 4px;
+	border: 0;
+	border-top: 1px solid var(--line);
+}
+
+.sidebar-end {
+	margin-top: auto;
+}
+
+.nav-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-height: 44px;
+	padding: 0 14px;
+	border-radius: 12px;
+	color: var(--text);
+	text-decoration: none;
+	font-weight: 700;
+}
+
+.nav-item svg {
+	flex: none;
+}
+
+.nav-item[aria-current="page"] {
+	color: var(--gold);
+	background: color-mix(in srgb, var(--gold) 14%, transparent);
+}
+
+.nav-item:focus-visible {
+	outline: 2px solid var(--gold-hi);
+	outline-offset: 2px;
+}
+
+/* The next locked module: greyed, with its unlock condition under the label. */
+.nav-item[data-locked] {
+	color: var(--muted);
+	opacity: 0.7;
+	padding-block: 6px;
+}
+
+.nav-item small {
+	display: block;
+	font-weight: 400;
+	line-height: 1.25;
+}
+
+.screen {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 24px;
+}
+
+.screen p {
+	margin: 0;
+	color: var(--muted);
+}
+
+/* Overview (GDD 12.3): main column plus a right panel, stacked on mobile. */
+.overview {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 320px;
+	align-items: start;
+	gap: 16px;
+}
+
+.overview-main {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.strip {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+/* .screen p mutes paragraphs; the current phase line stays bright. */
+.screen .strip-now {
+	font: 600 20px var(--font-heading);
+	color: var(--teal);
+	font-variant-numeric: tabular-nums;
+}
+
+.phases {
+	display: grid;
+	/* Six across when there is room, else 3×2 or 2×3: names never break. */
+	grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+	gap: 8px;
+	margin: 8px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.phases li {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 8px 10px;
+	border-radius: 12px;
+	border: 1px solid var(--line);
+	color: var(--muted);
+}
+
+/* The current phase: a thicker frame and bold text, not colour alone. */
+.phases li[aria-current] {
+	border: 2px solid var(--teal);
+	padding: 7px 9px;
+	color: var(--text);
+	background: color-mix(in srgb, var(--teal) 14%, transparent);
+}
+
+.phases small {
+	font-size: 12px;
+}
+
+/* Needs you (GDD 12.3): empty in M3, so just its heading and one line. */
+.needs h2 {
+	margin-bottom: 8px;
+}
+
+/* Module cards (GDD 12.3): a grid on desktop, one column on mobile. */
+.modules {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 16px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.module {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	height: 100%;
+	box-sizing: border-box;
+	color: var(--text);
+	text-decoration: none;
+}
+
+.module:hover {
+	color: var(--text);
+	background: var(--panel2);
+}
+
+/* .card's outline is its inner frame; focus replaces it with a bright ring. */
+.module:focus-visible {
+	outline: 2px solid var(--gold-hi);
+	outline-offset: 2px;
+}
+
+.module h3 {
+	margin: 0;
+	color: var(--gold);
+}
+
+.module dl {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+	margin: 0;
+}
+
+.module dt {
+	font-size: 13px;
+	color: var(--muted);
+}
+
+.module dd {
+	margin: 0;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+}
+
+/* Narrow desktops (sidebar shown): the right panel drops below the strip. */
+@media (max-width: 1099.98px) {
+	.overview {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.panel h2 {
+	margin-bottom: 12px;
+}
+
+.coming-up {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.coming-up li {
+	display: flex;
+	gap: 12px;
+}
+
+.coming-up small {
+	display: block;
+}
+
+.when {
+	min-width: 3.5em;
+	font-weight: 800;
+	color: var(--gold);
+	font-variant-numeric: tabular-nums;
+}
+
+/* Settings (GDD 12.5). */
+.settings {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-width: 640px;
+}
+
+.field {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+}
+
+.field select {
+	min-height: 44px;
+	padding: 0 12px;
+	border-radius: 10px;
+	border: 1px solid var(--line);
+	background: var(--panel2);
+	color: var(--text);
+	font: inherit;
+}
+
+.preview {
+	font-weight: 700;
+	color: var(--gold-hi);
+	overflow-wrap: anywhere;
+}
+
+/* Mobile frame (GDD 12.1): hidden on desktop, swapped in by the media query below. */
+.mini,
+.minis,
+.tabbar {
+	display: none;
+}
+
+.mini {
+	align-items: center;
+	gap: 6px;
+	font-size: 14px;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.mini svg {
+	display: block;
+	width: 18px;
+	height: 18px;
+}
+
+/* The constellation, as a pill beside the brand. */
+.topbar > .mini {
+	padding: 4px 10px;
+	border-radius: 999px;
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--teal);
+	background: color-mix(in srgb, var(--teal) 12%, transparent);
+}
+
+.topbar > .mini svg {
+	width: 14px;
+	height: 14px;
+}
+
+.minis {
+	flex-basis: 100%;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 6px;
+}
+
+.tabbar {
+	position: sticky;
+	bottom: 0;
+	padding: 0 4px max(8px, env(safe-area-inset-bottom));
+	background: var(--panel);
+	border-top: 1px solid var(--line);
+}
+
+.tab {
+	flex: 1 1 0;
+	min-width: 0;
+	min-height: 56px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--muted);
+	font: 800 11px var(--font-body);
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.tab[aria-current="page"] {
+	color: var(--gold);
+}
+
+.tab[data-locked] {
+	opacity: 0.55;
+}
+
+.tab:focus-visible {
+	outline: 2px solid var(--gold-hi);
+	outline-offset: -2px;
+}
+
+.sheet {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 100%;
+	margin: auto 0 0;
+	padding: 0;
+	border: 0;
+	border-top: 1px solid var(--line);
+	border-radius: 18px 18px 0 0;
+	background: var(--ground);
+	color: var(--text);
+}
+
+.sheet[open] {
+	animation: sheet-up 0.2s ease-out;
+}
+
+.sheet::backdrop {
+	background: rgba(10, 5, 12, 0.6);
+}
+
+.sheet-body {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 12px 12px max(12px, env(safe-area-inset-bottom));
+	background: var(--panel);
+}
+
+@keyframes sheet-up {
+	from {
+		transform: translateY(100%);
+	}
+}
+
+@media (max-width: 767.98px) {
+	.sidebar,
+	.chip {
+		display: none;
+	}
+
+	.topbar {
+		gap: 8px;
+		padding: 12px 14px 10px;
+	}
+
+	.brand {
+		font-size: 20px;
+	}
+
+	.brand svg {
+		width: 24px;
+		height: 24px;
+	}
+
+	.mini,
+	.tabbar {
+		display: flex;
+	}
+
+	.minis {
+		display: grid;
+	}
+
+	.screen {
+		padding: 16px;
+	}
+
+	.phases {
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+		gap: 4px;
+	}
+
+	.phases li {
+		padding: 6px 4px;
+		text-align: center;
+		font-size: 12px;
+	}
+
+	.phases li[aria-current] {
+		padding: 5px 3px;
+	}
+
+	.phases .long,
+	.phases small {
+		display: none;
+	}
+}
+
+/* GDD 12.5 Reduced motion: no animation or transition anywhere. */
+/* biome-ignore-start lint/complexity/noImportantStyles: must beat any component rule */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation: none !important;
+		transition: none !important;
+		scroll-behavior: auto !important;
+	}
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: see above */
+
+/* Text for screen readers only. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+/* Shortcut list (GDD 12.5): a native modal, Esc closes it. */
+.shortcuts {
+	padding: 16px 20px;
+	border: 1px solid var(--line);
+	border-radius: 10px;
+	background: var(--ground);
+	color: var(--text);
+}
+
+.shortcuts::backdrop {
+	background: rgba(10, 5, 12, 0.6);
+}
+
+.shortcuts h2 {
+	margin: 0 0 12px;
+	font-size: 16px;
+}
+
+.shortcuts dl {
+	display: grid;
+	gap: 6px;
+	margin: 0 0 12px;
+}
+
+.shortcuts dl div {
+	display: flex;
+	gap: 12px;
+}
+
+.shortcuts dt {
+	min-width: 3em;
+}
+
+.shortcuts dd {
+	margin: 0;
+	color: var(--muted);
+}
+
+.shortcuts kbd {
+	padding: 0 6px;
+	border: 1px solid var(--line);
+	border-radius: 4px;
+	font: inherit;
+	color: var(--gold-hi);
+}

@@ -9,7 +9,7 @@ export default defineConfig({
 		VitePWA({
 			registerType: "autoUpdate",
 			injectRegister: "auto",
-			workbox: { globPatterns: ["**/*.{js,css,html,ico,png,svg}"] },
+			workbox: { globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"] },
 			// icon.svg is full-bleed with the glyph already inside the maskable safe zone,
 			// so drop the preset's default 30% white padding on maskable/apple icons.
 			pwaAssets: {
@@ -25,8 +25,8 @@ export default defineConfig({
 				short_name: "Astral Tower",
 				description: "A wizard's tower orbits a star and grows floor by floor.",
 				display: "standalone",
-				theme_color: "#0d0b1e",
-				background_color: "#0d0b1e",
+				theme_color: "#120b16",
+				background_color: "#120b16",
 			},
 		}),
 	],

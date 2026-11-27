@@ -53,6 +53,7 @@
 	color-scheme: dark;
 	--ground: #120b16;
 	--panel: rgba(28, 16, 34, 0.92);
+	--panel2: rgba(46, 28, 54, 0.94);
 	--line: rgba(214, 170, 96, 0.38);
 	--text: #f6ead2;
 	--muted: #cdb994;
@@ -130,10 +131,97 @@ a:hover {
 	outline-offset: -6px;
 }
 
-/* Shell A (GDD 12.1): sidebar, then the main content. */
+/* Shell A (GDD 12.1): top bar over the sidebar and the main content. */
 .shell {
 	display: flex;
+	flex-direction: column;
 	min-height: 100vh;
+}
+
+.shell-body {
+	flex: 1;
+	display: flex;
+}
+
+.topbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 20px;
+	background: var(--panel);
+	border-bottom: 1px solid var(--line);
+}
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-right: auto;
+	font: 600 24px var(--font-heading);
+}
+
+.brand svg {
+	width: 30px;
+	height: 30px;
+	color: var(--gold);
+}
+
+.chip {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 14px;
+	border-radius: 14px;
+	border: 1px solid var(--line);
+	background: var(--panel2);
+}
+
+.chip svg {
+	display: block;
+}
+
+.chip-text {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.15;
+}
+
+.chip-label {
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--muted);
+}
+
+.chip-value {
+	font-size: 16px;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+}
+
+.chip-value small {
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.gold {
+	color: var(--gold);
+}
+
+.coral {
+	color: var(--coral);
+}
+
+.lilac {
+	color: var(--lilac);
+}
+
+.teal {
+	color: var(--teal);
+}
+
+.loss {
+	color: var(--loss);
 }
 
 .sidebar {

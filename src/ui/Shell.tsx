@@ -1,5 +1,5 @@
-// Shell A (GDD 12.1): the screen registry, the root layout with the module
-// sidebar (GDD 2 Modules), and the placeholder for screens later milestones build.
+// Shell A (GDD 12.1): the screen registry, the root layout with the top bar and
+// module sidebar (GDD 2 Modules), and the placeholder for screens later milestones build.
 
 import { Link, Outlet } from "@tanstack/react-router";
 import type { Store } from "@tanstack/react-store";
@@ -20,6 +20,7 @@ import {
 	sprout,
 	whiteTower,
 } from "./icons.tsx";
+import { TopBar } from "./TopBar.tsx";
 
 export type ScreenDef = {
 	screen: Screen;
@@ -190,11 +191,14 @@ const Sidebar = () => {
 
 export const Shell = () => (
 	<div className="shell">
-		<Sidebar />
-		{/* ponytail: right panel arrives with the first screen that fills it */}
-		<main className="screen">
-			<Outlet />
-		</main>
+		<TopBar />
+		<div className="shell-body">
+			<Sidebar />
+			{/* ponytail: right panel arrives with the first screen that fills it */}
+			<main className="screen">
+				<Outlet />
+			</main>
+		</div>
 	</div>
 );
 

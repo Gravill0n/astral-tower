@@ -130,6 +130,94 @@ a:hover {
 	outline-offset: -6px;
 }
 
+/* Shell A (GDD 12.1): sidebar, then the main content. */
+.shell {
+	display: flex;
+	min-height: 100vh;
+}
+
+.sidebar {
+	flex: 0 0 220px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 16px 12px;
+	background: var(--panel);
+	border-right: 1px solid var(--line);
+}
+
+.sidebar-group {
+	padding: 4px 14px 8px;
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+
+.sidebar hr {
+	margin: 12px 4px;
+	border: 0;
+	border-top: 1px solid var(--line);
+}
+
+.sidebar-end {
+	margin-top: auto;
+}
+
+.nav-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-height: 44px;
+	padding: 0 14px;
+	border-radius: 12px;
+	color: var(--text);
+	text-decoration: none;
+	font-weight: 700;
+}
+
+.nav-item svg {
+	flex: none;
+}
+
+.nav-item[aria-current="page"] {
+	color: var(--gold);
+	background: color-mix(in srgb, var(--gold) 14%, transparent);
+}
+
+.nav-item:focus-visible {
+	outline: 2px solid var(--gold-hi);
+	outline-offset: 2px;
+}
+
+/* The next locked module: greyed, with its unlock condition under the label. */
+.nav-item[aria-disabled="true"] {
+	color: var(--muted);
+	opacity: 0.7;
+	padding-block: 6px;
+}
+
+.nav-item small {
+	display: block;
+	font-weight: 400;
+	line-height: 1.25;
+}
+
+.screen {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 24px;
+}
+
+.screen p {
+	margin: 0;
+	color: var(--muted);
+}
+
 /* GDD 12.5 Reduced motion: no animation or transition anywhere. */
 /* biome-ignore-start lint/complexity/noImportantStyles: must beat any component rule */
 @media (prefers-reduced-motion: reduce) {

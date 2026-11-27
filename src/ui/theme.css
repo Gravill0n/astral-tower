@@ -280,7 +280,7 @@ a:hover {
 }
 
 /* The next locked module: greyed, with its unlock condition under the label. */
-.nav-item[aria-disabled="true"] {
+.nav-item[data-locked] {
 	color: var(--muted);
 	opacity: 0.7;
 	padding-block: 6px;

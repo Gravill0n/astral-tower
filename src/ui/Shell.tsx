@@ -153,10 +153,11 @@ export const useGame = <T,>(select: (s: Snapshot) => T): T => {
 // condition when locked. Callers drop hidden screens.
 const NavItem = (p: { s: ScreenDef; n: Nav; onClick?: () => void }) =>
 	p.n.status === "locked" ? (
-		<span className="nav-item" aria-disabled="true">
+		<span className="nav-item" data-locked>
 			<Icon d={p.s.icon} />
 			<span>
 				{p.s.label}
+				<span className="sr-only"> (locked)</span>
 				<small>{p.n.condition}</small>
 			</span>
 		</span>

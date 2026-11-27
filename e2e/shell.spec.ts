@@ -141,7 +141,9 @@ test("bottom tabs and the More sheet", async ({ page }, info) => {
 	await expect(more).toBeFocused();
 
 	await more.click();
-	await page.mouse.click(195, 40); // the backdrop, above the sheet
+	const body = await sheet.locator(".sheet-body").boundingBox();
+	if (!body) throw new Error("no sheet layout");
+	await page.mouse.click(body.x + body.width / 2, body.y / 2); // the backdrop, above the sheet
 	await expect(sheet).toBeHidden();
 	await expect(more).toBeFocused();
 
@@ -417,4 +419,70 @@ test("an open module adds its card", async ({ page }) => {
 	await noSideScroll(page);
 	await card.nth(1).click();
 	await expect(page).toHaveURL(/#\/gardens$/);
+});
+
+// Task 6 AC3: buildings drawing more mana than is made show the shortage.
+test("a mana shortage shows on the top bar", async ({ page }, info) => {
+	const r = balance.recipes.find((x) => x.mana > 0 && x.inputs.length === 0);
+	if (!r) throw new Error("Recipes: need one drawing mana with no inputs");
+	const count = Math.ceil((g["Base mana generation"].value * 2) / r.mana);
+	const save = JSON.stringify({
+		...newGame,
+		time: t0,
+		run: {
+			...newGame.run,
+			buildings: Array.from({ length: count }, () => ({
+				type: r.building,
+				recipe: r.recipe,
+			})),
+			recruited: 1e6, // never short of apprentices
+		},
+	});
+	await page.clock.install({ time: t0 });
+	await page.addInitScript((s) => {
+		if (!localStorage.getItem("astral-tower:save"))
+			localStorage.setItem("astral-tower:save", s);
+	}, save);
+	await page.goto("/");
+
+	const mana = page
+		.getByRole("banner")
+		.getByRole("group", { name: "Mana" })
+		.filter({ visible: true });
+	if (info.project.name === "desktop") {
+		await expect(mana.locator(".chip-label")).toContainText("short");
+		await expect(mana.locator(".chip-value > span")).toHaveClass("loss");
+	} else {
+		await expect(mana).toContainText("short");
+		await expect(mana.locator(".loss")).toBeVisible();
+	}
+});
+
+// Task 7: the More sheet lists the next locked module, greyed with its condition.
+test("the More sheet shows the next locked module", async ({ page }, info) => {
+	test.skip(info.project.name !== "mobile", "mobile More sheet");
+	const gate = balance.buildings.find((b) => b.module === "Guild")?.unlock;
+	if (!gate) throw new Error("Buildings: need a Guild row");
+	const save = JSON.stringify({
+		...newGame,
+		time: Math.floor(Date.now() / 1000) * 1000, // saves hold whole ticks
+		unlocked: ["buildings/Garden bed"],
+	});
+	await page.addInitScript((s) => {
+		if (!localStorage.getItem("astral-tower:save"))
+			localStorage.setItem("astral-tower:save", s);
+	}, save);
+	await page.goto("/");
+	await page
+		.getByRole("navigation", { name: "Modules" })
+		.getByRole("button", { name: "More" })
+		.click();
+	const sheet = page.getByRole("dialog", { name: "More" });
+	await expect(sheet.getByRole("link")).toHaveText(["Stats", "Settings"]);
+	await expect(sheet.locator(".nav-item[data-locked]")).toHaveText(
+		`Guild (locked)${gate.text}`,
+	);
+	for (const name of ["Library", "Bestiary", "Supernova"])
+		await expect(sheet).not.toContainText(name);
+	await noSideScroll(page);
 });

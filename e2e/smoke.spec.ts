@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import balance from "../src/data/balance.json" with { type: "json" };
 
 let errors: string[] = [];
 
@@ -35,6 +36,9 @@ test("unknown route shows not-found and links back home", async ({ page }) => {
 });
 
 test("is installable and works offline", async ({ page, context }) => {
+	// Every asset is self-hosted: no request leaves the app origin.
+	const urls: string[] = [];
+	context.on("request", (r) => urls.push(r.url()));
 	await page.goto("/");
 
 	const href = await page.locator('link[rel="manifest"]').getAttribute("href");
@@ -56,13 +60,23 @@ test("is installable and works offline", async ({ page, context }) => {
 	await context.setOffline(true);
 	await page.reload();
 	await overview(page);
-	// Fonts are precached: still usable with no network.
+	// The starfield and every font face are precached: they load with no network.
 	expect(
-		await page.evaluate(async () => {
-			await document.fonts.ready;
-			return document.fonts.check("600 16px Cinzel");
-		}),
+		await page.evaluate(async () => (await fetch("/sky/grimoire.png")).ok),
 	).toBe(true);
+	const faces = await page.evaluate(async () => {
+		const all = [...document.fonts];
+		await Promise.allSettled(all.map((f) => f.load()));
+		return all.map((f) => `${f.family.replaceAll('"', "")} ${f.status}`);
+	});
+	expect(faces).toEqual(
+		expect.arrayContaining(["Cinzel loaded", "Spectral loaded"]),
+	);
+	expect(faces.filter((f) => !f.endsWith(" loaded"))).toEqual([]);
+
+	const origin = new URL(page.url()).origin;
+	expect(urls.length).toBeGreaterThan(0);
+	expect(urls.filter((u) => new URL(u).origin !== origin)).toEqual([]);
 });
 
 test("sidebar shows open modules, the next locked one, and navigates", async ({
@@ -78,8 +92,11 @@ test("sidebar shows open modules, the next locked one, and navigates", async ({
 		"Stats",
 		"Settings",
 	]);
-	const gardens = nav.locator('[aria-disabled="true"]');
-	await expect(gardens).toHaveText(/^Gardens/);
+	// Locked: greyed, announced as locked, with its unlock condition (Task 5).
+	const gate = balance.buildings.find((b) => b.module === "Gardens")?.unlock;
+	if (!gate) throw new Error("Buildings: need a Gardens row");
+	const gardens = nav.locator(".nav-item[data-locked]");
+	await expect(gardens).toHaveText(`Gardens (locked)${gate.text}`);
 	await expect(nav).not.toContainText("Guild");
 	await expect(nav).not.toContainText("Supernova");
 
@@ -101,7 +118,9 @@ test("sidebar shows open modules, the next locked one, and navigates", async ({
 		page.getByText("This deck is not on the charts yet."),
 	).toBeVisible();
 	await page.goto("/#/gardens");
-	await expect(page.getByRole("main")).toContainText("Locked.");
+	await expect(page.getByRole("main")).toContainText(`Locked. ${gate.text}.`);
 	await page.goto("/#/nope");
-	await expect(page.getByRole("main")).toHaveCount(1);
+	await expect(
+		page.getByRole("main").getByRole("heading", { name: "Lost in the void" }),
+	).toBeVisible();
 });

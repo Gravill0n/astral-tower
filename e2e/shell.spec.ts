@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import newGame from "../src/core/saves/v1-new-game.json" with { type: "json" };
 // The raw sheet JSON: src/data/index.ts imports it without the attribute Node needs.
 import balance from "../src/data/balance.json" with { type: "json" };
 import { formatDuration, formatNumber, formatRate } from "../src/ui/format.ts";
@@ -218,4 +219,78 @@ test("Esc with no in-app history goes to Overview", async ({ page }, info) => {
 	await expect(page.getByRole("banner")).toBeVisible(); // app mounted
 	await page.keyboard.press("Escape");
 	await expect(page).toHaveURL(/#\/$/);
+});
+
+// GDD 12.5 Number format: a crew in the quadrillions shows every format apart.
+test("number format updates the preview and top bar live and persists", async ({
+	page,
+}, info) => {
+	const crew = 1.234e15;
+	const save = JSON.stringify({
+		...newGame,
+		time: t0,
+		run: { ...newGame.run, recruited: crew - g["Starting apprentices"].value },
+	});
+	await page.clock.install({ time: t0 });
+	// Seed once: later reloads keep whatever the game saved.
+	await page.addInitScript((s) => {
+		if (!localStorage.getItem("astral-tower:save"))
+			localStorage.setItem("astral-tower:save", s);
+	}, save);
+	await page.goto("/#/settings");
+
+	const select = page.getByLabel("Show large numbers as");
+	const preview = page.getByRole("status", { name: "Preview" });
+	const crewFig = page.getByRole("banner").getByRole("group", {
+		name: "Apprentices",
+	});
+	await expect(select).toHaveValue("short");
+	for (const [label, f] of [
+		["Scientific", "scientific"],
+		["Engineering", "engineering"],
+		["Letters", "letters"],
+		["K / M / B", "short"],
+		["Letters", "letters"],
+	] as const) {
+		await select.selectOption({ label });
+		await expect(preview).toContainText(formatNumber(7.89e15, f));
+		await expect(crewFig).toContainText(formatNumber(crew, f));
+	}
+
+	await page.reload();
+	await expect(select).toHaveValue("letters");
+	await expect(crewFig).toContainText(formatNumber(crew, "letters"));
+
+	// Shortcut keys belong to the select while it has focus (Task 8).
+	if (info.project.name === "desktop") {
+		await select.focus();
+		await page.keyboard.press("2");
+		await expect(page).toHaveURL(/#\/settings$/);
+	}
+
+	// Tampered prefs fall back to K/M/B; the save is left alone.
+	await page.evaluate(() =>
+		localStorage.setItem("astral-tower:prefs", '{"numberFormat":"<b>x"}'),
+	);
+	await page.reload();
+	await expect(select).toHaveValue("short");
+	await expect(crewFig).toContainText(formatNumber(crew, "short"));
+	expect(
+		await page.evaluate(() => localStorage.getItem("astral-tower:save:broken")),
+	).toBeNull();
+});
+
+test("settings credits the assets", async ({ page }) => {
+	await page.goto("/#/settings");
+	const credits = page.getByRole("region", { name: "Credits" });
+	await expect(credits).toContainText("Lorc and Delapouite");
+	await expect(
+		credits.getByRole("link", { name: "game-icons.net" }),
+	).toHaveAttribute("href", "https://game-icons.net/");
+	await expect(credits).toContainText("CC BY 3.0");
+	await expect(credits).toContainText("Kenney");
+	await expect(credits).toContainText("CC0");
+	await expect(credits).toContainText("Cinzel and Spectral");
+	await expect(credits).toContainText("SIL Open Font License 1.1");
+	await noSideScroll(page);
 });

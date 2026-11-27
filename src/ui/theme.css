@@ -306,6 +306,37 @@ a:hover {
 	color: var(--muted);
 }
 
+/* Settings (GDD 12.5). */
+.settings {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-width: 640px;
+}
+
+.field {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+}
+
+.field select {
+	min-height: 44px;
+	padding: 0 12px;
+	border-radius: 10px;
+	border: 1px solid var(--line);
+	background: var(--panel2);
+	color: var(--text);
+	font: inherit;
+}
+
+.preview {
+	font-weight: 700;
+	color: var(--gold-hi);
+	overflow-wrap: anywhere;
+}
+
 /* Mobile frame (GDD 12.1): hidden on desktop, swapped in by the media query below. */
 .mini,
 .minis,

@@ -1,7 +1,13 @@
 // Display-only number formats (GDD 12.5). About 3 significant digits,
 // trailing zeros trimmed; values below 1 000 read the same in every mode.
 
-export type NumberFormat = "short" | "scientific" | "engineering" | "letters";
+export const NUMBER_FORMATS = [
+	"short",
+	"scientific",
+	"engineering",
+	"letters",
+] as const;
+export type NumberFormat = (typeof NUMBER_FORMATS)[number];
 
 const SHORT = [
 	"",

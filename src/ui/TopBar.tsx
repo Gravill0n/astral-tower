@@ -13,10 +13,6 @@ import {
 } from "./icons.tsx";
 import { useGame } from "./Shell.tsx";
 
-// ponytail: fixed until Task 9 reads the number format from the store.
-const format = "short";
-const n = (x: number) => formatNumber(x, format);
-
 const Chip = (p: {
 	name: string;
 	icon: string;
@@ -57,6 +53,8 @@ const Mini = (p: {
 
 export const TopBar = () => {
 	const { mana, apprentices, space, clock } = useGame((s) => s.view);
+	const format = useGame((s) => s.prefs.numberFormat);
+	const n = (x: number) => formatNumber(x, format);
 	const rate = (
 		<span className={mana.short ? "loss" : undefined}>
 			{formatRate(mana.net, format, "s")}

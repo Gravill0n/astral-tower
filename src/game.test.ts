@@ -3,7 +3,13 @@ import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { loadSave, saveToString } from "./core/save.ts";
 import { newGame, TICK } from "./core/state.ts";
-import { BROKEN_KEY, type Env, SAVE_KEY, startGame } from "./game.ts";
+import {
+	BROKEN_KEY,
+	type Env,
+	PREFS_KEY,
+	SAVE_KEY,
+	startGame,
+} from "./game.ts";
 
 const start = Date.UTC(2026, 10, 26, 12); // a whole hour
 
@@ -216,5 +222,81 @@ describe("startGame: first-load catch-up", () => {
 		stop = game.stop;
 		game.save();
 		expect(savedTime(storage)).toBe(time + gap);
+	});
+});
+
+describe("startGame: prefs", () => {
+	it("defaults to K/M/B with no prefs", () => {
+		const game = startGame(env(memoryStorage()));
+		stop = game.stop;
+		expect(game.store.state.prefs).toEqual({ numberFormat: "short" });
+	});
+
+	it("loads saved prefs", () => {
+		const storage = memoryStorage({
+			[PREFS_KEY]: JSON.stringify({ numberFormat: "letters" }),
+		});
+		const game = startGame(env(storage));
+		stop = game.stop;
+		expect(game.store.state.prefs.numberFormat).toBe("letters");
+	});
+
+	it.each([
+		"not json",
+		"null",
+		"[]",
+		'"letters"',
+		'{"numberFormat":"<img src=x>"}',
+		'{"numberFormat":42}',
+		'{"__proto__":{"numberFormat":"letters"}}',
+	])("falls back to the default on tampered prefs %s", (raw) => {
+		const save = saveToString(newGame(start));
+		const storage = memoryStorage({ [PREFS_KEY]: raw, [SAVE_KEY]: save });
+		const game = startGame(env(storage));
+		stop = game.stop;
+		expect(game.store.state.prefs).toEqual({ numberFormat: "short" });
+		expect(storage.data.get(SAVE_KEY)).toBe(save);
+		expect(storage.data.has(BROKEN_KEY)).toBe(false);
+	});
+
+	it("setPrefs updates the store and persists, apart from the save", () => {
+		const storage = memoryStorage();
+		const game = startGame(env(storage));
+		stop = game.stop;
+		const seen = vi.fn();
+		game.store.subscribe(seen);
+		game.setPrefs({ numberFormat: "engineering" });
+		expect(seen).toHaveBeenCalledTimes(1);
+		expect(game.store.state.prefs.numberFormat).toBe("engineering");
+		expect(JSON.parse(storage.data.get(PREFS_KEY) ?? "")).toEqual({
+			numberFormat: "engineering",
+		});
+		expect(storage.data.has(SAVE_KEY)).toBe(false);
+	});
+
+	it("keeps prefs across a restart", () => {
+		const storage = memoryStorage();
+		const first = startGame(env(storage));
+		first.setPrefs({ numberFormat: "scientific" });
+		first.stop();
+		const game = startGame(env(storage));
+		stop = game.stop;
+		expect(game.store.state.prefs.numberFormat).toBe("scientific");
+	});
+
+	it("still updates the store when storage throws", () => {
+		const storage = {
+			getItem: () => {
+				throw new Error("SecurityError");
+			},
+			setItem: () => {
+				throw new Error("QuotaExceededError");
+			},
+		};
+		const game = startGame(env(storage));
+		stop = game.stop;
+		expect(game.store.state.prefs.numberFormat).toBe("short");
+		game.setPrefs({ numberFormat: "letters" });
+		expect(game.store.state.prefs.numberFormat).toBe("letters");
 	});
 });

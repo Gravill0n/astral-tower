@@ -365,6 +365,65 @@ a:hover {
 	font-size: 12px;
 }
 
+/* Needs you (GDD 12.3): empty in M3, so just its heading and one line. */
+.needs h2 {
+	margin-bottom: 8px;
+}
+
+/* Module cards (GDD 12.3): a grid on desktop, one column on mobile. */
+.modules {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: 16px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.module {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	height: 100%;
+	box-sizing: border-box;
+	color: var(--text);
+	text-decoration: none;
+}
+
+.module:hover {
+	color: var(--text);
+	background: var(--panel2);
+}
+
+/* .card's outline is its inner frame; focus replaces it with a bright ring. */
+.module:focus-visible {
+	outline: 2px solid var(--gold-hi);
+	outline-offset: 2px;
+}
+
+.module h3 {
+	margin: 0;
+	color: var(--gold);
+}
+
+.module dl {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+	margin: 0;
+}
+
+.module dt {
+	font-size: 13px;
+	color: var(--muted);
+}
+
+.module dd {
+	margin: 0;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+}
+
 /* Narrow desktops (sidebar shown): the right panel drops below the strip. */
 @media (max-width: 1099.98px) {
 	.overview {

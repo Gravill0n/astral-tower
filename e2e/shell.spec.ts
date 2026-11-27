@@ -355,3 +355,66 @@ test("overview clock strip and coming up follow the clock", async ({
 	else expect(side.y).toBeGreaterThanOrEqual(main.y + main.height);
 	await noSideScroll(page);
 });
+
+// GDD 12.3 Needs you and module cards.
+test("overview needs you and the module cards", async ({ page }) => {
+	await page.goto("/");
+	const needs = page.getByRole("region", { name: /Needs you/ });
+	await expect(needs).toContainText("0 things");
+	await expect(needs).toContainText("Nothing needs you right now.");
+	await expect(needs.getByRole("listitem")).toHaveCount(0);
+
+	const cards = page.getByRole("list", { name: "Modules at a glance" });
+	const card = cards.getByRole("link");
+	await expect(card).toHaveCount(1);
+	await expect(card).toContainText("Arcane Foundry");
+	await expect(card).toContainText("Bottleneck—");
+	const base = g["Base mana generation"].value;
+	const bar = page
+		.getByRole("banner")
+		.getByRole("group", { name: "Mana" })
+		.filter({ visible: true });
+	const net = formatRate(base, "short", "s");
+	await expect(bar).toContainText(net);
+	await expect(card).toContainText(`Mana net${net}`);
+	await noSideScroll(page);
+
+	await card.click();
+	await expect(page).toHaveURL(/#\/foundry$/);
+
+	// The card follows the chosen number format, like the top bar.
+	await page.goto("/#/settings");
+	await page
+		.getByLabel("Show large numbers as")
+		.selectOption({ label: "Scientific" });
+	await page.goto("/");
+	await expect(card).toContainText(formatRate(base, "scientific", "s"));
+	await expect(bar).toContainText(formatRate(base, "scientific", "s"));
+
+	await noSideScroll(page);
+});
+
+// The cards come from the nav statuses: opening the Gardens adds its card.
+test("an open module adds its card", async ({ page }) => {
+	const save = JSON.stringify({
+		...newGame,
+		time: Math.floor(Date.now() / 1000) * 1000, // saves hold whole ticks
+		unlocked: ["buildings/Garden bed"],
+	});
+	await page.addInitScript((s) => {
+		if (!localStorage.getItem("astral-tower:save"))
+			localStorage.setItem("astral-tower:save", s);
+	}, save);
+	await page.goto("/");
+	const card = page
+		.getByRole("list", { name: "Modules at a glance" })
+		.getByRole("link");
+	await expect(card).toHaveCount(2);
+	await expect(card.nth(0)).toContainText("Arcane Foundry");
+	await expect(card.nth(1)).toContainText("Starlight Gardens");
+	await expect(card.nth(1)).toContainText("Food net—");
+	await expect(card.nth(1)).toContainText("Ripe beds—");
+	await noSideScroll(page);
+	await card.nth(1).click();
+	await expect(page).toHaveURL(/#\/gardens$/);
+});

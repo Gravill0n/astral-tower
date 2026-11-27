@@ -112,6 +112,7 @@ describe("loadSave rejects hostile input without throwing", () => {
 		const result = loadSave(JSON.stringify(raw));
 		expect(result.ok).toBe(false);
 		if (!result.ok) expect(result.error).toMatch(/newer/);
+		expect(result).toMatchObject({ newer: true });
 	});
 
 	it.each([

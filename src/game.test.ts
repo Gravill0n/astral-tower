@@ -37,11 +37,13 @@ const env = (storage: Env["storage"]) => ({
 	...page(),
 });
 
-const savedTime = (storage: { getItem: (k: string) => string | null }) => {
+const savedState = (storage: { getItem: (k: string) => string | null }) => {
 	const r = loadSave(storage.getItem(SAVE_KEY) ?? "");
 	if (!r.ok) throw new Error(r.error);
-	return r.state.time;
+	return r.state;
 };
+const savedTime = (storage: { getItem: (k: string) => string | null }) =>
+	savedState(storage).time;
 
 let stop = () => {};
 beforeEach(() => {
@@ -54,14 +56,17 @@ afterEach(() => {
 
 describe("startGame: load", () => {
 	it("loads a valid save and catches up to now", () => {
-		const storage = memoryStorage({
-			[SAVE_KEY]: saveToString(newGame(start - 60 * TICK)),
-		});
+		const old = newGame(start - 60 * TICK);
+		old.run.recruited = 2;
+		old.run.buildings.push({ type: "Star Drill", recipe: "Mine Ember ore" });
+		const storage = memoryStorage({ [SAVE_KEY]: saveToString(old) });
 		const game = startGame(env(storage));
 		stop = game.stop;
 		game.save();
-		expect(savedTime(storage)).toBe(start);
-		expect(game.store.state.view.clock.phase).toBeDefined();
+		const saved = savedState(storage);
+		expect(saved.time).toBe(start);
+		expect(saved.run.recruited).toBe(2); // only the loaded save carries these
+		expect(saved.run.buildings).toEqual(old.run.buildings);
 	});
 
 	it("starts a new game when there is no save", () => {
@@ -71,6 +76,56 @@ describe("startGame: load", () => {
 		game.save();
 		expect(savedTime(storage)).toBe(start);
 		expect(storage.data.has(BROKEN_KEY)).toBe(false);
+	});
+
+	it("keeps a newer-version save untouched and runs in memory", () => {
+		const raw = JSON.parse(saveToString(newGame(start)));
+		raw.version += 1;
+		const text = JSON.stringify(raw);
+		const storage = memoryStorage({ [SAVE_KEY]: text });
+		const e = env(storage);
+		const game = startGame(e);
+		stop = game.stop;
+		const seen = vi.fn();
+		game.store.subscribe(seen);
+		vi.advanceTimersByTime(31_000); // autosave
+		game.save();
+		e.win.dispatchEvent(new Event("pagehide"));
+		expect(seen).toHaveBeenCalledTimes(31);
+		expect(storage.data.get(SAVE_KEY)).toBe(text);
+		expect(storage.data.has(BROKEN_KEY)).toBe(false);
+	});
+
+	it("never overwrites a save it could not read", () => {
+		const storage = {
+			getItem: () => {
+				throw new Error("SecurityError");
+			},
+			setItem: vi.fn(),
+		};
+		const e = env(storage);
+		const game = startGame(e);
+		stop = game.stop;
+		vi.advanceTimersByTime(31_000);
+		game.save();
+		e.win.dispatchEvent(new Event("pagehide"));
+		expect(storage.setItem).not.toHaveBeenCalledWith(
+			SAVE_KEY,
+			expect.anything(),
+		);
+	});
+
+	it("keeps an earlier backup when a second save is unreadable", () => {
+		const storage = memoryStorage({
+			[SAVE_KEY]: "second",
+			[BROKEN_KEY]: "first",
+		});
+		const game = startGame(env(storage));
+		stop = game.stop;
+		expect(storage.data.get(BROKEN_KEY)).toBe("first");
+		expect(storage.data.get(`${BROKEN_KEY}:${start}`)).toBe("second");
+		game.save();
+		expect(savedTime(storage)).toBe(start);
 	});
 
 	it("keeps an unreadable save under the backup key and starts fresh", () => {
@@ -106,17 +161,25 @@ describe("startGame: load", () => {
 			},
 			setItem: () => {},
 		};
+		const setItem = vi.spyOn(storage, "setItem");
 		const game = startGame(env(storage));
 		stop = game.stop;
-		vi.advanceTimersByTime(2_000);
-		expect(game.store.state.view).toBeDefined();
+		const seen = vi.fn();
+		game.store.subscribe(seen);
+		vi.advanceTimersByTime(31_000);
+		game.save();
+		expect(seen).toHaveBeenCalledTimes(31);
+		expect(setItem).not.toHaveBeenCalledWith(SAVE_KEY, expect.anything());
 	});
 
 	it("runs in memory with no storage at all", () => {
 		const game = startGame(env(null));
 		stop = game.stop;
+		const seen = vi.fn();
+		game.store.subscribe(seen);
 		vi.advanceTimersByTime(31_000);
-		expect(game.store.state.view).toBeDefined();
+		game.save();
+		expect(seen).toHaveBeenCalledTimes(31);
 	});
 });
 
@@ -214,14 +277,19 @@ describe("startGame: first-load catch-up", () => {
 			new URL("./core/saves/v1-mid-game.json", import.meta.url),
 			"utf8",
 		);
-		const time = JSON.parse(text).time as number;
+		const fixture = JSON.parse(text);
+		const time = fixture.time as number;
 		const gap = 24 * 3_600_000;
 		vi.setSystemTime(time + gap);
 		const storage = memoryStorage({ [SAVE_KEY]: text });
 		const game = startGame(env(storage));
 		stop = game.stop;
 		game.save();
-		expect(savedTime(storage)).toBe(time + gap);
+		const saved = savedState(storage);
+		expect(saved.time).toBe(time + gap);
+		// Only the loaded save carries these (a new game has none).
+		expect(saved.run.buildings).toEqual(fixture.run.buildings);
+		expect(saved.unlocked).toEqual(expect.arrayContaining(fixture.unlocked));
 	});
 });
 

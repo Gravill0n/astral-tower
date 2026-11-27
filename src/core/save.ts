@@ -14,7 +14,7 @@ const MAX_ERROR_LENGTH = 300;
 
 export type LoadResult =
 	| { ok: true; state: State }
-	| { ok: false; error: string };
+	| { ok: false; error: string; newer?: true }; // newer: keep it, never overwrite
 
 const names = (list: string[]) => z.enum(list as [string, ...string[]]);
 const Resource = names(balance.resources.map((r) => r.resource));
@@ -123,7 +123,11 @@ export const loadSave = (text: string, migrations = MIGRATIONS): LoadResult => {
 	}
 	const version = (raw as { version?: unknown } | null)?.version;
 	if (typeof version === "number" && version > SAVE_VERSION) {
-		return { ok: false, error: "Save is from a newer version of the game" };
+		return {
+			ok: false,
+			error: "Save is from a newer version of the game",
+			newer: true,
+		};
 	}
 	try {
 		raw = migrate(raw, migrations);

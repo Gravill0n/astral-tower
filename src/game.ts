@@ -54,11 +54,15 @@ const browserEnv = (): Env => ({
 	win: window,
 });
 
-const read = (storage: Env["storage"], key: string): string | null => {
+// undefined: storage threw, so a value may exist that we cannot see.
+const read = (
+	storage: Env["storage"],
+	key: string,
+): string | null | undefined => {
 	try {
-		return storage?.getItem(key) ?? null;
+		return storage ? storage.getItem(key) : null;
 	} catch {
-		return null;
+		return undefined;
 	}
 };
 
@@ -72,9 +76,16 @@ const write = (storage: Env["storage"], key: string, text: () => string) => {
 	}
 };
 
-const loadPrefs = (raw: string | null): Prefs => {
+// The first backup keeps the plain key; later ones get a timestamp, none is lost.
+const backup = (storage: Env["storage"], raw: string, at: number) => {
+	const key =
+		read(storage, BROKEN_KEY) === null ? BROKEN_KEY : `${BROKEN_KEY}:${at}`;
+	return write(storage, key, () => raw);
+};
+
+const loadPrefs = (raw: string | null | undefined): Prefs => {
 	try {
-		return PrefsSchema.parse(raw === null ? {} : JSON.parse(raw));
+		return PrefsSchema.parse(raw == null ? {} : JSON.parse(raw));
 	} catch {
 		return PrefsSchema.parse({}); // not JSON
 	}
@@ -83,12 +94,15 @@ const loadPrefs = (raw: string | null): Prefs => {
 export const startGame = (env: Env = browserEnv()): Game => {
 	const { storage, now, doc, win } = env;
 	const raw = read(storage, SAVE_KEY);
-	const loaded = raw === null ? null : loadSave(raw);
-	// An unreadable save is copied aside first; if that fails, never overwrite it.
+	const loaded = raw == null ? null : loadSave(raw);
+	// Never overwrite a save we could not read (storage threw) or one from a
+	// newer version (M11: tell the player to update). An unreadable save is
+	// copied aside first; if that fails, never overwrite it either.
 	const canSave =
-		loaded === null ||
-		loaded.ok ||
-		write(storage, BROKEN_KEY, () => raw as string);
+		raw !== undefined &&
+		(loaded === null ||
+			loaded.ok ||
+			(!loaded.newer && backup(storage, raw as string, now())));
 	const state = loaded?.ok ? loaded.state : newGame(now());
 	step(state, now()); // offline catch-up: the same ticks as an open tab
 

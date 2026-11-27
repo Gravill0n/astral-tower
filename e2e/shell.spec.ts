@@ -294,3 +294,64 @@ test("settings credits the assets", async ({ page }) => {
 	await expect(credits).toContainText("SIL Open Font License 1.1");
 	await noSideScroll(page);
 });
+
+// GDD 12.3 Clock strip and Coming up, 3.5: from the sheet's Clock rows.
+test("overview clock strip and coming up follow the clock", async ({
+	page,
+}, info) => {
+	const desktop = info.project.name === "desktop";
+	const effect = (p: (typeof balance.clock)[number]) =>
+		`${p.bonus}: ${p.appliesTo} +${n(p.value * 100)}%`;
+	const [, , third, fourth] = balance.clock;
+	await page.clock.install({ time: t0 });
+	await page.goto("/");
+
+	const strip = page.getByRole("region", { name: "Constellation clock" });
+	const phases = strip.getByRole("listitem");
+	await expect(phases).toHaveCount(balance.clock.length);
+	await expect(phases).toContainText(
+		balance.clock.map((p) =>
+			desktop ? p.constellation : p.constellation.replace(/^The /, ""),
+		),
+	);
+	const now = strip.locator('li[aria-current="true"]');
+	await expect(now).toHaveCount(1);
+	await expect(now).toContainText(first.constellation.replace(/^The /, ""));
+	await expect(strip).toContainText(`${first.constellation} · 0:03 left`);
+	await expect(strip).toContainText(effect(first));
+	await expect(strip).toContainText(`Next: ${second.constellation}`);
+	// The top bar shows the same phase and time left.
+	const bar = page
+		.getByRole("banner")
+		.getByRole("group", { name: "Constellation" })
+		.filter({ visible: true });
+	await expect(bar).toContainText(first.constellation);
+	await expect(bar).toContainText("0:03");
+
+	const panel = page.getByRole("complementary", { name: "Coming up" });
+	const events = panel.getByRole("listitem");
+	await expect(events).toHaveCount(3);
+	await expect(events).toContainText([
+		`0:03${second.constellation}${effect(second)}`,
+		third.constellation,
+		fourth.constellation,
+	]);
+	const len = (second.ends - second.starts) * 60;
+	await expect(events.nth(1)).toContainText(formatDuration(len + 3));
+
+	await page.clock.runFor(2000);
+	await expect(events.first()).toContainText("0:01");
+	await page.clock.runFor(2000);
+	await expect(now).toContainText(second.constellation.replace(/^The /, ""));
+	await expect(events.first()).toContainText(
+		`${formatDuration(len - 1)}${third.constellation}`,
+	);
+
+	// Right panel beside the main column at desktop, below it on mobile.
+	const main = await strip.boundingBox();
+	const side = await panel.boundingBox();
+	if (!main || !side) throw new Error("no layout");
+	if (desktop) expect(side.x).toBeGreaterThanOrEqual(main.x + main.width);
+	else expect(side.y).toBeGreaterThanOrEqual(main.y + main.height);
+	await noSideScroll(page);
+});

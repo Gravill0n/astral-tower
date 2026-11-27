@@ -261,7 +261,7 @@ export const Shell = () => (
 		<TopBar />
 		<div className="shell-body">
 			<Sidebar />
-			{/* ponytail: right panel arrives with the first screen that fills it */}
+			{/* Right panels belong to their screen (see .panel in theme.css). */}
 			<main className="screen">
 				<Outlet />
 			</main>

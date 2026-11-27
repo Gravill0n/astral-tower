@@ -141,4 +141,16 @@ describe("upcoming (gdd 12.3 Coming up)", () => {
 		for (const x of next) expect(phaseAt(x.at)).toBe(x.phase);
 		expect(next[1].at - next[0].at).toBe((first.ends - first.starts) * MIN);
 	});
+
+	it("gives shellView the seconds until each, the first being the time left", () => {
+		const s = newGame(hour + last.starts * MIN + 30_000);
+		const v = shellView(s);
+		expect(v.comingUp).toEqual(
+			upcoming(s, 3).map((x) => ({
+				phase: x.phase,
+				inS: (x.at - s.time) / 1000,
+			})),
+		);
+		expect(v.comingUp[0].inS).toBe(v.clock.leftS);
+	});
 });

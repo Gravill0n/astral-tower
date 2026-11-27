@@ -9,6 +9,7 @@ import {
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { startGame } from "./game.ts";
+import { Overview } from "./ui/Overview.tsx";
 import { Settings } from "./ui/Settings.tsx";
 import { GameStore, Placeholder, SCREENS, Shell } from "./ui/Shell.tsx";
 import "./ui/theme.css";
@@ -34,7 +35,9 @@ const routeTree = rootRoute.addChildren(
 			getParentRoute: () => rootRoute,
 			path: screen.path,
 			component: () =>
-				screen.screen === "settings" ? (
+				screen.screen === "overview" ? (
+					<Overview />
+				) : screen.screen === "settings" ? (
 					<Settings setPrefs={game.setPrefs} />
 				) : (
 					<Placeholder screen={screen} />

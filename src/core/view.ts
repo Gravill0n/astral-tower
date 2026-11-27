@@ -45,6 +45,7 @@ const gates = Object.entries(GATES).map(([module, building]) => {
 const space = new Map(balance.buildings.map((b) => [b.building, b.space]));
 const startSpace = balance.globals["Starting floor space"].value;
 const cycleMs = balance.globals["Clock cycle"].value * 60_000;
+const COMING_UP = 3; // phase changes listed on the Overview, a layout choice
 
 // Unlocked modules are open, the first locked one shows its condition, later
 // ones stay hidden. Supernova opens with the Library (GDD 2).
@@ -99,6 +100,11 @@ export const shellView = (state: State) => {
 		// ponytail: one floor until M4 floors.
 		space: { used, total: startSpace, floors: 1 },
 		clock: { phase, leftS: left, next: phaseAt(state.time + left * 1000) },
+		// Overview Coming up (GDD 12.3): phase changes only until later events exist.
+		comingUp: upcoming(state, COMING_UP).map((u) => ({
+			phase: u.phase,
+			inS: (u.at - state.time) / 1000,
+		})),
 		nav: nav(state),
 	};
 };

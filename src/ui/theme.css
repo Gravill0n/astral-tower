@@ -306,6 +306,101 @@ a:hover {
 	color: var(--muted);
 }
 
+/* Overview (GDD 12.3): main column plus a right panel, stacked on mobile. */
+.overview {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 320px;
+	align-items: start;
+	gap: 16px;
+}
+
+.overview-main {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.strip {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+/* .screen p mutes paragraphs; the current phase line stays bright. */
+.screen .strip-now {
+	font: 600 20px var(--font-heading);
+	color: var(--teal);
+	font-variant-numeric: tabular-nums;
+}
+
+.phases {
+	display: grid;
+	/* Six across when there is room, else 3×2 or 2×3: names never break. */
+	grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+	gap: 8px;
+	margin: 8px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.phases li {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 8px 10px;
+	border-radius: 12px;
+	border: 1px solid var(--line);
+	color: var(--muted);
+}
+
+/* The current phase: a thicker frame and bold text, not colour alone. */
+.phases li[aria-current] {
+	border: 2px solid var(--teal);
+	padding: 7px 9px;
+	color: var(--text);
+	background: color-mix(in srgb, var(--teal) 14%, transparent);
+}
+
+.phases small {
+	font-size: 12px;
+}
+
+/* Narrow desktops (sidebar shown): the right panel drops below the strip. */
+@media (max-width: 1099.98px) {
+	.overview {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.panel h2 {
+	margin-bottom: 12px;
+}
+
+.coming-up {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.coming-up li {
+	display: flex;
+	gap: 12px;
+}
+
+.coming-up small {
+	display: block;
+}
+
+.when {
+	min-width: 3.5em;
+	font-weight: 800;
+	color: var(--gold);
+	font-variant-numeric: tabular-nums;
+}
+
 /* Settings (GDD 12.5). */
 .settings {
 	display: flex;
@@ -485,6 +580,26 @@ a:hover {
 
 	.screen {
 		padding: 16px;
+	}
+
+	.phases {
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+		gap: 4px;
+	}
+
+	.phases li {
+		padding: 6px 4px;
+		text-align: center;
+		font-size: 12px;
+	}
+
+	.phases li[aria-current] {
+		padding: 5px 3px;
+	}
+
+	.phases .long,
+	.phases small {
+		display: none;
 	}
 }
 
